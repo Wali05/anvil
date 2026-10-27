@@ -29,7 +29,8 @@
     "seal:eval2": "tsx scripts/seal-eval2.ts",
     "seal:check": "tsx scripts/seal-eval2.ts --check",
     "build:static": "tsx scripts/build-static.ts",
-    "live": "tsx scripts/live-pilot.ts"
+    "live": "tsx scripts/live-pilot.ts",
+    "prepare": "node scripts/build-server.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.20.2",
@@ -55,6 +56,14 @@
     "vitest": "^3.2.4"
   },
   "bin": {
-    "anvil": "dist/cli.js"
-  }
+    "anvil": "dist/cli.js",
+    "anvil-mcp": "bin/anvil-mcp.mjs"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "scripts/build-server.mjs",
+    "README.md",
+    "LICENSE"
+  ]
 }
