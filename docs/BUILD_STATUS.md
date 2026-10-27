@@ -56,7 +56,7 @@ Caveats: synthetic fixtures; small n (15 tasks, 1–3 attempts); most eval v2 ta
 
 ## Current state
 
-The local end-to-end application is implemented and verified: two fixture domains, three interface conditions, independent state checks, executable adapters, persistence, dashboard, exports, and official-SDK MCP servers. The recorded replay site is deployed at https://anvil-two-opal.vercel.app (read-only, no model calls). The repo is not pushed and not installed in Alan.
+The local end-to-end application is implemented and verified: two fixture domains, three interface conditions, independent state checks, executable adapters, persistence, dashboard, exports, and official-SDK MCP servers. The recorded replay site is deployed at https://anvil-two-opal.vercel.app (read-only, no model calls). The repo is public at https://github.com/Wali05/anvil; Anvil is not yet installed in Alan.
 
 Live evidence exists from a local open model (`qwen2.5:7b` via Ollama) on eval v1 and from three hosted open models on eval v2 (above). Both are small pilots on synthetic fixtures, not a benchmark and not a claim of uplift. Scripted simulations are labeled and excluded from live summaries.
 
@@ -110,7 +110,7 @@ Optional live configuration is explicit: run the local Ollama server yourself, t
 | `npm run e2e` | **2/2 Playwright flows pass** at 1440px and 390px, including simulation, drill-down, adapter error, export, MCP handshake, keyboard access, narrow layout. |
 | `node dist/cli.js check-mcp` | Handshake success; server `anvil-workbench` 0.1.0; 8 tools. |
 | Live pilot | 78 matched attempts across four full-split runs, plus one 3-attempt smoke run. See below. |
-| Deploy/push | Replay site deployed (27 Oct); not pushed. |
+| Deploy/push | Replay site deployed (27 Oct) at https://anvil-two-opal.vercel.app; pushed to https://github.com/Wali05/anvil (public). |
 
 ### Test coverage highlights
 
@@ -211,4 +211,4 @@ Screenshots are in `docs/screenshots/`. The first seven were produced by the Pla
 5. `npm run smoke:mcp` to re-verify exported adapter execution in a separate process.
 6. Read `README.md`, `docs/RESEARCH_NOTES.md` and this file before publishing anything.
 
-Apart from the replay site, no GitHub push, marketplace submission or social posting was performed.
+The replay site is deployed and the repo is pushed to GitHub. No marketplace submission or social posting was performed.
