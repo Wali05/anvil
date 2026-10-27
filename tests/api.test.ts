@@ -185,6 +185,58 @@ describe('HTTP API', () => {
     expect(reset.body.source).toBe('default');
   });
 
+  it('blocks exporting a run when the saved adapter has since changed', async () => {
+    const interfaces = await request<{ adapter: { spec: { description: string } } }>('/api/interfaces?domain=calendar');
+    const originalSpec = interfaces.body.adapter.spec;
+    await request('/api/adapters', {
+      method: 'POST',
+      body: JSON.stringify({ domain: 'calendar', adapter: originalSpec }),
+    });
+
+    const started = await request<{ run: { id: string } }>('/api/runs', {
+      method: 'POST',
+      body: JSON.stringify({
+        mode: 'simulation',
+        domain: 'calendar',
+        split: 'dev',
+        taskIds: ['cal-dev-create-basic'],
+        trialsPerTask: 1,
+        adapterSource: 'saved',
+      }),
+    });
+    expect(started.status).toBe(201);
+    const id = started.body.run.id;
+
+    let status: string | undefined;
+    for (let attempt = 0; attempt < 200; attempt += 1) {
+      const response = await request<{ run: { status: string } }>(`/api/runs/${id}`);
+      status = response.body.run.status;
+      if (status !== 'running') break;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    expect(status).toBe('completed');
+
+    // Exporting right away still matches the adapter the run used.
+    const freshExport = await request(`/api/runs/${id}/export`);
+    expect(freshExport.status).toBe(200);
+
+    // Saving a different adapter for the domain changes what getSavedAdapter() returns,
+    // but the run's own provenance.adapterHash still points at the one it actually used.
+    const changedSpec = { ...originalSpec, description: `${originalSpec.description} (edited after the run)` };
+    await request('/api/adapters', {
+      method: 'POST',
+      body: JSON.stringify({ domain: 'calendar', adapter: changedSpec }),
+    });
+
+    const blocked = await request<{ ok: boolean; code: string }>(`/api/runs/${id}/export`);
+    expect(blocked.status).toBe(409);
+    expect(blocked.body.ok).toBe(false);
+    expect(blocked.body.code).toBe('adapter_mismatch');
+
+    const reset = await request<{ source: string }>('/api/adapters/calendar', { method: 'DELETE' });
+    expect(reset.body.source).toBe('default');
+  });
+
   it('returns a JSON 404 for an unknown run', async () => {
     const response = await request<{ code: string }>('/api/runs/run_missing');
     expect(response.status).toBe(404);

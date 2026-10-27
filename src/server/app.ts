@@ -459,7 +459,16 @@ export function createApp(deps: AppDeps): Express {
       const run = deps.store.getRun(String(req.params.id));
       if (!run) throw new AnvilError('run_not_found', 'Run not found.', 404);
       const saved = await deps.store.getSavedAdapter(run.config.domain);
-      const source = run.provenance.adapterSource === 'saved' && saved ? 'saved' : 'default';
+      const source = run.provenance.adapterSource === 'saved' ? 'saved' : 'default';
+      const candidate = source === 'saved' ? saved?.spec ?? null : getDefaultAdapter(run.config.domain) ?? null;
+      const candidateHash = candidate ? hashJson(candidate) : null;
+      if (run.provenance.adapterHash !== null && candidateHash !== run.provenance.adapterHash) {
+        throw new AnvilError(
+          'adapter_mismatch',
+          `The ${source} adapter for ${run.config.domain} no longer matches the adapter this run used (adapterHash ${run.provenance.adapterHash}). Exporting now would silently bundle a different adapter, so this export is blocked.`,
+          409,
+        );
+      }
       const bundle = bundleFor(run.config.domain, source, saved?.spec ?? null, deps.rootDir, run);
       const content = `${JSON.stringify(
         {
