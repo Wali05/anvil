@@ -48,8 +48,8 @@ export function Integration({ model }: { model: ModelStatus | null }) {
         <p className="mono eyebrow">Real status, no placeholders presented as live</p>
         <h2 className="view-title">Integration</h2>
         <p className="lede">
-          Anvil ships a genuine MCP executor and workbench interface. Local stdio works with local MCP clients. Alan currently requires a
-          remote HTTPS MCP server according to its public contribution guide, so the Alan path is prepared but not installed or deployed.
+          Anvil ships a genuine MCP executor and workbench interface over local stdio. Alan desktop runs custom stdio MCP connectors, so
+          the adapted tools can be added to Alan with an npx command. There is no hosted HTTPS endpoint.
         </p>
       </div>
 
@@ -143,8 +143,8 @@ export function Integration({ model }: { model: ModelStatus | null }) {
                 <span className="chip chip-sim">Not installed</span>
               </div>
               <p>
-                The repository includes a plugin manifest, `mcp.json`, marketplace entry and a workbench skill. These files are prepared for a
-                future public HTTPS deployment. A file on disk is not an installed integration.
+                The repository includes a plugin manifest, `mcp.json`, marketplace entry and a workbench skill. `mcp.json` launches the stdio
+                adapter server with npx. A file on disk is not an installed integration.
               </p>
               <dl className="meta-grid compact-grid">
                 <div>
@@ -160,21 +160,25 @@ export function Integration({ model }: { model: ModelStatus | null }) {
                   <dd>no</dd>
                 </div>
                 <div>
-                  <dt>Remote URL</dt>
-                  <dd className="mono tiny">not deployed</dd>
+                  <dt>Transport</dt>
+                  <dd className="mono">stdio (custom connector)</dd>
                 </div>
                 <div>
-                  <dt>Required transport</dt>
-                  <dd className="mono">{info.deployment.requiredTransport}</dd>
+                  <dt>Hosted endpoint</dt>
+                  <dd className="mono tiny">none</dd>
                 </div>
               </dl>
               <div className="pending-remote">
-                <span className="mono tiny">Deployment placeholder — not live</span>
-                <code className="mono">{info.deployment.placeholderUrl}</code>
-                <p className="small">{info.deployment.note}</p>
+                <span className="mono tiny">Alan desktop · custom connector · macOS / Linux</span>
+                <code className="mono">Command: npx · Args: -y -p github:Wali05/anvil anvil-mcp --domain calendar</code>
+                <span className="mono tiny">Windows</span>
+                <code className="mono">Command: cmd · Args: /c npx -y -p github:Wali05/anvil anvil-mcp --domain calendar</code>
+                <p className="small">
+                  Add a second connector with <code>--domain issues</code> for the issue tracker. The <code>github:</code> package spec resolves once the
+                  repository is public; until then, point the command at a local checkout (<code>node bin/anvil-mcp.mjs --domain calendar</code>).
+                </p>
               </div>
-              <p className="small muted">{info.local.alanDesktopStatus}</p>
-              <p className="small muted">{info.plugin.note}</p>
+              <p className="small muted">A run of these tools inside Alan has not been recorded yet.</p>
               {info.plugin.manifest ? (
                 <details>
                   <summary className="mono small">Plugin manifest</summary>
@@ -230,10 +234,10 @@ export function Integration({ model }: { model: ModelStatus | null }) {
               </div>
               <ul className="limit-list">
                 <li>Fixture execution is real; compatibility with production Google Calendar or GitHub APIs is not claimed.</li>
-                <li>No public deployment, no installed Alan plugin and no real-user adoption exist yet.</li>
+                <li>No hosted MCP endpoint, no recorded run inside Alan and no real-user adoption exist yet.</li>
                 <li>Simulation results are rehearsals. Live uplift remains unmeasured until a sanctioned model run is recorded.</li>
                 <li>Protocol interoperability is verified only by the MCP handshake and tool calls run from this checkout.</li>
-                <li>Remote HTTPS proxying may require credentials held by Alan; Anvil does not attempt to extract them.</li>
+                <li>Proxying Alan's own OAuth-backed connectors may require credentials held by Alan; Anvil does not attempt to extract them.</li>
               </ul>
             </section>
           </div>

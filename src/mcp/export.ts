@@ -87,13 +87,15 @@ export function adapterBundle(input: AdapterBundleInput): Record<string, unknown
     mcpConfig,
     mcpConfigNotes: [
       'Replace <ANVIL_CLI_OR_CHECKOUT> with this checkout path and <PATH_TO_THIS_BUNDLE_JSON> with the exported bundle file.',
-      'Alan\'s public contribution guide (checked 26 October 2026) currently requires remote HTTPS MCP servers; this local stdio command is for local MCP clients and is not an installed Alan integration.',
+      'Alan desktop runs custom stdio MCP connectors: add one with Command `npx` and args `-y -p github:Wali05/anvil anvil-mcp --domain <domain>` (Windows: Command `cmd`, args `/c npx -y -p github:Wali05/anvil anvil-mcp --domain <domain>`). For an exported bundle, use the local command below with `--adapter file`.',
       `Ready local command in this checkout: node "${cliPath}" mcp --domain ${domain.id} --adapter ${input.adapterSource === 'saved' ? 'saved' : 'default'}`,
-      'A future public deployment must expose an HTTPS MCP endpoint; none exists yet.',
+      'The MCP server is local stdio only; there is no hosted HTTPS endpoint.',
     ],
     alanStatus: {
       installed: false,
-      transportSupportedByPublicGuide: 'https',
+      transport: 'stdio',
+      customConnector: { command: 'npx', args: ['-y', '-p', 'github:Wali05/anvil', 'anvil-mcp', '--domain', domain.id] },
+      customConnectorWindows: { command: 'cmd', args: ['/c', 'npx', '-y', '-p', 'github:Wali05/anvil', 'anvil-mcp', '--domain', domain.id] },
       remoteUrl: null,
       pluginPackage: 'plugins/anvil',
       note: 'A plugin file is included in the repository. File presence is not installation.',
