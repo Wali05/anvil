@@ -299,8 +299,9 @@ export function App() {
         {IS_REPLAY ? (
           <div className="shell-alerts">
             <Banner tone="info" title="Recorded replay">
-              Every live result here was recorded locally with an open model (the exact model id is on each run) and is shown
-              exactly as stored. Runs labelled simulation used a scripted policy and are not model evidence. Nothing on this
+              Every live result here was recorded with an open model, either local Ollama or hosted OpenAI-compatible
+              endpoints (DeepSeek V4.1 Flash, and NVIDIA-hosted Nemotron and gpt-oss-20b); the exact model id and endpoint are on
+              each run. Results are shown exactly as stored. Runs labelled simulation used a scripted policy and are not model evidence. Nothing on this
               page calls a model; adapter validation and mapping previews run in your browser. To run experiments, clone the
               repository and start Anvil locally.
             </Banner>
