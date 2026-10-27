@@ -1,6 +1,6 @@
 # Anvil build status and handoff
 
-Last updated: 2026-10-26 (local build pass)
+Last updated: 2026-10-27 (eval v2 live runs)
 
 ## 27 Oct 2026 update (pass 2)
 
@@ -10,23 +10,60 @@ Changes in this pass:
 - **anvil.adapter/v2:** an adapted tool may declare one *read-only* lookup: exactly one original search call, exact (trimmed, case-insensitive) equality filters, optional `localTime` HH:MM filter, then exactly one target call with the matched id bound in. Zero or several matches return the candidates to the model and write nothing. Both calls are logged and counted; the runner reserves 2 before calling. v1 adapters are unchanged and still valid.
 - **Calendar adapter 2.0.0** (v2): `update_event`, `move_event` (keeps the matched event's own duration) and `cancel_event` take title + date (+ optional start_time) instead of a model-supplied id. Motivated by the dev-split failures (guessed `evt_1001` on cancel/update, wrong reschedule ends). The issue adapter is unchanged.
 - **Eval v1 is now "seen":** its failures were inspected on 27 Oct, so the old `eval` split is labelled "eval v1 (seen)" everywhere. Its results are kept, unedited.
-- **Sealed eval v2:** 15 new tasks (9 calendar, 6 issues), split `eval2`, ≥ half from families not in dev, with same-title/same-day and prefix-title distractors (new December fixtures that no earlier task reads). `docs/evidence/eval-v2-manifest.json` records hashes of the task files, fixtures and frozen adapters; `npm run seal:check` verifies them. **No model has been run on eval v2 yet.** Known bias: most eval v2 tasks target an existing record by title and day, which is what the v2 lookup addresses; report per family.
+- **Sealed eval v2:** 15 new tasks (9 calendar, 6 issues), split `eval2`, ≥ half from families not in dev, with same-title/same-day and prefix-title distractors (new December fixtures that no earlier task reads). `docs/evidence/eval-v2-manifest.json` records hashes of the task files, fixtures and frozen adapters; `npm run seal:check` verifies them. Live results are in the eval v2 section below. Known bias: most eval v2 tasks target an existing record by title and day, which is what the v2 lookup addresses; report per family.
 - **Recorded replay site:** `npm run build:static` → `dist-static/`, a read-only dashboard over the committed runs in `docs/evidence/runs/` (raw run JSON, now committed). Adapter validation and previews run in the page; nothing can call a model. `vercel.json` builds it. Not deployed.
 - MCP adapter server logs the lookup step and shows candidates on ambiguity; adapted tools inherit the target's permissions/destructive hints.
 
 Verification in this pass (Linux workspace, Node 22): typecheck pass; **106/106 tests** (15 new lookup tests + runner budget test + eval v2 shape test); production build pass; `check:sim` all rehearsals pass including eval v2 (27 calendar + 18 issue trials, all conditions); `seal:check` intact; `smoke:mcp` pass including lookup cancel (2 calls) and ambiguous refusal (1 call, no write); Playwright 2/2 with bundled Chromium; replay site checked at 1440 px and 390 px with no console errors or horizontal overflow. `smoke:api` passes except "local Ollama model listing", which needs Ollama (not present in that workspace).
 
-Still to do: live qwen2.5:7b runs on dev (sanity check of v2) and then eval v2 once per condition; deployment of the replay site; README.
+Still to do: deployment of the replay site; README.
+
+## Eval v2 live results (27 Oct 2026)
+
+Sealed split `eval2` (15 tasks: 9 calendar, 6 issues), seal verified with `npm run seal:check` before and after the runs. Three hosted open models through OpenAI-compatible endpoints, temperature 0, default budgets (8 turns, 6 tool calls, 180 s per trial). Raw run JSON is committed in `docs/evidence/runs/`; nothing was hand-entered.
+
+| Model | Attempts per task | Original | Descriptions | Adapted |
+| --- | --- | --- | --- | --- |
+| `deepseek-v4.1-flash:free` | 1 | 13/15 | 15/15 | 15/15 |
+| `deepseek-v4.1-flash:free` | 3 | 43/45 | 45/45 | 45/45 |
+| `nvidia/nemotron-3-ultra-550b-a55b` | 1 | 15/15 | 15/15 | 15/15 |
+| `openai/gpt-oss-20b` | 3 | 20/45 | 34/45 | 43/45 |
+
+gpt-oss-20b per domain (3 attempts): calendar 7/27 → 19/27 → 27/27; issues 13/18 → 15/18 → 16/18. Wilson 95% (descriptive only): original 30.9–58.8%, descriptions 61.3–85.8%, adapted 85.2–98.8%. Outcome mix: original 20 pass / 4 fail / 21 invalid (mostly the 8-turn limit), descriptions 34 / 0 / 11, adapted 43 / 0 / 2.
+
+Paired by task (gpt-oss-20b, original → adapted): 11 of 15 tasks improve, including `cal-e2-cancel-disambiguate` 0/3 → 3/3, `cal-e2-move-across-days` 0/3 → 3/3, `cal-e2-update-prefix-distractor` 0/3 → 3/3, `cal-e2-cancel-if-present` 0/3 → 3/3 (descriptions also 0/3) and `iss-e2-query-closed` 1/3 → 3/3. One regression against descriptions: `iss-e2-query-priority-label` original 0/3, descriptions 2/2, adapted 1/3 — both adapted misses are the model emitting a corrupted tool name (`search_issues<|channel|>commentary`) from turn 2 and looping to the turn limit, not a wrong adapter mapping.
+
+DeepSeek's only losses are `iss-e2-comment-closed` and `iss-e2-query-closed` in the original condition (2/3 each; tool budget exhausted, one after an "Unsupported state" error). Nemotron is at ceiling and does not separate the conditions.
+
+Typical original-condition failure (gpt-oss-20b, `iss-e2-query-priority-label`, 3/3 attempts): `limit: 100` is rejected (max 50), the retry uses an unsupported query dialect (`status:open priority:P2 label:bug`), the search returns nothing, and the model confidently answers `{"issue_numbers": []}` instead of `[7, 9, 12, 22]`. State is unchanged, so only the answer-contract check catches it.
+
+Caveats: synthetic fixtures; small n (15 tasks, 1–3 attempts); most eval v2 tasks target a record by title and day, which is what the v2 lookup addresses; the two strong models are at or near ceiling, so the uplift shows up mainly on the smaller model.
+
+| Run | Model | Domain | Attempts per task |
+| --- | --- | --- | --- |
+| `run_20261027081656_ab95fdb2` | deepseek flash | calendar | 1 |
+| `run_20261027081656_0905b9bc` | deepseek flash | issues | 1 |
+| `run_20261027082332_97568a63` | deepseek flash | calendar | 3 |
+| `run_20261027082332_a2f545fa` | deepseek flash | issues | 3 |
+| `run_20261027081656_d48b7039` | nemotron-3-ultra | calendar | 1 |
+| `run_20261027081656_ec60a4a0` | nemotron-3-ultra | issues | 1 |
+| `run_20261027082332_5a5306c4` | gpt-oss-20b | calendar | 1 |
+| `run_20261027082332_3a0fc5e8` | gpt-oss-20b | issues | 1 |
+| `run_20261027082848_b6d79f11` | gpt-oss-20b | issues | 2 |
+| `run_20261027082848_172a5188` | gpt-oss-20b | calendar (3 tasks) | 2 |
+| `run_20261027082848_2b997537` | gpt-oss-20b | calendar (3 tasks) | 2 |
+| `run_20261027082848_e709e75d` | gpt-oss-20b | calendar (3 tasks) | 2 |
 
 ## Current state
 
 The local end-to-end application is implemented and verified: two fixture domains, three interface conditions, independent state checks, executable adapters, persistence, dashboard, exports, and official-SDK MCP servers. It is **not deployed, not pushed, and not installed in Alan**. There is no public URL.
 
-Live evidence exists from a local open model (`qwen2.5:7b` via Ollama). It is a small pilot on synthetic fixtures, not a benchmark and not a claim of uplift. Scripted simulations are labeled and excluded from live summaries.
+Live evidence exists from a local open model (`qwen2.5:7b` via Ollama) on eval v1 and from three hosted open models on eval v2 (above). Both are small pilots on synthetic fixtures, not a benchmark and not a claim of uplift. Scripted simulations are labeled and excluded from live summaries.
 
 ## Experiment environment
 
 - Live experiment model: local Ollama `qwen2.5:7b`; the provider response reported the same model id. Endpoint `http://127.0.0.1:11434/v1`. Temperature 0.
+- Eval v2 models: `deepseek-v4.1-flash:free`, `nvidia/nemotron-3-ultra-550b-a55b` and `openai/gpt-oss-20b` via OpenAI-compatible endpoints; the provider-reported model id is recorded per trial.
 - No proprietary/frontier model was invoked for experiments. No credentials were read from a credential store, and no API key is persisted.
 - Platform: Windows, PowerShell; Node v24.21.0; npm 10.8.2. The project is plain Node/TypeScript and is not tied to PowerShell.
 
