@@ -1,0 +1,96 @@
+{
+  "schema": "anvil.eval-seal/v1",
+  "sealedAt": "2026-10-27T07:47:51.102Z",
+  "note": "Written before any model run on eval v2. Task files, fixtures and default adapters must not change after this point; run `npm run seal:check` to verify.",
+  "taskSetVersions": {
+    "calendar": "calendar-2026.10.2",
+    "issues": "issues-2026.10.3"
+  },
+  "files": {
+    "src/domains/calendar/tasks-eval2.ts": "64a13b3c8556a43834e31eb3ba95340593c129b1e9d4fddd65fe73b2a002280e",
+    "src/domains/issues/tasks-eval2.ts": "7a59ef60cf4442b72e87d9027b5ba95de855e861addad5b10ce62fbd9d88cb5e",
+    "src/domains/calendar/state.ts": "73e3224964edd3991e376c696690a460a0a0cec99216860eea6c33702966b6d0",
+    "src/domains/issues/state.ts": "441060cd8fb88ca6c569e0282405c0c686f49a1ef94dd48bc3400402ae8f7e7d"
+  },
+  "adapters": {
+    "calendar": "ac09d2804239f35ca5608716e5fdb2bb2632f988c2ff525b46a84e8075ff18b8",
+    "issues": "f7d2ba7447705294c9b1c4cd8ce7dacaa3ea31c19b2616e7bb149b70c9f302bf"
+  },
+  "tasks": [
+    {
+      "id": "cal-e2-cancel-disambiguate",
+      "domain": "calendar",
+      "family": "cancel_disambiguate"
+    },
+    {
+      "id": "cal-e2-move-implicit-duration",
+      "domain": "calendar",
+      "family": "reschedule_implicit_duration"
+    },
+    {
+      "id": "cal-e2-move-across-days",
+      "domain": "calendar",
+      "family": "move_across_days"
+    },
+    {
+      "id": "cal-e2-update-prefix-distractor",
+      "domain": "calendar",
+      "family": "update_field"
+    },
+    {
+      "id": "cal-e2-rename",
+      "domain": "calendar",
+      "family": "rename"
+    },
+    {
+      "id": "cal-e2-replace-attendees",
+      "domain": "calendar",
+      "family": "update_attendees"
+    },
+    {
+      "id": "cal-e2-create-follow-up",
+      "domain": "calendar",
+      "family": "create_with_attendees"
+    },
+    {
+      "id": "cal-e2-query-same-title-day",
+      "domain": "calendar",
+      "family": "query"
+    },
+    {
+      "id": "cal-e2-cancel-if-present",
+      "domain": "calendar",
+      "family": "no_op_missing"
+    },
+    {
+      "id": "iss-e2-close-wontfix-similar",
+      "domain": "issues",
+      "family": "close"
+    },
+    {
+      "id": "iss-e2-reassign",
+      "domain": "issues",
+      "family": "reassign"
+    },
+    {
+      "id": "iss-e2-raise-priority-distractor",
+      "domain": "issues",
+      "family": "update_fields"
+    },
+    {
+      "id": "iss-e2-query-closed",
+      "domain": "issues",
+      "family": "query_closed"
+    },
+    {
+      "id": "iss-e2-query-priority-label",
+      "domain": "issues",
+      "family": "query_priority_label"
+    },
+    {
+      "id": "iss-e2-comment-closed",
+      "domain": "issues",
+      "family": "comment_on_closed"
+    }
+  ]
+}

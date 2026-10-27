@@ -1,0 +1,3467 @@
+{
+  "schema": "anvil.local-evidence/v1",
+  "generatedAt": "2026-10-26T13:02:25.255Z",
+  "note": "Derived from persisted local runs. Scripted simulations are excluded. This is a small synthetic pilot on one open model, not a benchmark or an uplift claim.",
+  "model": {
+    "requested": "qwen2.5:7b",
+    "reported": "qwen2.5:7b",
+    "provider": "ollama",
+    "baseUrl": "http://127.0.0.1:11434/v1"
+  },
+  "livePilotRunIds": [
+    "run_20261026122448_dc46693b",
+    "run_20261026124307_8a6d3f1e",
+    "run_20261026124211_7c55fba9",
+    "run_20261026124521_e966783c"
+  ],
+  "smokeRunIds": [
+    "run_20261026122406_1e5da12f"
+  ],
+  "totalMatchedAttempts": 78,
+  "supersededRuns": [
+    {
+      "id": "run_20261026122645_9154ab19",
+      "reason": "Task set issues-2026.10.1 had a wrong example answer in iss-dev-query-label; superseded by issues-2026.10.2 and excluded."
+    }
+  ],
+  "runs": [
+    {
+      "id": "run_20261026122448_dc46693b",
+      "domain": "calendar",
+      "split": "dev",
+      "mode": "live",
+      "status": "completed",
+      "taskSetVersion": "calendar-2026.10.1",
+      "createdAt": "2026-10-26T12:24:48.564Z",
+      "finishedAt": "2026-10-26T12:26:32.681Z",
+      "evidenceClass": "live-model",
+      "modelIdentity": {
+        "requested": "qwen2.5:7b",
+        "reported": "qwen2.5:7b",
+        "provider": "ollama",
+        "baseUrl": "http://127.0.0.1:11434/v1",
+        "responseId": "chatcmpl-276"
+      },
+      "interfaceHashes": {
+        "original": "d7e7965c27e466169369cac4c8ab02f10c6a368c57ec3a438916a7ecb8f71ffa",
+        "descriptions": "e863e6792f9c9c653393bd647fc90329310c4508c80be964d620ff3c41f9dfc0",
+        "adapted": "1a7e03b9725882418d945825957bbd46ee84e74632ed972b5fd8dede2a9f887d"
+      },
+      "adapterHash": "b5e7a910573b6c292b9939289139904fa663f61e188da15d5b43d050912d9453",
+      "attempts": 21,
+      "summary": {
+        "mode": "live",
+        "liveEligible": true,
+        "byCondition": {
+          "original": {
+            "attempts": 7,
+            "pass": 5,
+            "fail": 2,
+            "invalid": 0,
+            "error": 0,
+            "canceled": 0,
+            "passRate": 0.7142857142857143,
+            "decisivePassRate": 0.7142857142857143,
+            "wilson95": [
+              0.35893445183261935,
+              0.9177810759959434
+            ],
+            "underlyingToolCalls": 15,
+            "totalTokens": 28904
+          },
+          "descriptions": {
+            "attempts": 7,
+            "pass": 3,
+            "fail": 4,
+            "invalid": 0,
+            "error": 0,
+            "canceled": 0,
+            "passRate": 0.42857142857142855,
+            "decisivePassRate": 0.42857142857142855,
+            "wilson95": [
+              0.15821985525146973,
+              0.7495416354723429
+            ],
+            "underlyingToolCalls": 10,
+            "totalTokens": 28090
+          },
+          "adapted": {
+            "attempts": 7,
+            "pass": 3,
+            "fail": 4,
+            "invalid": 0,
+            "error": 0,
+            "canceled": 0,
+            "passRate": 0.42857142857142855,
+            "decisivePassRate": 0.42857142857142855,
+            "wilson95": [
+              0.15821985525146973,
+              0.7495416354723429
+            ],
+            "underlyingToolCalls": 11,
+            "totalTokens": 19562
+          }
+        },
+        "paired": [
+          {
+            "taskId": "cal-dev-create-basic",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          },
+          {
+            "taskId": "cal-dev-create-attendees",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          },
+          {
+            "taskId": "cal-dev-reschedule",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 0,
+              "descriptions": 0,
+              "adapted": 0
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          },
+          {
+            "taskId": "cal-dev-cancel",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 1,
+              "descriptions": 0,
+              "adapted": 0
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          },
+          {
+            "taskId": "cal-dev-query-day",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          },
+          {
+            "taskId": "cal-dev-update-location",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 1,
+              "descriptions": 0,
+              "adapted": 0
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          },
+          {
+            "taskId": "cal-dev-avoid-duplicate",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 0,
+              "descriptions": 0,
+              "adapted": 0
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          }
+        ],
+        "notes": [
+          "Live model evidence. Counts are descriptive; a small pilot does not establish statistical superiority.",
+          "The provider reported no cost, so cost is unknown rather than zero."
+        ],
+        "computedAt": "2026-10-26T12:26:32.681Z"
+      },
+      "trials": [
+        {
+          "taskId": "cal-dev-create-basic",
+          "condition": "original",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "created-one-event",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "created-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "existing-events-preserved",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "no-extra-events",
+              "ok": true,
+              "kind": "hygiene"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2438,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-dev-create-basic",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "created-one-event",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "created-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "existing-events-preserved",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "no-extra-events",
+              "ok": true,
+              "kind": "hygiene"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 3145,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-dev-create-basic",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "created-one-event",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "created-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "existing-events-preserved",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "no-extra-events",
+              "ok": true,
+              "kind": "hygiene"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2018,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-dev-create-attendees",
+          "condition": "original",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "created-one-event",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "created-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "existing-events-preserved",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "no-extra-events",
+              "ok": true,
+              "kind": "hygiene"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2521,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-dev-create-attendees",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "created-one-event",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "created-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "existing-events-preserved",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "no-extra-events",
+              "ok": true,
+              "kind": "hygiene"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 3362,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-dev-create-attendees",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "created-one-event",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "created-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "existing-events-preserved",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "no-extra-events",
+              "ok": true,
+              "kind": "hygiene"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2147,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-dev-reschedule",
+          "condition": "original",
+          "trial": 1,
+          "status": "fail",
+          "statusReason": "1 independent check(s) failed.",
+          "checks": [
+            {
+              "id": "target-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": false,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 4,
+          "underlyingToolCalls": 4,
+          "tokens": 7093,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-dev-reschedule",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "fail",
+          "statusReason": "1 independent check(s) failed.",
+          "checks": [
+            {
+              "id": "target-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": false,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 2,
+          "underlyingToolCalls": 2,
+          "tokens": 5125,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-dev-reschedule",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "fail",
+          "statusReason": "1 independent check(s) failed.",
+          "checks": [
+            {
+              "id": "target-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": false,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 3,
+          "underlyingToolCalls": 3,
+          "tokens": 4780,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-dev-cancel",
+          "condition": "original",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "target-removed",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "only-target-removed",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "survivors-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 2,
+          "underlyingToolCalls": 2,
+          "tokens": 3541,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-dev-cancel",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "fail",
+          "statusReason": "2 independent check(s) failed.",
+          "checks": [
+            {
+              "id": "target-removed",
+              "ok": false,
+              "kind": "intent"
+            },
+            {
+              "id": "only-target-removed",
+              "ok": false,
+              "kind": "preservation"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "survivors-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2772,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-dev-cancel",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "fail",
+          "statusReason": "2 independent check(s) failed.",
+          "checks": [
+            {
+              "id": "target-removed",
+              "ok": false,
+              "kind": "intent"
+            },
+            {
+              "id": "only-target-removed",
+              "ok": false,
+              "kind": "preservation"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "survivors-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 1773,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-dev-query-day",
+          "condition": "original",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "state-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "event-ids-contract",
+              "ok": true,
+              "kind": "contract"
+            }
+          ],
+          "toolCalls": 2,
+          "underlyingToolCalls": 2,
+          "tokens": 3766,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-dev-query-day",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "state-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "event-ids-contract",
+              "ok": true,
+              "kind": "contract"
+            }
+          ],
+          "toolCalls": 2,
+          "underlyingToolCalls": 2,
+          "tokens": 5409,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-dev-query-day",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "state-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "event-ids-contract",
+              "ok": true,
+              "kind": "contract"
+            }
+          ],
+          "toolCalls": 2,
+          "underlyingToolCalls": 2,
+          "tokens": 3266,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-dev-update-location",
+          "condition": "original",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "target-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 3,
+          "underlyingToolCalls": 3,
+          "tokens": 5518,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-dev-update-location",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "fail",
+          "statusReason": "2 independent check(s) failed.",
+          "checks": [
+            {
+              "id": "target-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": false,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": false,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 3086,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-dev-update-location",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "fail",
+          "statusReason": "2 independent check(s) failed.",
+          "checks": [
+            {
+              "id": "target-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": false,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": false,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2130,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-dev-avoid-duplicate",
+          "condition": "original",
+          "trial": 1,
+          "status": "fail",
+          "statusReason": "2 independent check(s) failed.",
+          "checks": [
+            {
+              "id": "state-unchanged",
+              "ok": false,
+              "kind": "preservation"
+            },
+            {
+              "id": "event-ids-contract",
+              "ok": false,
+              "kind": "contract"
+            }
+          ],
+          "toolCalls": 2,
+          "underlyingToolCalls": 2,
+          "tokens": 4027,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-dev-avoid-duplicate",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "fail",
+          "statusReason": "2 independent check(s) failed.",
+          "checks": [
+            {
+              "id": "state-unchanged",
+              "ok": false,
+              "kind": "preservation"
+            },
+            {
+              "id": "event-ids-contract",
+              "ok": false,
+              "kind": "contract"
+            }
+          ],
+          "toolCalls": 2,
+          "underlyingToolCalls": 2,
+          "tokens": 5191,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-dev-avoid-duplicate",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "fail",
+          "statusReason": "2 independent check(s) failed.",
+          "checks": [
+            {
+              "id": "state-unchanged",
+              "ok": false,
+              "kind": "preservation"
+            },
+            {
+              "id": "event-ids-contract",
+              "ok": false,
+              "kind": "contract"
+            }
+          ],
+          "toolCalls": 2,
+          "underlyingToolCalls": 2,
+          "tokens": 3448,
+          "providerReportedCostUsd": null
+        }
+      ]
+    },
+    {
+      "id": "run_20261026124307_8a6d3f1e",
+      "domain": "calendar",
+      "split": "eval",
+      "mode": "live",
+      "status": "completed",
+      "taskSetVersion": "calendar-2026.10.1",
+      "createdAt": "2026-10-26T12:43:07.131Z",
+      "finishedAt": "2026-10-26T12:45:11.223Z",
+      "evidenceClass": "live-model",
+      "modelIdentity": {
+        "requested": "qwen2.5:7b",
+        "reported": "qwen2.5:7b",
+        "provider": "ollama",
+        "baseUrl": "http://127.0.0.1:11434/v1",
+        "responseId": "chatcmpl-428"
+      },
+      "interfaceHashes": {
+        "original": "d7e7965c27e466169369cac4c8ab02f10c6a368c57ec3a438916a7ecb8f71ffa",
+        "descriptions": "e863e6792f9c9c653393bd647fc90329310c4508c80be964d620ff3c41f9dfc0",
+        "adapted": "1a7e03b9725882418d945825957bbd46ee84e74632ed972b5fd8dede2a9f887d"
+      },
+      "adapterHash": "b5e7a910573b6c292b9939289139904fa663f61e188da15d5b43d050912d9453",
+      "attempts": 21,
+      "summary": {
+        "mode": "live",
+        "liveEligible": true,
+        "byCondition": {
+          "original": {
+            "attempts": 7,
+            "pass": 4,
+            "fail": 3,
+            "invalid": 0,
+            "error": 0,
+            "canceled": 0,
+            "passRate": 0.5714285714285714,
+            "decisivePassRate": 0.5714285714285714,
+            "wilson95": [
+              0.2504583645276572,
+              0.8417801447485304
+            ],
+            "underlyingToolCalls": 15,
+            "totalTokens": 31976
+          },
+          "descriptions": {
+            "attempts": 7,
+            "pass": 3,
+            "fail": 4,
+            "invalid": 0,
+            "error": 0,
+            "canceled": 0,
+            "passRate": 0.42857142857142855,
+            "decisivePassRate": 0.42857142857142855,
+            "wilson95": [
+              0.15821985525146973,
+              0.7495416354723429
+            ],
+            "underlyingToolCalls": 15,
+            "totalTokens": 40710
+          },
+          "adapted": {
+            "attempts": 7,
+            "pass": 5,
+            "fail": 2,
+            "invalid": 0,
+            "error": 0,
+            "canceled": 0,
+            "passRate": 0.7142857142857143,
+            "decisivePassRate": 0.7142857142857143,
+            "wilson95": [
+              0.35893445183261935,
+              0.9177810759959434
+            ],
+            "underlyingToolCalls": 14,
+            "totalTokens": 24749
+          }
+        },
+        "paired": [
+          {
+            "taskId": "cal-eval-create",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 0,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          },
+          {
+            "taskId": "cal-eval-create-partner",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          },
+          {
+            "taskId": "cal-eval-reschedule",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 1,
+              "descriptions": 0,
+              "adapted": 1
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          },
+          {
+            "taskId": "cal-eval-cancel",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 1,
+              "descriptions": 0,
+              "adapted": 0
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          },
+          {
+            "taskId": "cal-eval-query-range",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 0,
+              "descriptions": 0,
+              "adapted": 1
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          },
+          {
+            "taskId": "cal-eval-query-attendee",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          },
+          {
+            "taskId": "cal-eval-availability",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 0,
+              "descriptions": 0,
+              "adapted": 0
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          }
+        ],
+        "notes": [
+          "Live model evidence. Counts are descriptive; a small pilot does not establish statistical superiority.",
+          "The provider reported no cost, so cost is unknown rather than zero."
+        ],
+        "computedAt": "2026-10-26T12:45:11.223Z"
+      },
+      "trials": [
+        {
+          "taskId": "cal-eval-create",
+          "condition": "original",
+          "trial": 1,
+          "status": "fail",
+          "statusReason": "1 independent check(s) failed.",
+          "checks": [
+            {
+              "id": "created-one-event",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "created-fields",
+              "ok": false,
+              "kind": "intent"
+            },
+            {
+              "id": "existing-events-preserved",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "no-extra-events",
+              "ok": true,
+              "kind": "hygiene"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2478,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-eval-create",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "created-one-event",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "created-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "existing-events-preserved",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "no-extra-events",
+              "ok": true,
+              "kind": "hygiene"
+            }
+          ],
+          "toolCalls": 2,
+          "underlyingToolCalls": 2,
+          "tokens": 5152,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-eval-create",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "created-one-event",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "created-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "existing-events-preserved",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "no-extra-events",
+              "ok": true,
+              "kind": "hygiene"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2095,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-eval-create-partner",
+          "condition": "original",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "created-one-event",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "created-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "existing-events-preserved",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "no-extra-events",
+              "ok": true,
+              "kind": "hygiene"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2499,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-eval-create-partner",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "created-one-event",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "created-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "existing-events-preserved",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "no-extra-events",
+              "ok": true,
+              "kind": "hygiene"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 3276,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-eval-create-partner",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "created-one-event",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "created-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "existing-events-preserved",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "no-extra-events",
+              "ok": true,
+              "kind": "hygiene"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2138,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-eval-reschedule",
+          "condition": "original",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "target-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 3,
+          "underlyingToolCalls": 3,
+          "tokens": 5504,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-eval-reschedule",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "fail",
+          "statusReason": "2 independent check(s) failed.",
+          "checks": [
+            {
+              "id": "target-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": false,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": false,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 2,
+          "underlyingToolCalls": 2,
+          "tokens": 5226,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-eval-reschedule",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "target-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 3,
+          "underlyingToolCalls": 3,
+          "tokens": 4643,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-eval-cancel",
+          "condition": "original",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "target-removed",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "only-target-removed",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "survivors-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 3,
+          "underlyingToolCalls": 3,
+          "tokens": 5259,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-eval-cancel",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "fail",
+          "statusReason": "2 independent check(s) failed.",
+          "checks": [
+            {
+              "id": "target-removed",
+              "ok": false,
+              "kind": "intent"
+            },
+            {
+              "id": "only-target-removed",
+              "ok": false,
+              "kind": "preservation"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "survivors-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 2,
+          "underlyingToolCalls": 2,
+          "tokens": 5137,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-eval-cancel",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "fail",
+          "statusReason": "2 independent check(s) failed.",
+          "checks": [
+            {
+              "id": "target-removed",
+              "ok": false,
+              "kind": "intent"
+            },
+            {
+              "id": "only-target-removed",
+              "ok": false,
+              "kind": "preservation"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "survivors-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 1808,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-eval-query-range",
+          "condition": "original",
+          "trial": 1,
+          "status": "fail",
+          "statusReason": "1 independent check(s) failed.",
+          "checks": [
+            {
+              "id": "state-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "event-ids-contract",
+              "ok": false,
+              "kind": "contract"
+            }
+          ],
+          "toolCalls": 3,
+          "underlyingToolCalls": 3,
+          "tokens": 8435,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-eval-query-range",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "fail",
+          "statusReason": "1 independent check(s) failed.",
+          "checks": [
+            {
+              "id": "state-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "event-ids-contract",
+              "ok": false,
+              "kind": "contract"
+            }
+          ],
+          "toolCalls": 3,
+          "underlyingToolCalls": 3,
+          "tokens": 9436,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-eval-query-range",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "state-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "event-ids-contract",
+              "ok": true,
+              "kind": "contract"
+            }
+          ],
+          "toolCalls": 3,
+          "underlyingToolCalls": 3,
+          "tokens": 6038,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-eval-query-attendee",
+          "condition": "original",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "state-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "event-ids-contract",
+              "ok": true,
+              "kind": "contract"
+            }
+          ],
+          "toolCalls": 2,
+          "underlyingToolCalls": 2,
+          "tokens": 3812,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-eval-query-attendee",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "state-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "event-ids-contract",
+              "ok": true,
+              "kind": "contract"
+            }
+          ],
+          "toolCalls": 3,
+          "underlyingToolCalls": 3,
+          "tokens": 7369,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-eval-query-attendee",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "state-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "event-ids-contract",
+              "ok": true,
+              "kind": "contract"
+            }
+          ],
+          "toolCalls": 2,
+          "underlyingToolCalls": 2,
+          "tokens": 3312,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-eval-availability",
+          "condition": "original",
+          "trial": 1,
+          "status": "fail",
+          "statusReason": "2 independent check(s) failed.",
+          "checks": [
+            {
+              "id": "state-unchanged",
+              "ok": false,
+              "kind": "preservation"
+            },
+            {
+              "id": "event-ids-contract",
+              "ok": false,
+              "kind": "contract"
+            }
+          ],
+          "toolCalls": 2,
+          "underlyingToolCalls": 2,
+          "tokens": 3989,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-eval-availability",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "fail",
+          "statusReason": "2 independent check(s) failed.",
+          "checks": [
+            {
+              "id": "state-unchanged",
+              "ok": false,
+              "kind": "preservation"
+            },
+            {
+              "id": "event-ids-contract",
+              "ok": false,
+              "kind": "contract"
+            }
+          ],
+          "toolCalls": 2,
+          "underlyingToolCalls": 2,
+          "tokens": 5114,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-eval-availability",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "fail",
+          "statusReason": "2 independent check(s) failed.",
+          "checks": [
+            {
+              "id": "state-unchanged",
+              "ok": false,
+              "kind": "preservation"
+            },
+            {
+              "id": "event-ids-contract",
+              "ok": false,
+              "kind": "contract"
+            }
+          ],
+          "toolCalls": 3,
+          "underlyingToolCalls": 3,
+          "tokens": 4715,
+          "providerReportedCostUsd": null
+        }
+      ]
+    },
+    {
+      "id": "run_20261026124211_7c55fba9",
+      "domain": "issues",
+      "split": "dev",
+      "mode": "live",
+      "status": "completed",
+      "taskSetVersion": "issues-2026.10.2",
+      "createdAt": "2026-10-26T12:42:11.999Z",
+      "finishedAt": "2026-10-26T12:42:57.956Z",
+      "evidenceClass": "live-model",
+      "modelIdentity": {
+        "requested": "qwen2.5:7b",
+        "reported": "qwen2.5:7b",
+        "provider": "ollama",
+        "baseUrl": "http://127.0.0.1:11434/v1",
+        "responseId": "chatcmpl-94"
+      },
+      "interfaceHashes": {
+        "original": "a58c7d3fc7da428c42a9d45b210746c5f0f257bfbac1a8232e3b6f1d8122ab32",
+        "descriptions": "85bc3c4423efa2ad7fbd80da4a23609844a23df7cd2cf2e64c1e59e27f54d403",
+        "adapted": "e5dd76668a1cdc1d825d17240e00cda7564c34bb8d8b3b432c4f0dc5b62449c3"
+      },
+      "adapterHash": "f7d2ba7447705294c9b1c4cd8ce7dacaa3ea31c19b2616e7bb149b70c9f302bf",
+      "attempts": 18,
+      "summary": {
+        "mode": "live",
+        "liveEligible": true,
+        "byCondition": {
+          "original": {
+            "attempts": 6,
+            "pass": 5,
+            "fail": 1,
+            "invalid": 0,
+            "error": 0,
+            "canceled": 0,
+            "passRate": 0.8333333333333334,
+            "decisivePassRate": 0.8333333333333334,
+            "wilson95": [
+              0.4364971778135299,
+              0.9699466302516934
+            ],
+            "underlyingToolCalls": 7,
+            "totalTokens": 11680
+          },
+          "descriptions": {
+            "attempts": 6,
+            "pass": 5,
+            "fail": 1,
+            "invalid": 0,
+            "error": 0,
+            "canceled": 0,
+            "passRate": 0.8333333333333334,
+            "decisivePassRate": 0.8333333333333334,
+            "wilson95": [
+              0.4364971778135299,
+              0.9699466302516934
+            ],
+            "underlyingToolCalls": 9,
+            "totalTokens": 21465
+          },
+          "adapted": {
+            "attempts": 6,
+            "pass": 6,
+            "fail": 0,
+            "invalid": 0,
+            "error": 0,
+            "canceled": 0,
+            "passRate": 1,
+            "decisivePassRate": 1,
+            "wilson95": [
+              0.6096657120978346,
+              1
+            ],
+            "underlyingToolCalls": 8,
+            "totalTokens": 17597
+          }
+        },
+        "paired": [
+          {
+            "taskId": "iss-dev-create",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 1,
+              "descriptions": 0,
+              "adapted": 1
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          },
+          {
+            "taskId": "iss-dev-update-priority",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          },
+          {
+            "taskId": "iss-dev-close",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          },
+          {
+            "taskId": "iss-dev-query-label",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 0,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          },
+          {
+            "taskId": "iss-dev-assign-milestone",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          },
+          {
+            "taskId": "iss-dev-comment",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          }
+        ],
+        "notes": [
+          "Live model evidence. Counts are descriptive; a small pilot does not establish statistical superiority.",
+          "Only 18 live attempt(s) were recorded. Treat differences as provisional, not a benchmark result.",
+          "The provider reported no cost, so cost is unknown rather than zero."
+        ],
+        "computedAt": "2026-10-26T12:42:57.956Z"
+      },
+      "trials": [
+        {
+          "taskId": "iss-dev-create",
+          "condition": "original",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "created-one-issue",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "created-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "existing-issues-preserved",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "issue-count",
+              "ok": true,
+              "kind": "hygiene"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 1863,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-dev-create",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "fail",
+          "statusReason": "1 independent check(s) failed.",
+          "checks": [
+            {
+              "id": "created-one-issue",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "created-fields",
+              "ok": false,
+              "kind": "intent"
+            },
+            {
+              "id": "existing-issues-preserved",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "issue-count",
+              "ok": true,
+              "kind": "hygiene"
+            }
+          ],
+          "toolCalls": 2,
+          "underlyingToolCalls": 2,
+          "tokens": 4161,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-dev-create",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "created-one-issue",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "created-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "existing-issues-preserved",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "issue-count",
+              "ok": true,
+              "kind": "hygiene"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2443,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-dev-update-priority",
+          "condition": "original",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "target-issue-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 1799,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-dev-update-priority",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "target-issue-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2646,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-dev-update-priority",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "target-issue-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2423,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-dev-close",
+          "condition": "original",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "target-issue-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 1814,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-dev-close",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "target-issue-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2586,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-dev-close",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "target-issue-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2424,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-dev-query-label",
+          "condition": "original",
+          "trial": 1,
+          "status": "fail",
+          "statusReason": "1 independent check(s) failed.",
+          "checks": [
+            {
+              "id": "state-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "issue-numbers-contract",
+              "ok": false,
+              "kind": "contract"
+            }
+          ],
+          "toolCalls": 2,
+          "underlyingToolCalls": 2,
+          "tokens": 2648,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-dev-query-label",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "state-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "issue-numbers-contract",
+              "ok": true,
+              "kind": "contract"
+            }
+          ],
+          "toolCalls": 3,
+          "underlyingToolCalls": 3,
+          "tokens": 7082,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-dev-query-label",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "state-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "issue-numbers-contract",
+              "ok": true,
+              "kind": "contract"
+            }
+          ],
+          "toolCalls": 3,
+          "underlyingToolCalls": 3,
+          "tokens": 5548,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-dev-assign-milestone",
+          "condition": "original",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "target-issue-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 1817,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-dev-assign-milestone",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "target-issue-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2499,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-dev-assign-milestone",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "target-issue-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2441,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-dev-comment",
+          "condition": "original",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "comment-appended",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "comment-only-change",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "no-issue-churn",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 1739,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-dev-comment",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "comment-appended",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "comment-only-change",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "no-issue-churn",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2491,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-dev-comment",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "comment-appended",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "comment-only-change",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "no-issue-churn",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2318,
+          "providerReportedCostUsd": null
+        }
+      ]
+    },
+    {
+      "id": "run_20261026124521_e966783c",
+      "domain": "issues",
+      "split": "eval",
+      "mode": "live",
+      "status": "completed",
+      "taskSetVersion": "issues-2026.10.2",
+      "createdAt": "2026-10-26T12:45:21.609Z",
+      "finishedAt": "2026-10-26T12:46:25.883Z",
+      "evidenceClass": "live-model",
+      "modelIdentity": {
+        "requested": "qwen2.5:7b",
+        "reported": "qwen2.5:7b",
+        "provider": "ollama",
+        "baseUrl": "http://127.0.0.1:11434/v1",
+        "responseId": "chatcmpl-308"
+      },
+      "interfaceHashes": {
+        "original": "a58c7d3fc7da428c42a9d45b210746c5f0f257bfbac1a8232e3b6f1d8122ab32",
+        "descriptions": "85bc3c4423efa2ad7fbd80da4a23609844a23df7cd2cf2e64c1e59e27f54d403",
+        "adapted": "e5dd76668a1cdc1d825d17240e00cda7564c34bb8d8b3b432c4f0dc5b62449c3"
+      },
+      "adapterHash": "f7d2ba7447705294c9b1c4cd8ce7dacaa3ea31c19b2616e7bb149b70c9f302bf",
+      "attempts": 18,
+      "summary": {
+        "mode": "live",
+        "liveEligible": true,
+        "byCondition": {
+          "original": {
+            "attempts": 6,
+            "pass": 3,
+            "fail": 2,
+            "invalid": 1,
+            "error": 0,
+            "canceled": 0,
+            "passRate": 0.5,
+            "decisivePassRate": 0.6,
+            "wilson95": [
+              0.1876163064826506,
+              0.8123836935173494
+            ],
+            "underlyingToolCalls": 13,
+            "totalTokens": 19088
+          },
+          "descriptions": {
+            "attempts": 6,
+            "pass": 5,
+            "fail": 1,
+            "invalid": 0,
+            "error": 0,
+            "canceled": 0,
+            "passRate": 0.8333333333333334,
+            "decisivePassRate": 0.8333333333333334,
+            "wilson95": [
+              0.4364971778135299,
+              0.9699466302516934
+            ],
+            "underlyingToolCalls": 8,
+            "totalTokens": 18238
+          },
+          "adapted": {
+            "attempts": 6,
+            "pass": 6,
+            "fail": 0,
+            "invalid": 0,
+            "error": 0,
+            "canceled": 0,
+            "passRate": 1,
+            "decisivePassRate": 1,
+            "wilson95": [
+              0.6096657120978346,
+              1
+            ],
+            "underlyingToolCalls": 8,
+            "totalTokens": 17478
+          }
+        },
+        "paired": [
+          {
+            "taskId": "iss-eval-create",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 1,
+              "descriptions": 0,
+              "adapted": 1
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          },
+          {
+            "taskId": "iss-eval-close-distractor",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 0,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          },
+          {
+            "taskId": "iss-eval-query",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 0,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          },
+          {
+            "taskId": "iss-eval-relabel",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          },
+          {
+            "taskId": "iss-eval-milestone-priority",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          },
+          {
+            "taskId": "iss-eval-reopen",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 0,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "decisive": {
+              "original": 0,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": false
+          }
+        ],
+        "notes": [
+          "Live model evidence. Counts are descriptive; a small pilot does not establish statistical superiority.",
+          "Only 18 live attempt(s) were recorded. Treat differences as provisional, not a benchmark result.",
+          "The provider reported no cost, so cost is unknown rather than zero.",
+          "1 attempt(s) were invalid (budget or malformed output) and are excluded from decisive rates."
+        ],
+        "computedAt": "2026-10-26T12:46:25.883Z"
+      },
+      "trials": [
+        {
+          "taskId": "iss-eval-create",
+          "condition": "original",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "created-one-issue",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "created-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "existing-issues-preserved",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "issue-count",
+              "ok": true,
+              "kind": "hygiene"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 1946,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-eval-create",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "fail",
+          "statusReason": "1 independent check(s) failed.",
+          "checks": [
+            {
+              "id": "created-one-issue",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "created-fields",
+              "ok": false,
+              "kind": "intent"
+            },
+            {
+              "id": "existing-issues-preserved",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "issue-count",
+              "ok": true,
+              "kind": "hygiene"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2637,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-eval-create",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "created-one-issue",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "created-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "existing-issues-preserved",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "issue-count",
+              "ok": true,
+              "kind": "hygiene"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2534,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-eval-close-distractor",
+          "condition": "original",
+          "trial": 1,
+          "status": "fail",
+          "statusReason": "1 independent check(s) failed.",
+          "checks": [
+            {
+              "id": "target-issue-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": false,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 1830,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-eval-close-distractor",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "target-issue-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2536,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-eval-close-distractor",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "target-issue-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2529,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-eval-query",
+          "condition": "original",
+          "trial": 1,
+          "status": "fail",
+          "statusReason": "1 independent check(s) failed.",
+          "checks": [
+            {
+              "id": "state-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "issue-numbers-contract",
+              "ok": false,
+              "kind": "contract"
+            }
+          ],
+          "toolCalls": 2,
+          "underlyingToolCalls": 2,
+          "tokens": 2711,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-eval-query",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "state-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "issue-numbers-contract",
+              "ok": true,
+              "kind": "contract"
+            }
+          ],
+          "toolCalls": 2,
+          "underlyingToolCalls": 2,
+          "tokens": 4145,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-eval-query",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "state-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "issue-numbers-contract",
+              "ok": true,
+              "kind": "contract"
+            }
+          ],
+          "toolCalls": 3,
+          "underlyingToolCalls": 3,
+          "tokens": 5262,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-eval-relabel",
+          "condition": "original",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "target-issue-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 1839,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-eval-relabel",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "target-issue-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2521,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-eval-relabel",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "target-issue-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2356,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-eval-milestone-priority",
+          "condition": "original",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "target-issue-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 2,
+          "underlyingToolCalls": 2,
+          "tokens": 3019,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-eval-milestone-priority",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "target-issue-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2601,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-eval-milestone-priority",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "target-issue-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2430,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-eval-reopen",
+          "condition": "original",
+          "trial": 1,
+          "status": "invalid",
+          "statusReason": "Underlying tool-call budget exhausted before calling issues_update.",
+          "checks": [
+            {
+              "id": "target-issue-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": false,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 6,
+          "underlyingToolCalls": 6,
+          "tokens": 7743,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-eval-reopen",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "target-issue-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 2,
+          "underlyingToolCalls": 2,
+          "tokens": 3798,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "iss-eval-reopen",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "target-issue-present",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "target-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "no-additions",
+              "ok": true,
+              "kind": "hygiene"
+            },
+            {
+              "id": "no-removals",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "unrelated-unchanged",
+              "ok": true,
+              "kind": "preservation"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2367,
+          "providerReportedCostUsd": null
+        }
+      ]
+    },
+    {
+      "id": "run_20261026122406_1e5da12f",
+      "domain": "calendar",
+      "split": "dev",
+      "mode": "live",
+      "status": "completed",
+      "taskSetVersion": "calendar-2026.10.1",
+      "createdAt": "2026-10-26T12:24:06.613Z",
+      "finishedAt": "2026-10-26T12:24:31.404Z",
+      "evidenceClass": "live-model",
+      "modelIdentity": {
+        "requested": "qwen2.5:7b",
+        "reported": "qwen2.5:7b",
+        "provider": "ollama",
+        "baseUrl": "http://127.0.0.1:11434/v1",
+        "responseId": "chatcmpl-460"
+      },
+      "interfaceHashes": {
+        "original": "d7e7965c27e466169369cac4c8ab02f10c6a368c57ec3a438916a7ecb8f71ffa",
+        "descriptions": "e863e6792f9c9c653393bd647fc90329310c4508c80be964d620ff3c41f9dfc0",
+        "adapted": "1a7e03b9725882418d945825957bbd46ee84e74632ed972b5fd8dede2a9f887d"
+      },
+      "adapterHash": "b5e7a910573b6c292b9939289139904fa663f61e188da15d5b43d050912d9453",
+      "attempts": 3,
+      "summary": {
+        "mode": "live",
+        "liveEligible": true,
+        "byCondition": {
+          "original": {
+            "attempts": 1,
+            "pass": 1,
+            "fail": 0,
+            "invalid": 0,
+            "error": 0,
+            "canceled": 0,
+            "passRate": 1,
+            "decisivePassRate": 1,
+            "wilson95": null,
+            "underlyingToolCalls": 1,
+            "totalTokens": 2438
+          },
+          "descriptions": {
+            "attempts": 1,
+            "pass": 1,
+            "fail": 0,
+            "invalid": 0,
+            "error": 0,
+            "canceled": 0,
+            "passRate": 1,
+            "decisivePassRate": 1,
+            "wilson95": null,
+            "underlyingToolCalls": 1,
+            "totalTokens": 3145
+          },
+          "adapted": {
+            "attempts": 1,
+            "pass": 1,
+            "fail": 0,
+            "invalid": 0,
+            "error": 0,
+            "canceled": 0,
+            "passRate": 1,
+            "decisivePassRate": 1,
+            "wilson95": null,
+            "underlyingToolCalls": 1,
+            "totalTokens": 2018
+          }
+        },
+        "paired": [
+          {
+            "taskId": "cal-dev-create-basic",
+            "trialsPerCondition": 1,
+            "pass": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "decisive": {
+              "original": 1,
+              "descriptions": 1,
+              "adapted": 1
+            },
+            "comparable": true
+          }
+        ],
+        "notes": [
+          "Live model evidence. Counts are descriptive; a small pilot does not establish statistical superiority.",
+          "Only 3 live attempt(s) were recorded. Treat differences as provisional, not a benchmark result.",
+          "The provider reported no cost, so cost is unknown rather than zero."
+        ],
+        "computedAt": "2026-10-26T12:24:31.404Z"
+      },
+      "trials": [
+        {
+          "taskId": "cal-dev-create-basic",
+          "condition": "original",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "created-one-event",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "created-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "existing-events-preserved",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "no-extra-events",
+              "ok": true,
+              "kind": "hygiene"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2438,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-dev-create-basic",
+          "condition": "descriptions",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "created-one-event",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "created-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "existing-events-preserved",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "no-extra-events",
+              "ok": true,
+              "kind": "hygiene"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 3145,
+          "providerReportedCostUsd": null
+        },
+        {
+          "taskId": "cal-dev-create-basic",
+          "condition": "adapted",
+          "trial": 1,
+          "status": "pass",
+          "statusReason": null,
+          "checks": [
+            {
+              "id": "created-one-event",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "created-fields",
+              "ok": true,
+              "kind": "intent"
+            },
+            {
+              "id": "existing-events-preserved",
+              "ok": true,
+              "kind": "preservation"
+            },
+            {
+              "id": "no-extra-events",
+              "ok": true,
+              "kind": "hygiene"
+            }
+          ],
+          "toolCalls": 1,
+          "underlyingToolCalls": 1,
+          "tokens": 2018,
+          "providerReportedCostUsd": null
+        }
+      ]
+    }
+  ]
+}

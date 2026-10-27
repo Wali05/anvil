@@ -1,0 +1,1997 @@
+{
+  "id": "run_20261026122406_1e5da12f",
+  "mode": "live",
+  "status": "completed",
+  "createdAt": "2026-10-26T12:24:06.613Z",
+  "startedAt": "2026-10-26T12:24:06.616Z",
+  "finishedAt": "2026-10-26T12:24:31.404Z",
+  "config": {
+    "mode": "live",
+    "domain": "calendar",
+    "split": "dev",
+    "taskIds": [
+      "cal-dev-create-basic"
+    ],
+    "conditions": [
+      "original",
+      "descriptions",
+      "adapted"
+    ],
+    "trialsPerTask": 1,
+    "model": {
+      "provider": "ollama",
+      "baseUrl": "http://127.0.0.1:11434/v1",
+      "model": "qwen2.5:7b",
+      "temperature": 0,
+      "maxTokensPerCompletion": 900
+    },
+    "budget": {
+      "maxTurnsPerTrial": 8,
+      "maxUnderlyingToolCallsPerTrial": 6,
+      "maxUnderlyingToolCallsTotal": 120,
+      "maxTotalTokens": 250000,
+      "maxWallClockMsPerTrial": 180000,
+      "countPolicy": "count-all-attempts"
+    },
+    "adapterSource": "default"
+  },
+  "taskIds": [
+    "cal-dev-create-basic"
+  ],
+  "provenance": {
+    "appVersion": "0.1.0",
+    "taskSetVersion": "calendar-2026.10.1",
+    "interfaceHashes": {
+      "original": "d7e7965c27e466169369cac4c8ab02f10c6a368c57ec3a438916a7ecb8f71ffa",
+      "descriptions": "e863e6792f9c9c653393bd647fc90329310c4508c80be964d620ff3c41f9dfc0",
+      "adapted": "1a7e03b9725882418d945825957bbd46ee84e74632ed972b5fd8dede2a9f887d"
+    },
+    "adapterHash": "b5e7a910573b6c292b9939289139904fa663f61e188da15d5b43d050912d9453",
+    "adapterSource": "default",
+    "evidenceClass": "live-model",
+    "startedBy": "cli",
+    "modelIdentity": {
+      "requested": "qwen2.5:7b",
+      "reported": "qwen2.5:7b",
+      "provider": "ollama",
+      "baseUrl": "http://127.0.0.1:11434/v1",
+      "responseId": "chatcmpl-460"
+    },
+    "providerReportedCostAvailable": false
+  },
+  "trials": [
+    {
+      "id": "trial_f3f8da33-405",
+      "runId": "run_20261026122406_1e5da12f",
+      "taskId": "cal-dev-create-basic",
+      "taskTitle": "Create a basic event",
+      "family": "create",
+      "domain": "calendar",
+      "condition": "original",
+      "trial": 1,
+      "mode": "live",
+      "status": "pass",
+      "statusReason": null,
+      "startedAt": "2026-10-26T12:24:06.621Z",
+      "finishedAt": "2026-10-26T12:24:23.681Z",
+      "durationMs": 17060,
+      "model": {
+        "requested": "qwen2.5:7b",
+        "reported": "qwen2.5:7b",
+        "provider": "ollama",
+        "baseUrl": "http://127.0.0.1:11434/v1",
+        "responseId": "chatcmpl-460"
+      },
+      "interfaceHash": "d7e7965c27e466169369cac4c8ab02f10c6a368c57ec3a438916a7ecb8f71ffa",
+      "adapterHash": null,
+      "usage": {
+        "promptTokens": 2176,
+        "completionTokens": 262,
+        "totalTokens": 2438,
+        "underlyingToolCalls": 1,
+        "providerReportedCostUsd": null
+      },
+      "turns": [
+        {
+          "turn": 1,
+          "startedAt": "2026-10-26T12:24:06.621Z",
+          "latencyMs": 14590,
+          "finishReason": "tool_calls",
+          "content": "",
+          "toolCalls": [
+            {
+              "id": "call_bijkes52",
+              "name": "calendar_create_event",
+              "argumentsRaw": "{\"calendar_id\":\"primary\",\"event\":{\"attendees\":[],\"end\":{\"dateTime\":\"2026-11-03T16:15:00+05:30\",\"timeZone\":\"Asia/Kolkata\"},\"location\":\"\",\"start\":{\"dateTime\":\"2026-11-03T15:30:00+05:30\",\"timeZone\":\"Asia/Kolkata\"},\"summary\":\"Design review follow-up\"}}"
+            }
+          ],
+          "usage": {
+            "promptTokens": 962,
+            "completionTokens": 129,
+            "totalTokens": 1091,
+            "providerReportedCostUsd": null
+          },
+          "requestSummary": {
+            "messageCount": 2,
+            "toolCount": 4,
+            "model": "qwen2.5:7b",
+            "condition": "original"
+          }
+        },
+        {
+          "turn": 2,
+          "startedAt": "2026-10-26T12:24:21.213Z",
+          "latencyMs": 2466,
+          "finishReason": "stop",
+          "content": "{\n    \"event\": {\n        \"id\": \"evt_1016\",\n        \"summary\": \"Design review follow-up\",\n        \"start\": \"2026-11-03T15:30:00+05:30\",\n        \"end\": \"2026-11-03T16:15:00+05:30\",\n        \"status\": \"confirmed\",\n        \"created_at\": \"2026-10-20T09:00:00+05:30\"\n    }\n}",
+          "toolCalls": [],
+          "usage": {
+            "promptTokens": 1214,
+            "completionTokens": 133,
+            "totalTokens": 1347,
+            "providerReportedCostUsd": null
+          },
+          "requestSummary": {
+            "messageCount": 4,
+            "toolCount": 4,
+            "model": "qwen2.5:7b",
+            "condition": "original"
+          }
+        }
+      ],
+      "toolCalls": [
+        {
+          "index": 0,
+          "turn": 1,
+          "publicTool": "calendar_create_event",
+          "proposedInput": {
+            "calendar_id": "primary",
+            "event": {
+              "attendees": [],
+              "end": {
+                "dateTime": "2026-11-03T16:15:00+05:30",
+                "timeZone": "Asia/Kolkata"
+              },
+              "location": "",
+              "start": {
+                "dateTime": "2026-11-03T15:30:00+05:30",
+                "timeZone": "Asia/Kolkata"
+              },
+              "summary": "Design review follow-up"
+            }
+          },
+          "adaptedCompilation": null,
+          "validation": {
+            "ok": true,
+            "errors": []
+          },
+          "result": {
+            "ok": true,
+            "content": {
+              "id": "evt_1016",
+              "summary": "Design review follow-up",
+              "start": {
+                "dateTime": "2026-11-03T15:30:00+05:30",
+                "timeZone": "Asia/Kolkata"
+              },
+              "end": {
+                "dateTime": "2026-11-03T16:15:00+05:30",
+                "timeZone": "Asia/Kolkata"
+              },
+              "status": "confirmed",
+              "created_at": "2026-10-20T09:00:00+05:30"
+            }
+          },
+          "startedAt": "2026-10-26T12:24:21.211Z",
+          "durationMs": 2,
+          "countedUnderlying": true,
+          "source": "model"
+        }
+      ],
+      "initialState": {
+        "calendarId": "primary",
+        "timezone": "Asia/Kolkata",
+        "offset": "+05:30",
+        "now": "2026-10-20T09:00:00+05:30",
+        "events": [
+          {
+            "id": "evt_1001",
+            "summary": "Vendor sync",
+            "start": "2026-11-05T15:00:00+05:30",
+            "end": "2026-11-05T16:00:00+05:30",
+            "location": "Meet",
+            "description": "Weekly procurement sync.",
+            "attendees": [
+              "priya@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-12T10:00:00+05:30"
+          },
+          {
+            "id": "evt_1002",
+            "summary": "Design review",
+            "start": "2026-11-03T14:00:00+05:30",
+            "end": "2026-11-03T15:00:00+05:30",
+            "location": "Studio",
+            "description": "Review of the onboarding flow.",
+            "attendees": [
+              "dev@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-10T09:15:00+05:30"
+          },
+          {
+            "id": "evt_1003",
+            "summary": "Budget review",
+            "start": "2026-11-06T11:00:00+05:30",
+            "end": "2026-11-06T12:00:00+05:30",
+            "location": "Room 2A",
+            "description": null,
+            "attendees": [
+              "finance@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-11T16:40:00+05:30"
+          },
+          {
+            "id": "evt_1004",
+            "summary": "Board prep",
+            "start": "2026-11-13T10:00:00+05:30",
+            "end": "2026-11-13T11:30:00+05:30",
+            "location": "Boardroom",
+            "description": "Review board deck and final numbers.",
+            "attendees": [
+              "ceo@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-08T11:00:00+05:30"
+          },
+          {
+            "id": "evt_1005",
+            "summary": "Board prep archive",
+            "start": "2026-11-13T16:00:00+05:30",
+            "end": "2026-11-13T17:00:00+05:30",
+            "location": "Archive",
+            "description": "Retrospective on the previous board cycle.",
+            "attendees": [],
+            "status": "confirmed",
+            "created_at": "2026-09-30T13:00:00+05:30"
+          },
+          {
+            "id": "evt_1006",
+            "summary": "1:1 with Sam",
+            "start": "2026-11-09T09:30:00+05:30",
+            "end": "2026-11-09T10:00:00+05:30",
+            "location": "Cafe",
+            "description": null,
+            "attendees": [
+              "sam@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-01T08:00:00+05:30"
+          },
+          {
+            "id": "evt_1007",
+            "summary": "Hiring sync",
+            "start": "2026-11-04T11:00:00+05:30",
+            "end": "2026-11-04T12:00:00+05:30",
+            "location": "Room 1C",
+            "description": "Pipeline review for the platform role.",
+            "attendees": [
+              "hr@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-02T15:30:00+05:30"
+          },
+          {
+            "id": "evt_1008",
+            "summary": "Focus block",
+            "start": "2026-11-17T15:00:00+05:30",
+            "end": "2026-11-17T16:00:00+05:30",
+            "location": null,
+            "description": "No meetings.",
+            "attendees": [],
+            "status": "confirmed",
+            "created_at": "2026-10-14T07:45:00+05:30"
+          },
+          {
+            "id": "evt_1009",
+            "summary": "Audit kickoff planning",
+            "start": "2026-11-12T09:00:00+05:30",
+            "end": "2026-11-12T10:00:00+05:30",
+            "location": "Room 4B",
+            "description": "Planning for the external audit.",
+            "attendees": [
+              "audit@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-06T12:00:00+05:30"
+          },
+          {
+            "id": "evt_1010",
+            "summary": "Customer demo",
+            "start": "2026-11-09T15:00:00+05:30",
+            "end": "2026-11-09T16:00:00+05:30",
+            "location": "Zoom",
+            "description": "Demo of the reporting workflow.",
+            "attendees": [
+              "customer@example.com"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-05T18:10:00+05:30"
+          },
+          {
+            "id": "evt_1011",
+            "summary": "Retro",
+            "start": "2026-11-18T16:00:00+05:30",
+            "end": "2026-11-18T17:00:00+05:30",
+            "location": "Room 3B",
+            "description": "Sprint 24 retrospective.",
+            "attendees": [
+              "dev@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-16T10:20:00+05:30"
+          },
+          {
+            "id": "evt_1012",
+            "summary": "Partner call",
+            "start": "2026-11-19T13:00:00+05:30",
+            "end": "2026-11-19T14:00:00+05:30",
+            "location": "Meet",
+            "description": null,
+            "attendees": [
+              "partner@example.com"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-09T14:00:00+05:30"
+          },
+          {
+            "id": "evt_1013",
+            "summary": "Quarterly offsite",
+            "start": "2026-11-20T09:00:00+05:30",
+            "end": "2026-11-20T17:00:00+05:30",
+            "location": "Lakeside",
+            "description": "All-day planning offsite.",
+            "attendees": [
+              "team@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-09-22T09:00:00+05:30"
+          },
+          {
+            "id": "evt_1014",
+            "summary": "Board prep dry run",
+            "start": "2026-11-13T09:00:00+05:30",
+            "end": "2026-11-13T09:45:00+05:30",
+            "location": "Boardroom",
+            "description": "Timing rehearsal for the board deck.",
+            "attendees": [
+              "ceo@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-15T17:00:00+05:30"
+          },
+          {
+            "id": "evt_1015",
+            "summary": "Platform review",
+            "start": "2026-11-10T14:00:00+05:30",
+            "end": "2026-11-10T15:00:00+05:30",
+            "location": "Studio",
+            "description": "Architecture review with the platform group.",
+            "attendees": [
+              "sam@acme.test",
+              "dev@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-13T11:30:00+05:30"
+          }
+        ]
+      },
+      "finalState": {
+        "calendarId": "primary",
+        "timezone": "Asia/Kolkata",
+        "offset": "+05:30",
+        "now": "2026-10-20T09:00:00+05:30",
+        "events": [
+          {
+            "id": "evt_1001",
+            "summary": "Vendor sync",
+            "start": "2026-11-05T15:00:00+05:30",
+            "end": "2026-11-05T16:00:00+05:30",
+            "location": "Meet",
+            "description": "Weekly procurement sync.",
+            "attendees": [
+              "priya@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-12T10:00:00+05:30"
+          },
+          {
+            "id": "evt_1002",
+            "summary": "Design review",
+            "start": "2026-11-03T14:00:00+05:30",
+            "end": "2026-11-03T15:00:00+05:30",
+            "location": "Studio",
+            "description": "Review of the onboarding flow.",
+            "attendees": [
+              "dev@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-10T09:15:00+05:30"
+          },
+          {
+            "id": "evt_1003",
+            "summary": "Budget review",
+            "start": "2026-11-06T11:00:00+05:30",
+            "end": "2026-11-06T12:00:00+05:30",
+            "location": "Room 2A",
+            "description": null,
+            "attendees": [
+              "finance@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-11T16:40:00+05:30"
+          },
+          {
+            "id": "evt_1004",
+            "summary": "Board prep",
+            "start": "2026-11-13T10:00:00+05:30",
+            "end": "2026-11-13T11:30:00+05:30",
+            "location": "Boardroom",
+            "description": "Review board deck and final numbers.",
+            "attendees": [
+              "ceo@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-08T11:00:00+05:30"
+          },
+          {
+            "id": "evt_1005",
+            "summary": "Board prep archive",
+            "start": "2026-11-13T16:00:00+05:30",
+            "end": "2026-11-13T17:00:00+05:30",
+            "location": "Archive",
+            "description": "Retrospective on the previous board cycle.",
+            "attendees": [],
+            "status": "confirmed",
+            "created_at": "2026-09-30T13:00:00+05:30"
+          },
+          {
+            "id": "evt_1006",
+            "summary": "1:1 with Sam",
+            "start": "2026-11-09T09:30:00+05:30",
+            "end": "2026-11-09T10:00:00+05:30",
+            "location": "Cafe",
+            "description": null,
+            "attendees": [
+              "sam@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-01T08:00:00+05:30"
+          },
+          {
+            "id": "evt_1007",
+            "summary": "Hiring sync",
+            "start": "2026-11-04T11:00:00+05:30",
+            "end": "2026-11-04T12:00:00+05:30",
+            "location": "Room 1C",
+            "description": "Pipeline review for the platform role.",
+            "attendees": [
+              "hr@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-02T15:30:00+05:30"
+          },
+          {
+            "id": "evt_1008",
+            "summary": "Focus block",
+            "start": "2026-11-17T15:00:00+05:30",
+            "end": "2026-11-17T16:00:00+05:30",
+            "location": null,
+            "description": "No meetings.",
+            "attendees": [],
+            "status": "confirmed",
+            "created_at": "2026-10-14T07:45:00+05:30"
+          },
+          {
+            "id": "evt_1009",
+            "summary": "Audit kickoff planning",
+            "start": "2026-11-12T09:00:00+05:30",
+            "end": "2026-11-12T10:00:00+05:30",
+            "location": "Room 4B",
+            "description": "Planning for the external audit.",
+            "attendees": [
+              "audit@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-06T12:00:00+05:30"
+          },
+          {
+            "id": "evt_1010",
+            "summary": "Customer demo",
+            "start": "2026-11-09T15:00:00+05:30",
+            "end": "2026-11-09T16:00:00+05:30",
+            "location": "Zoom",
+            "description": "Demo of the reporting workflow.",
+            "attendees": [
+              "customer@example.com"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-05T18:10:00+05:30"
+          },
+          {
+            "id": "evt_1011",
+            "summary": "Retro",
+            "start": "2026-11-18T16:00:00+05:30",
+            "end": "2026-11-18T17:00:00+05:30",
+            "location": "Room 3B",
+            "description": "Sprint 24 retrospective.",
+            "attendees": [
+              "dev@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-16T10:20:00+05:30"
+          },
+          {
+            "id": "evt_1012",
+            "summary": "Partner call",
+            "start": "2026-11-19T13:00:00+05:30",
+            "end": "2026-11-19T14:00:00+05:30",
+            "location": "Meet",
+            "description": null,
+            "attendees": [
+              "partner@example.com"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-09T14:00:00+05:30"
+          },
+          {
+            "id": "evt_1013",
+            "summary": "Quarterly offsite",
+            "start": "2026-11-20T09:00:00+05:30",
+            "end": "2026-11-20T17:00:00+05:30",
+            "location": "Lakeside",
+            "description": "All-day planning offsite.",
+            "attendees": [
+              "team@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-09-22T09:00:00+05:30"
+          },
+          {
+            "id": "evt_1014",
+            "summary": "Board prep dry run",
+            "start": "2026-11-13T09:00:00+05:30",
+            "end": "2026-11-13T09:45:00+05:30",
+            "location": "Boardroom",
+            "description": "Timing rehearsal for the board deck.",
+            "attendees": [
+              "ceo@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-15T17:00:00+05:30"
+          },
+          {
+            "id": "evt_1015",
+            "summary": "Platform review",
+            "start": "2026-11-10T14:00:00+05:30",
+            "end": "2026-11-10T15:00:00+05:30",
+            "location": "Studio",
+            "description": "Architecture review with the platform group.",
+            "attendees": [
+              "sam@acme.test",
+              "dev@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-13T11:30:00+05:30"
+          },
+          {
+            "id": "evt_1016",
+            "summary": "Design review follow-up",
+            "start": "2026-11-03T15:30:00+05:30",
+            "end": "2026-11-03T16:15:00+05:30",
+            "location": "",
+            "description": null,
+            "attendees": [],
+            "status": "confirmed",
+            "created_at": "2026-10-20T09:00:00+05:30"
+          }
+        ]
+      },
+      "stateDiff": {
+        "domain": "calendar",
+        "changes": [
+          {
+            "entity": "evt_1016",
+            "kind": "added",
+            "fields": [
+              {
+                "field": "summary",
+                "after": "Design review follow-up"
+              },
+              {
+                "field": "start",
+                "after": "2026-11-03T15:30:00+05:30"
+              },
+              {
+                "field": "end",
+                "after": "2026-11-03T16:15:00+05:30"
+              },
+              {
+                "field": "location",
+                "after": ""
+              },
+              {
+                "field": "description",
+                "after": null
+              },
+              {
+                "field": "attendees",
+                "after": []
+              },
+              {
+                "field": "status",
+                "after": "confirmed"
+              }
+            ]
+          }
+        ],
+        "unchangedCount": 15,
+        "summary": "1 added, 0 removed, 0 changed."
+      },
+      "checks": [
+        {
+          "id": "created-one-event",
+          "label": "Exactly one event was created",
+          "kind": "intent",
+          "ok": true,
+          "detail": "1 added, 0 removed; expected exactly one added event and no removals."
+        },
+        {
+          "id": "created-fields",
+          "label": "Created event matches the requested fields",
+          "kind": "intent",
+          "ok": true,
+          "detail": "Actual: Design review follow-up | 2026-11-03T15:30:00+05:30 → 2026-11-03T16:15:00+05:30 | attendees none | location ."
+        },
+        {
+          "id": "existing-events-preserved",
+          "label": "Every existing event is byte-for-byte preserved",
+          "kind": "preservation",
+          "ok": true,
+          "detail": "No existing event changed."
+        },
+        {
+          "id": "no-extra-events",
+          "label": "No extra event was written",
+          "kind": "hygiene",
+          "ok": true,
+          "detail": "Final size 16; initial size 15; expected +1."
+        }
+      ],
+      "finalAnswer": "{\n    \"event\": {\n        \"id\": \"evt_1016\",\n        \"summary\": \"Design review follow-up\",\n        \"start\": \"2026-11-03T15:30:00+05:30\",\n        \"end\": \"2026-11-03T16:15:00+05:30\",\n        \"status\": \"confirmed\",\n        \"created_at\": \"2026-10-20T09:00:00+05:30\"\n    }\n}",
+      "error": null,
+      "notes": [],
+      "evidenceClass": "live-model"
+    },
+    {
+      "id": "trial_974cc189-3a6",
+      "runId": "run_20261026122406_1e5da12f",
+      "taskId": "cal-dev-create-basic",
+      "taskTitle": "Create a basic event",
+      "family": "create",
+      "domain": "calendar",
+      "condition": "descriptions",
+      "trial": 1,
+      "mode": "live",
+      "status": "pass",
+      "statusReason": null,
+      "startedAt": "2026-10-26T12:24:23.683Z",
+      "finishedAt": "2026-10-26T12:24:28.166Z",
+      "durationMs": 4483,
+      "model": {
+        "requested": "qwen2.5:7b",
+        "reported": "qwen2.5:7b",
+        "provider": "ollama",
+        "baseUrl": "http://127.0.0.1:11434/v1",
+        "responseId": "chatcmpl-223"
+      },
+      "interfaceHash": "e863e6792f9c9c653393bd647fc90329310c4508c80be964d620ff3c41f9dfc0",
+      "adapterHash": null,
+      "usage": {
+        "promptTokens": 2926,
+        "completionTokens": 219,
+        "totalTokens": 3145,
+        "underlyingToolCalls": 1,
+        "providerReportedCostUsd": null
+      },
+      "turns": [
+        {
+          "turn": 1,
+          "startedAt": "2026-10-26T12:24:23.683Z",
+          "latencyMs": 2817,
+          "finishReason": "tool_calls",
+          "content": "",
+          "toolCalls": [
+            {
+              "id": "call_htua6zwy",
+              "name": "calendar_create_event",
+              "argumentsRaw": "{\"calendar_id\":\"primary\",\"event\":{\"attendees\":[],\"end\":{\"dateTime\":\"2026-11-03T16:15:00+05:30\",\"timeZone\":\"Asia/Kolkata\"},\"location\":\"\",\"start\":{\"dateTime\":\"2026-11-03T15:30:00+05:30\",\"timeZone\":\"Asia/Kolkata\"},\"summary\":\"Design review follow-up\"}}"
+            }
+          ],
+          "usage": {
+            "promptTokens": 1337,
+            "completionTokens": 129,
+            "totalTokens": 1466,
+            "providerReportedCostUsd": null
+          },
+          "requestSummary": {
+            "messageCount": 2,
+            "toolCount": 4,
+            "model": "qwen2.5:7b",
+            "condition": "descriptions"
+          }
+        },
+        {
+          "turn": 2,
+          "startedAt": "2026-10-26T12:24:26.505Z",
+          "latencyMs": 1660,
+          "finishReason": "stop",
+          "content": "{\n    \"event_id\": \"evt_1016\",\n    \"summary\": \"Design review follow-up\",\n    \"start_time\": \"2026-11-03T15:30:00+05:30\",\n    \"end_time\": \"2026-11-03T16:15:00+05:30\"\n}",
+          "toolCalls": [],
+          "usage": {
+            "promptTokens": 1589,
+            "completionTokens": 90,
+            "totalTokens": 1679,
+            "providerReportedCostUsd": null
+          },
+          "requestSummary": {
+            "messageCount": 4,
+            "toolCount": 4,
+            "model": "qwen2.5:7b",
+            "condition": "descriptions"
+          }
+        }
+      ],
+      "toolCalls": [
+        {
+          "index": 0,
+          "turn": 1,
+          "publicTool": "calendar_create_event",
+          "proposedInput": {
+            "calendar_id": "primary",
+            "event": {
+              "attendees": [],
+              "end": {
+                "dateTime": "2026-11-03T16:15:00+05:30",
+                "timeZone": "Asia/Kolkata"
+              },
+              "location": "",
+              "start": {
+                "dateTime": "2026-11-03T15:30:00+05:30",
+                "timeZone": "Asia/Kolkata"
+              },
+              "summary": "Design review follow-up"
+            }
+          },
+          "adaptedCompilation": null,
+          "validation": {
+            "ok": true,
+            "errors": []
+          },
+          "result": {
+            "ok": true,
+            "content": {
+              "id": "evt_1016",
+              "summary": "Design review follow-up",
+              "start": {
+                "dateTime": "2026-11-03T15:30:00+05:30",
+                "timeZone": "Asia/Kolkata"
+              },
+              "end": {
+                "dateTime": "2026-11-03T16:15:00+05:30",
+                "timeZone": "Asia/Kolkata"
+              },
+              "status": "confirmed",
+              "created_at": "2026-10-20T09:00:00+05:30"
+            }
+          },
+          "startedAt": "2026-10-26T12:24:26.500Z",
+          "durationMs": 5,
+          "countedUnderlying": true,
+          "source": "model"
+        }
+      ],
+      "initialState": {
+        "calendarId": "primary",
+        "timezone": "Asia/Kolkata",
+        "offset": "+05:30",
+        "now": "2026-10-20T09:00:00+05:30",
+        "events": [
+          {
+            "id": "evt_1001",
+            "summary": "Vendor sync",
+            "start": "2026-11-05T15:00:00+05:30",
+            "end": "2026-11-05T16:00:00+05:30",
+            "location": "Meet",
+            "description": "Weekly procurement sync.",
+            "attendees": [
+              "priya@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-12T10:00:00+05:30"
+          },
+          {
+            "id": "evt_1002",
+            "summary": "Design review",
+            "start": "2026-11-03T14:00:00+05:30",
+            "end": "2026-11-03T15:00:00+05:30",
+            "location": "Studio",
+            "description": "Review of the onboarding flow.",
+            "attendees": [
+              "dev@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-10T09:15:00+05:30"
+          },
+          {
+            "id": "evt_1003",
+            "summary": "Budget review",
+            "start": "2026-11-06T11:00:00+05:30",
+            "end": "2026-11-06T12:00:00+05:30",
+            "location": "Room 2A",
+            "description": null,
+            "attendees": [
+              "finance@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-11T16:40:00+05:30"
+          },
+          {
+            "id": "evt_1004",
+            "summary": "Board prep",
+            "start": "2026-11-13T10:00:00+05:30",
+            "end": "2026-11-13T11:30:00+05:30",
+            "location": "Boardroom",
+            "description": "Review board deck and final numbers.",
+            "attendees": [
+              "ceo@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-08T11:00:00+05:30"
+          },
+          {
+            "id": "evt_1005",
+            "summary": "Board prep archive",
+            "start": "2026-11-13T16:00:00+05:30",
+            "end": "2026-11-13T17:00:00+05:30",
+            "location": "Archive",
+            "description": "Retrospective on the previous board cycle.",
+            "attendees": [],
+            "status": "confirmed",
+            "created_at": "2026-09-30T13:00:00+05:30"
+          },
+          {
+            "id": "evt_1006",
+            "summary": "1:1 with Sam",
+            "start": "2026-11-09T09:30:00+05:30",
+            "end": "2026-11-09T10:00:00+05:30",
+            "location": "Cafe",
+            "description": null,
+            "attendees": [
+              "sam@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-01T08:00:00+05:30"
+          },
+          {
+            "id": "evt_1007",
+            "summary": "Hiring sync",
+            "start": "2026-11-04T11:00:00+05:30",
+            "end": "2026-11-04T12:00:00+05:30",
+            "location": "Room 1C",
+            "description": "Pipeline review for the platform role.",
+            "attendees": [
+              "hr@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-02T15:30:00+05:30"
+          },
+          {
+            "id": "evt_1008",
+            "summary": "Focus block",
+            "start": "2026-11-17T15:00:00+05:30",
+            "end": "2026-11-17T16:00:00+05:30",
+            "location": null,
+            "description": "No meetings.",
+            "attendees": [],
+            "status": "confirmed",
+            "created_at": "2026-10-14T07:45:00+05:30"
+          },
+          {
+            "id": "evt_1009",
+            "summary": "Audit kickoff planning",
+            "start": "2026-11-12T09:00:00+05:30",
+            "end": "2026-11-12T10:00:00+05:30",
+            "location": "Room 4B",
+            "description": "Planning for the external audit.",
+            "attendees": [
+              "audit@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-06T12:00:00+05:30"
+          },
+          {
+            "id": "evt_1010",
+            "summary": "Customer demo",
+            "start": "2026-11-09T15:00:00+05:30",
+            "end": "2026-11-09T16:00:00+05:30",
+            "location": "Zoom",
+            "description": "Demo of the reporting workflow.",
+            "attendees": [
+              "customer@example.com"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-05T18:10:00+05:30"
+          },
+          {
+            "id": "evt_1011",
+            "summary": "Retro",
+            "start": "2026-11-18T16:00:00+05:30",
+            "end": "2026-11-18T17:00:00+05:30",
+            "location": "Room 3B",
+            "description": "Sprint 24 retrospective.",
+            "attendees": [
+              "dev@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-16T10:20:00+05:30"
+          },
+          {
+            "id": "evt_1012",
+            "summary": "Partner call",
+            "start": "2026-11-19T13:00:00+05:30",
+            "end": "2026-11-19T14:00:00+05:30",
+            "location": "Meet",
+            "description": null,
+            "attendees": [
+              "partner@example.com"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-09T14:00:00+05:30"
+          },
+          {
+            "id": "evt_1013",
+            "summary": "Quarterly offsite",
+            "start": "2026-11-20T09:00:00+05:30",
+            "end": "2026-11-20T17:00:00+05:30",
+            "location": "Lakeside",
+            "description": "All-day planning offsite.",
+            "attendees": [
+              "team@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-09-22T09:00:00+05:30"
+          },
+          {
+            "id": "evt_1014",
+            "summary": "Board prep dry run",
+            "start": "2026-11-13T09:00:00+05:30",
+            "end": "2026-11-13T09:45:00+05:30",
+            "location": "Boardroom",
+            "description": "Timing rehearsal for the board deck.",
+            "attendees": [
+              "ceo@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-15T17:00:00+05:30"
+          },
+          {
+            "id": "evt_1015",
+            "summary": "Platform review",
+            "start": "2026-11-10T14:00:00+05:30",
+            "end": "2026-11-10T15:00:00+05:30",
+            "location": "Studio",
+            "description": "Architecture review with the platform group.",
+            "attendees": [
+              "sam@acme.test",
+              "dev@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-13T11:30:00+05:30"
+          }
+        ]
+      },
+      "finalState": {
+        "calendarId": "primary",
+        "timezone": "Asia/Kolkata",
+        "offset": "+05:30",
+        "now": "2026-10-20T09:00:00+05:30",
+        "events": [
+          {
+            "id": "evt_1001",
+            "summary": "Vendor sync",
+            "start": "2026-11-05T15:00:00+05:30",
+            "end": "2026-11-05T16:00:00+05:30",
+            "location": "Meet",
+            "description": "Weekly procurement sync.",
+            "attendees": [
+              "priya@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-12T10:00:00+05:30"
+          },
+          {
+            "id": "evt_1002",
+            "summary": "Design review",
+            "start": "2026-11-03T14:00:00+05:30",
+            "end": "2026-11-03T15:00:00+05:30",
+            "location": "Studio",
+            "description": "Review of the onboarding flow.",
+            "attendees": [
+              "dev@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-10T09:15:00+05:30"
+          },
+          {
+            "id": "evt_1003",
+            "summary": "Budget review",
+            "start": "2026-11-06T11:00:00+05:30",
+            "end": "2026-11-06T12:00:00+05:30",
+            "location": "Room 2A",
+            "description": null,
+            "attendees": [
+              "finance@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-11T16:40:00+05:30"
+          },
+          {
+            "id": "evt_1004",
+            "summary": "Board prep",
+            "start": "2026-11-13T10:00:00+05:30",
+            "end": "2026-11-13T11:30:00+05:30",
+            "location": "Boardroom",
+            "description": "Review board deck and final numbers.",
+            "attendees": [
+              "ceo@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-08T11:00:00+05:30"
+          },
+          {
+            "id": "evt_1005",
+            "summary": "Board prep archive",
+            "start": "2026-11-13T16:00:00+05:30",
+            "end": "2026-11-13T17:00:00+05:30",
+            "location": "Archive",
+            "description": "Retrospective on the previous board cycle.",
+            "attendees": [],
+            "status": "confirmed",
+            "created_at": "2026-09-30T13:00:00+05:30"
+          },
+          {
+            "id": "evt_1006",
+            "summary": "1:1 with Sam",
+            "start": "2026-11-09T09:30:00+05:30",
+            "end": "2026-11-09T10:00:00+05:30",
+            "location": "Cafe",
+            "description": null,
+            "attendees": [
+              "sam@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-01T08:00:00+05:30"
+          },
+          {
+            "id": "evt_1007",
+            "summary": "Hiring sync",
+            "start": "2026-11-04T11:00:00+05:30",
+            "end": "2026-11-04T12:00:00+05:30",
+            "location": "Room 1C",
+            "description": "Pipeline review for the platform role.",
+            "attendees": [
+              "hr@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-02T15:30:00+05:30"
+          },
+          {
+            "id": "evt_1008",
+            "summary": "Focus block",
+            "start": "2026-11-17T15:00:00+05:30",
+            "end": "2026-11-17T16:00:00+05:30",
+            "location": null,
+            "description": "No meetings.",
+            "attendees": [],
+            "status": "confirmed",
+            "created_at": "2026-10-14T07:45:00+05:30"
+          },
+          {
+            "id": "evt_1009",
+            "summary": "Audit kickoff planning",
+            "start": "2026-11-12T09:00:00+05:30",
+            "end": "2026-11-12T10:00:00+05:30",
+            "location": "Room 4B",
+            "description": "Planning for the external audit.",
+            "attendees": [
+              "audit@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-06T12:00:00+05:30"
+          },
+          {
+            "id": "evt_1010",
+            "summary": "Customer demo",
+            "start": "2026-11-09T15:00:00+05:30",
+            "end": "2026-11-09T16:00:00+05:30",
+            "location": "Zoom",
+            "description": "Demo of the reporting workflow.",
+            "attendees": [
+              "customer@example.com"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-05T18:10:00+05:30"
+          },
+          {
+            "id": "evt_1011",
+            "summary": "Retro",
+            "start": "2026-11-18T16:00:00+05:30",
+            "end": "2026-11-18T17:00:00+05:30",
+            "location": "Room 3B",
+            "description": "Sprint 24 retrospective.",
+            "attendees": [
+              "dev@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-16T10:20:00+05:30"
+          },
+          {
+            "id": "evt_1012",
+            "summary": "Partner call",
+            "start": "2026-11-19T13:00:00+05:30",
+            "end": "2026-11-19T14:00:00+05:30",
+            "location": "Meet",
+            "description": null,
+            "attendees": [
+              "partner@example.com"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-09T14:00:00+05:30"
+          },
+          {
+            "id": "evt_1013",
+            "summary": "Quarterly offsite",
+            "start": "2026-11-20T09:00:00+05:30",
+            "end": "2026-11-20T17:00:00+05:30",
+            "location": "Lakeside",
+            "description": "All-day planning offsite.",
+            "attendees": [
+              "team@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-09-22T09:00:00+05:30"
+          },
+          {
+            "id": "evt_1014",
+            "summary": "Board prep dry run",
+            "start": "2026-11-13T09:00:00+05:30",
+            "end": "2026-11-13T09:45:00+05:30",
+            "location": "Boardroom",
+            "description": "Timing rehearsal for the board deck.",
+            "attendees": [
+              "ceo@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-15T17:00:00+05:30"
+          },
+          {
+            "id": "evt_1015",
+            "summary": "Platform review",
+            "start": "2026-11-10T14:00:00+05:30",
+            "end": "2026-11-10T15:00:00+05:30",
+            "location": "Studio",
+            "description": "Architecture review with the platform group.",
+            "attendees": [
+              "sam@acme.test",
+              "dev@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-13T11:30:00+05:30"
+          },
+          {
+            "id": "evt_1016",
+            "summary": "Design review follow-up",
+            "start": "2026-11-03T15:30:00+05:30",
+            "end": "2026-11-03T16:15:00+05:30",
+            "location": "",
+            "description": null,
+            "attendees": [],
+            "status": "confirmed",
+            "created_at": "2026-10-20T09:00:00+05:30"
+          }
+        ]
+      },
+      "stateDiff": {
+        "domain": "calendar",
+        "changes": [
+          {
+            "entity": "evt_1016",
+            "kind": "added",
+            "fields": [
+              {
+                "field": "summary",
+                "after": "Design review follow-up"
+              },
+              {
+                "field": "start",
+                "after": "2026-11-03T15:30:00+05:30"
+              },
+              {
+                "field": "end",
+                "after": "2026-11-03T16:15:00+05:30"
+              },
+              {
+                "field": "location",
+                "after": ""
+              },
+              {
+                "field": "description",
+                "after": null
+              },
+              {
+                "field": "attendees",
+                "after": []
+              },
+              {
+                "field": "status",
+                "after": "confirmed"
+              }
+            ]
+          }
+        ],
+        "unchangedCount": 15,
+        "summary": "1 added, 0 removed, 0 changed."
+      },
+      "checks": [
+        {
+          "id": "created-one-event",
+          "label": "Exactly one event was created",
+          "kind": "intent",
+          "ok": true,
+          "detail": "1 added, 0 removed; expected exactly one added event and no removals."
+        },
+        {
+          "id": "created-fields",
+          "label": "Created event matches the requested fields",
+          "kind": "intent",
+          "ok": true,
+          "detail": "Actual: Design review follow-up | 2026-11-03T15:30:00+05:30 → 2026-11-03T16:15:00+05:30 | attendees none | location ."
+        },
+        {
+          "id": "existing-events-preserved",
+          "label": "Every existing event is byte-for-byte preserved",
+          "kind": "preservation",
+          "ok": true,
+          "detail": "No existing event changed."
+        },
+        {
+          "id": "no-extra-events",
+          "label": "No extra event was written",
+          "kind": "hygiene",
+          "ok": true,
+          "detail": "Final size 16; initial size 15; expected +1."
+        }
+      ],
+      "finalAnswer": "{\n    \"event_id\": \"evt_1016\",\n    \"summary\": \"Design review follow-up\",\n    \"start_time\": \"2026-11-03T15:30:00+05:30\",\n    \"end_time\": \"2026-11-03T16:15:00+05:30\"\n}",
+      "error": null,
+      "notes": [],
+      "evidenceClass": "live-model"
+    },
+    {
+      "id": "trial_e5c7b98f-531",
+      "runId": "run_20261026122406_1e5da12f",
+      "taskId": "cal-dev-create-basic",
+      "taskTitle": "Create a basic event",
+      "family": "create",
+      "domain": "calendar",
+      "condition": "adapted",
+      "trial": 1,
+      "mode": "live",
+      "status": "pass",
+      "statusReason": null,
+      "startedAt": "2026-10-26T12:24:28.168Z",
+      "finishedAt": "2026-10-26T12:24:31.401Z",
+      "durationMs": 3233,
+      "model": {
+        "requested": "qwen2.5:7b",
+        "reported": "qwen2.5:7b",
+        "provider": "ollama",
+        "baseUrl": "http://127.0.0.1:11434/v1",
+        "responseId": "chatcmpl-681"
+      },
+      "interfaceHash": "1a7e03b9725882418d945825957bbd46ee84e74632ed972b5fd8dede2a9f887d",
+      "adapterHash": "b5e7a910573b6c292b9939289139904fa663f61e188da15d5b43d050912d9453",
+      "usage": {
+        "promptTokens": 1876,
+        "completionTokens": 142,
+        "totalTokens": 2018,
+        "underlyingToolCalls": 1,
+        "providerReportedCostUsd": null
+      },
+      "turns": [
+        {
+          "turn": 1,
+          "startedAt": "2026-10-26T12:24:28.168Z",
+          "latencyMs": 1435,
+          "finishReason": "tool_calls",
+          "content": "",
+          "toolCalls": [
+            {
+              "id": "call_76idr0nk",
+              "name": "schedule_event",
+              "argumentsRaw": "{\"title\":\"Design review follow-up\",\"start\":\"2026-11-03T15:30\",\"duration_minutes\":45}"
+            }
+          ],
+          "usage": {
+            "promptTokens": 844,
+            "completionTokens": 52,
+            "totalTokens": 896,
+            "providerReportedCostUsd": null
+          },
+          "requestSummary": {
+            "messageCount": 2,
+            "toolCount": 4,
+            "model": "qwen2.5:7b",
+            "condition": "adapted"
+          }
+        },
+        {
+          "turn": 2,
+          "startedAt": "2026-10-26T12:24:29.606Z",
+          "latencyMs": 1795,
+          "finishReason": "stop",
+          "content": "{\n  \"event_id\": \"evt_1016\",\n  \"title\": \"Design review follow-up\",\n  \"start_time\": \"2026-11-03T15:30:00+05:30\",\n  \"end_time\": \"2026-11-03T16:15:00+05:30\"\n}",
+          "toolCalls": [],
+          "usage": {
+            "promptTokens": 1032,
+            "completionTokens": 90,
+            "totalTokens": 1122,
+            "providerReportedCostUsd": null
+          },
+          "requestSummary": {
+            "messageCount": 4,
+            "toolCount": 4,
+            "model": "qwen2.5:7b",
+            "condition": "adapted"
+          }
+        }
+      ],
+      "toolCalls": [
+        {
+          "index": 0,
+          "turn": 1,
+          "publicTool": "schedule_event",
+          "proposedInput": {
+            "title": "Design review follow-up",
+            "start": "2026-11-03T15:30",
+            "duration_minutes": 45
+          },
+          "adaptedCompilation": {
+            "target": "calendar_create_event",
+            "input": {
+              "calendar_id": "primary",
+              "event": {
+                "summary": "Design review follow-up",
+                "start": {
+                  "dateTime": "2026-11-03T15:30:00+05:30",
+                  "timeZone": "Asia/Kolkata"
+                },
+                "end": {
+                  "dateTime": "2026-11-03T16:15:00+05:30",
+                  "timeZone": "Asia/Kolkata"
+                }
+              }
+            },
+            "transformNotes": [
+              "calendar_id ← const",
+              "const → calendar_id",
+              "title → event.summary",
+              "start → ISO date-time +05:30",
+              "start → event.start.dateTime",
+              "event.start.timeZone ← const",
+              "const → event.start.timeZone",
+              "start + 45m → end date-time",
+              "duration_minutes → event.end.dateTime",
+              "event.end.timeZone ← const",
+              "const → event.end.timeZone"
+            ]
+          },
+          "validation": {
+            "ok": true,
+            "errors": []
+          },
+          "result": {
+            "ok": true,
+            "content": {
+              "id": "evt_1016",
+              "summary": "Design review follow-up",
+              "start": {
+                "dateTime": "2026-11-03T15:30:00+05:30",
+                "timeZone": "Asia/Kolkata"
+              },
+              "end": {
+                "dateTime": "2026-11-03T16:15:00+05:30",
+                "timeZone": "Asia/Kolkata"
+              },
+              "status": "confirmed",
+              "created_at": "2026-10-20T09:00:00+05:30"
+            }
+          },
+          "startedAt": "2026-10-26T12:24:29.603Z",
+          "durationMs": 3,
+          "countedUnderlying": true,
+          "source": "model"
+        }
+      ],
+      "initialState": {
+        "calendarId": "primary",
+        "timezone": "Asia/Kolkata",
+        "offset": "+05:30",
+        "now": "2026-10-20T09:00:00+05:30",
+        "events": [
+          {
+            "id": "evt_1001",
+            "summary": "Vendor sync",
+            "start": "2026-11-05T15:00:00+05:30",
+            "end": "2026-11-05T16:00:00+05:30",
+            "location": "Meet",
+            "description": "Weekly procurement sync.",
+            "attendees": [
+              "priya@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-12T10:00:00+05:30"
+          },
+          {
+            "id": "evt_1002",
+            "summary": "Design review",
+            "start": "2026-11-03T14:00:00+05:30",
+            "end": "2026-11-03T15:00:00+05:30",
+            "location": "Studio",
+            "description": "Review of the onboarding flow.",
+            "attendees": [
+              "dev@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-10T09:15:00+05:30"
+          },
+          {
+            "id": "evt_1003",
+            "summary": "Budget review",
+            "start": "2026-11-06T11:00:00+05:30",
+            "end": "2026-11-06T12:00:00+05:30",
+            "location": "Room 2A",
+            "description": null,
+            "attendees": [
+              "finance@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-11T16:40:00+05:30"
+          },
+          {
+            "id": "evt_1004",
+            "summary": "Board prep",
+            "start": "2026-11-13T10:00:00+05:30",
+            "end": "2026-11-13T11:30:00+05:30",
+            "location": "Boardroom",
+            "description": "Review board deck and final numbers.",
+            "attendees": [
+              "ceo@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-08T11:00:00+05:30"
+          },
+          {
+            "id": "evt_1005",
+            "summary": "Board prep archive",
+            "start": "2026-11-13T16:00:00+05:30",
+            "end": "2026-11-13T17:00:00+05:30",
+            "location": "Archive",
+            "description": "Retrospective on the previous board cycle.",
+            "attendees": [],
+            "status": "confirmed",
+            "created_at": "2026-09-30T13:00:00+05:30"
+          },
+          {
+            "id": "evt_1006",
+            "summary": "1:1 with Sam",
+            "start": "2026-11-09T09:30:00+05:30",
+            "end": "2026-11-09T10:00:00+05:30",
+            "location": "Cafe",
+            "description": null,
+            "attendees": [
+              "sam@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-01T08:00:00+05:30"
+          },
+          {
+            "id": "evt_1007",
+            "summary": "Hiring sync",
+            "start": "2026-11-04T11:00:00+05:30",
+            "end": "2026-11-04T12:00:00+05:30",
+            "location": "Room 1C",
+            "description": "Pipeline review for the platform role.",
+            "attendees": [
+              "hr@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-02T15:30:00+05:30"
+          },
+          {
+            "id": "evt_1008",
+            "summary": "Focus block",
+            "start": "2026-11-17T15:00:00+05:30",
+            "end": "2026-11-17T16:00:00+05:30",
+            "location": null,
+            "description": "No meetings.",
+            "attendees": [],
+            "status": "confirmed",
+            "created_at": "2026-10-14T07:45:00+05:30"
+          },
+          {
+            "id": "evt_1009",
+            "summary": "Audit kickoff planning",
+            "start": "2026-11-12T09:00:00+05:30",
+            "end": "2026-11-12T10:00:00+05:30",
+            "location": "Room 4B",
+            "description": "Planning for the external audit.",
+            "attendees": [
+              "audit@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-06T12:00:00+05:30"
+          },
+          {
+            "id": "evt_1010",
+            "summary": "Customer demo",
+            "start": "2026-11-09T15:00:00+05:30",
+            "end": "2026-11-09T16:00:00+05:30",
+            "location": "Zoom",
+            "description": "Demo of the reporting workflow.",
+            "attendees": [
+              "customer@example.com"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-05T18:10:00+05:30"
+          },
+          {
+            "id": "evt_1011",
+            "summary": "Retro",
+            "start": "2026-11-18T16:00:00+05:30",
+            "end": "2026-11-18T17:00:00+05:30",
+            "location": "Room 3B",
+            "description": "Sprint 24 retrospective.",
+            "attendees": [
+              "dev@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-16T10:20:00+05:30"
+          },
+          {
+            "id": "evt_1012",
+            "summary": "Partner call",
+            "start": "2026-11-19T13:00:00+05:30",
+            "end": "2026-11-19T14:00:00+05:30",
+            "location": "Meet",
+            "description": null,
+            "attendees": [
+              "partner@example.com"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-09T14:00:00+05:30"
+          },
+          {
+            "id": "evt_1013",
+            "summary": "Quarterly offsite",
+            "start": "2026-11-20T09:00:00+05:30",
+            "end": "2026-11-20T17:00:00+05:30",
+            "location": "Lakeside",
+            "description": "All-day planning offsite.",
+            "attendees": [
+              "team@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-09-22T09:00:00+05:30"
+          },
+          {
+            "id": "evt_1014",
+            "summary": "Board prep dry run",
+            "start": "2026-11-13T09:00:00+05:30",
+            "end": "2026-11-13T09:45:00+05:30",
+            "location": "Boardroom",
+            "description": "Timing rehearsal for the board deck.",
+            "attendees": [
+              "ceo@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-15T17:00:00+05:30"
+          },
+          {
+            "id": "evt_1015",
+            "summary": "Platform review",
+            "start": "2026-11-10T14:00:00+05:30",
+            "end": "2026-11-10T15:00:00+05:30",
+            "location": "Studio",
+            "description": "Architecture review with the platform group.",
+            "attendees": [
+              "sam@acme.test",
+              "dev@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-13T11:30:00+05:30"
+          }
+        ]
+      },
+      "finalState": {
+        "calendarId": "primary",
+        "timezone": "Asia/Kolkata",
+        "offset": "+05:30",
+        "now": "2026-10-20T09:00:00+05:30",
+        "events": [
+          {
+            "id": "evt_1001",
+            "summary": "Vendor sync",
+            "start": "2026-11-05T15:00:00+05:30",
+            "end": "2026-11-05T16:00:00+05:30",
+            "location": "Meet",
+            "description": "Weekly procurement sync.",
+            "attendees": [
+              "priya@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-12T10:00:00+05:30"
+          },
+          {
+            "id": "evt_1002",
+            "summary": "Design review",
+            "start": "2026-11-03T14:00:00+05:30",
+            "end": "2026-11-03T15:00:00+05:30",
+            "location": "Studio",
+            "description": "Review of the onboarding flow.",
+            "attendees": [
+              "dev@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-10T09:15:00+05:30"
+          },
+          {
+            "id": "evt_1003",
+            "summary": "Budget review",
+            "start": "2026-11-06T11:00:00+05:30",
+            "end": "2026-11-06T12:00:00+05:30",
+            "location": "Room 2A",
+            "description": null,
+            "attendees": [
+              "finance@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-11T16:40:00+05:30"
+          },
+          {
+            "id": "evt_1004",
+            "summary": "Board prep",
+            "start": "2026-11-13T10:00:00+05:30",
+            "end": "2026-11-13T11:30:00+05:30",
+            "location": "Boardroom",
+            "description": "Review board deck and final numbers.",
+            "attendees": [
+              "ceo@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-08T11:00:00+05:30"
+          },
+          {
+            "id": "evt_1005",
+            "summary": "Board prep archive",
+            "start": "2026-11-13T16:00:00+05:30",
+            "end": "2026-11-13T17:00:00+05:30",
+            "location": "Archive",
+            "description": "Retrospective on the previous board cycle.",
+            "attendees": [],
+            "status": "confirmed",
+            "created_at": "2026-09-30T13:00:00+05:30"
+          },
+          {
+            "id": "evt_1006",
+            "summary": "1:1 with Sam",
+            "start": "2026-11-09T09:30:00+05:30",
+            "end": "2026-11-09T10:00:00+05:30",
+            "location": "Cafe",
+            "description": null,
+            "attendees": [
+              "sam@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-01T08:00:00+05:30"
+          },
+          {
+            "id": "evt_1007",
+            "summary": "Hiring sync",
+            "start": "2026-11-04T11:00:00+05:30",
+            "end": "2026-11-04T12:00:00+05:30",
+            "location": "Room 1C",
+            "description": "Pipeline review for the platform role.",
+            "attendees": [
+              "hr@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-02T15:30:00+05:30"
+          },
+          {
+            "id": "evt_1008",
+            "summary": "Focus block",
+            "start": "2026-11-17T15:00:00+05:30",
+            "end": "2026-11-17T16:00:00+05:30",
+            "location": null,
+            "description": "No meetings.",
+            "attendees": [],
+            "status": "confirmed",
+            "created_at": "2026-10-14T07:45:00+05:30"
+          },
+          {
+            "id": "evt_1009",
+            "summary": "Audit kickoff planning",
+            "start": "2026-11-12T09:00:00+05:30",
+            "end": "2026-11-12T10:00:00+05:30",
+            "location": "Room 4B",
+            "description": "Planning for the external audit.",
+            "attendees": [
+              "audit@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-06T12:00:00+05:30"
+          },
+          {
+            "id": "evt_1010",
+            "summary": "Customer demo",
+            "start": "2026-11-09T15:00:00+05:30",
+            "end": "2026-11-09T16:00:00+05:30",
+            "location": "Zoom",
+            "description": "Demo of the reporting workflow.",
+            "attendees": [
+              "customer@example.com"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-05T18:10:00+05:30"
+          },
+          {
+            "id": "evt_1011",
+            "summary": "Retro",
+            "start": "2026-11-18T16:00:00+05:30",
+            "end": "2026-11-18T17:00:00+05:30",
+            "location": "Room 3B",
+            "description": "Sprint 24 retrospective.",
+            "attendees": [
+              "dev@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-16T10:20:00+05:30"
+          },
+          {
+            "id": "evt_1012",
+            "summary": "Partner call",
+            "start": "2026-11-19T13:00:00+05:30",
+            "end": "2026-11-19T14:00:00+05:30",
+            "location": "Meet",
+            "description": null,
+            "attendees": [
+              "partner@example.com"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-09T14:00:00+05:30"
+          },
+          {
+            "id": "evt_1013",
+            "summary": "Quarterly offsite",
+            "start": "2026-11-20T09:00:00+05:30",
+            "end": "2026-11-20T17:00:00+05:30",
+            "location": "Lakeside",
+            "description": "All-day planning offsite.",
+            "attendees": [
+              "team@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-09-22T09:00:00+05:30"
+          },
+          {
+            "id": "evt_1014",
+            "summary": "Board prep dry run",
+            "start": "2026-11-13T09:00:00+05:30",
+            "end": "2026-11-13T09:45:00+05:30",
+            "location": "Boardroom",
+            "description": "Timing rehearsal for the board deck.",
+            "attendees": [
+              "ceo@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-15T17:00:00+05:30"
+          },
+          {
+            "id": "evt_1015",
+            "summary": "Platform review",
+            "start": "2026-11-10T14:00:00+05:30",
+            "end": "2026-11-10T15:00:00+05:30",
+            "location": "Studio",
+            "description": "Architecture review with the platform group.",
+            "attendees": [
+              "sam@acme.test",
+              "dev@acme.test"
+            ],
+            "status": "confirmed",
+            "created_at": "2026-10-13T11:30:00+05:30"
+          },
+          {
+            "id": "evt_1016",
+            "summary": "Design review follow-up",
+            "start": "2026-11-03T15:30:00+05:30",
+            "end": "2026-11-03T16:15:00+05:30",
+            "location": null,
+            "description": null,
+            "attendees": [],
+            "status": "confirmed",
+            "created_at": "2026-10-20T09:00:00+05:30"
+          }
+        ]
+      },
+      "stateDiff": {
+        "domain": "calendar",
+        "changes": [
+          {
+            "entity": "evt_1016",
+            "kind": "added",
+            "fields": [
+              {
+                "field": "summary",
+                "after": "Design review follow-up"
+              },
+              {
+                "field": "start",
+                "after": "2026-11-03T15:30:00+05:30"
+              },
+              {
+                "field": "end",
+                "after": "2026-11-03T16:15:00+05:30"
+              },
+              {
+                "field": "location",
+                "after": null
+              },
+              {
+                "field": "description",
+                "after": null
+              },
+              {
+                "field": "attendees",
+                "after": []
+              },
+              {
+                "field": "status",
+                "after": "confirmed"
+              }
+            ]
+          }
+        ],
+        "unchangedCount": 15,
+        "summary": "1 added, 0 removed, 0 changed."
+      },
+      "checks": [
+        {
+          "id": "created-one-event",
+          "label": "Exactly one event was created",
+          "kind": "intent",
+          "ok": true,
+          "detail": "1 added, 0 removed; expected exactly one added event and no removals."
+        },
+        {
+          "id": "created-fields",
+          "label": "Created event matches the requested fields",
+          "kind": "intent",
+          "ok": true,
+          "detail": "Actual: Design review follow-up | 2026-11-03T15:30:00+05:30 → 2026-11-03T16:15:00+05:30 | attendees none | location none."
+        },
+        {
+          "id": "existing-events-preserved",
+          "label": "Every existing event is byte-for-byte preserved",
+          "kind": "preservation",
+          "ok": true,
+          "detail": "No existing event changed."
+        },
+        {
+          "id": "no-extra-events",
+          "label": "No extra event was written",
+          "kind": "hygiene",
+          "ok": true,
+          "detail": "Final size 16; initial size 15; expected +1."
+        }
+      ],
+      "finalAnswer": "{\n  \"event_id\": \"evt_1016\",\n  \"title\": \"Design review follow-up\",\n  \"start_time\": \"2026-11-03T15:30:00+05:30\",\n  \"end_time\": \"2026-11-03T16:15:00+05:30\"\n}",
+      "error": null,
+      "notes": [],
+      "evidenceClass": "live-model"
+    }
+  ],
+  "summary": {
+    "mode": "live",
+    "liveEligible": true,
+    "byCondition": {
+      "original": {
+        "attempts": 1,
+        "pass": 1,
+        "fail": 0,
+        "invalid": 0,
+        "error": 0,
+        "canceled": 0,
+        "passRate": 1,
+        "decisivePassRate": 1,
+        "wilson95": null,
+        "underlyingToolCalls": 1,
+        "totalTokens": 2438
+      },
+      "descriptions": {
+        "attempts": 1,
+        "pass": 1,
+        "fail": 0,
+        "invalid": 0,
+        "error": 0,
+        "canceled": 0,
+        "passRate": 1,
+        "decisivePassRate": 1,
+        "wilson95": null,
+        "underlyingToolCalls": 1,
+        "totalTokens": 3145
+      },
+      "adapted": {
+        "attempts": 1,
+        "pass": 1,
+        "fail": 0,
+        "invalid": 0,
+        "error": 0,
+        "canceled": 0,
+        "passRate": 1,
+        "decisivePassRate": 1,
+        "wilson95": null,
+        "underlyingToolCalls": 1,
+        "totalTokens": 2018
+      }
+    },
+    "paired": [
+      {
+        "taskId": "cal-dev-create-basic",
+        "trialsPerCondition": 1,
+        "pass": {
+          "original": 1,
+          "descriptions": 1,
+          "adapted": 1
+        },
+        "decisive": {
+          "original": 1,
+          "descriptions": 1,
+          "adapted": 1
+        },
+        "comparable": true
+      }
+    ],
+    "notes": [
+      "Live model evidence. Counts are descriptive; a small pilot does not establish statistical superiority.",
+      "Only 3 live attempt(s) were recorded. Treat differences as provisional, not a benchmark result.",
+      "The provider reported no cost, so cost is unknown rather than zero."
+    ],
+    "computedAt": "2026-10-26T12:24:31.404Z"
+  },
+  "cancelRequestedAt": null,
+  "error": null
+}
