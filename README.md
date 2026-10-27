@@ -19,7 +19,7 @@ A real trace from the sealed eval (`openai/gpt-oss-20b`, task `iss-e2-query-prio
 3. It retries with `q: "status:open priority:P2 label:bug"`, a query dialect the tool does not support, and gets 0 results.
 4. It confidently answers `{"issue_numbers": []}`. The correct answer is `[7, 9, 12, 22]`.
 
-Nothing was written, so a check that only looks at state would call this fine. Anvil's answer-contract check fails it. With the adapted interface (a flat `search_issues` tool with `status`, `priority` and `label` fields), the same model gets this task right. The raw failing trace is in `docs/evidence/runs/` and in the replay.
+Nothing was written, so a check that only looks at state would call this fine. Anvil's answer-contract check fails it. With better descriptions it passed 2 of 3 attempts. With the adapted interface (a flat `search_issues` tool with `status`, `priority` and `label` fields), it passed 1 of 3; see the regression note below. The raw failing trace is in `docs/evidence/runs/` and in the replay.
 
 ## How it works
 
@@ -52,12 +52,12 @@ Eval v2 is 15 tasks (9 calendar, 6 issues) written after the dev failures were s
 | `deepseek-v4.1-flash:free` | 3 | 43/45 | 45/45 | 45/45 |
 | `nvidia/nemotron-3-ultra-550b-a55b` | 1 | 15/15 | 15/15 | 15/15 |
 
-gpt-oss-20b by domain: calendar 7/27 → 19/27 → **27/27**; issues 13/18 → 15/18 → 16/18. Paired by task, 11 of 15 tasks improve from original to adapted, e.g. `cal-e2-cancel-disambiguate` 0/3 → 3/3, `cal-e2-move-across-days` 0/3 → 3/3, `cal-e2-update-prefix-distractor` 0/3 → 3/3 and `cal-e2-cancel-if-present` 0/3 → 3/3 (descriptions alone: 0/3). Most original-condition losses are `invalid`: the model burns its 8 turns fighting the raw schema.
+gpt-oss-20b by domain: calendar 7/27 → 19/27 → **27/27**; issues 13/18 → 15/18 → 16/18. Paired by task, 10 of 15 tasks improve from original to adapted, none drop below original and the other 5 are already 3/3, e.g. `cal-e2-cancel-disambiguate` 0/3 → 3/3, `cal-e2-move-across-days` 0/3 → 3/3, `cal-e2-update-prefix-distractor` 0/3 → 3/3 and `cal-e2-cancel-if-present` 0/3 → 3/3 (descriptions alone: 1/3). Most original-condition losses are `invalid`: the model burns its 8 turns fighting the raw schema.
 
 **Caveats:**
 
 - **Ceiling:** Nemotron-3-ultra passes everything in every condition and DeepSeek nearly does, so the strong models don't separate the conditions. The uplift shows up on the smaller model.
-- **One regression:** on `iss-e2-query-priority-label`, gpt-oss-20b scored 2/2 with descriptions but 1/3 adapted. Both adapted misses came from the model emitting a corrupted tool name (`search_issues<|channel|>commentary`) from turn 2 and looping until the turn limit. The adapter mapping was not wrong, but it is a loss all the same.
+- **One regression:** on `iss-e2-query-priority-label`, gpt-oss-20b scored 2/3 with descriptions but only 1/3 adapted (0/3 original). Both adapted misses came from the model emitting a corrupted tool name (`search_issues<|channel|>commentary`) from turn 2 and looping until the turn limit. The adapter mapping was not wrong, but it is a loss all the same.
 - **Small n:** 15 synthetic tasks and 1–3 attempts per task. The Wilson 95% intervals for gpt-oss-20b (original 31–59%, adapted 85–99%) don't overlap, but this is a pilot, not a benchmark.
 - **Bias:** most eval v2 tasks target a record by title and day, which is exactly what the v2 lookup addresses. Report per family, not just the total.
 
