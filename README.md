@@ -121,7 +121,7 @@ Options: `--domain calendar|issues`, `--condition adapted|original|descriptions`
 
 ### Add it to Alan
 
-In Alan desktop, add a **custom MCP connector** (stdio) for each domain you want:
+Tested in Alan desktop (27 Oct 2026). Open **Settings → Plugins → MCP → Add custom connector** and add a stdio connector for each domain you want:
 
 | Field | macOS / Linux | Windows |
 | --- | --- | --- |
@@ -129,7 +129,13 @@ In Alan desktop, add a **custom MCP connector** (stdio) for each domain you want
 | Command | `npx` | `cmd` |
 | Args | `-y -p github:Wali05/anvil anvil-mcp --domain calendar` | `/c npx -y -p github:Wali05/anvil anvil-mcp --domain calendar` |
 
-Repeat with `--domain issues` for the issue tracker. The first start takes a few seconds while npm installs and builds the package. After that, the adapted tools (`find_events`, `schedule_event`, `move_event`, `cancel_event`, …) show up in Alan, and every call is logged as the original call it compiled to.
+Repeat with `--domain issues` for the issue tracker. The first start takes a few seconds while npm installs and builds the package (the connector showed **Connected** after about 30 s). After that, the adapted tools (`find_events`, `schedule_event`, `move_event`, `cancel_event`, …) show up in Alan, and every call is logged as the original call it compiled to.
+
+![anvil-calendar connected in Alan's MCP settings](docs/screenshots/11-alan-connector.png)
+
+In a new Alan session on DeepSeek V4.1 Flash, the agent called `anvil_adapter_info`, `anvil_fixture_state`, `find_events` and `move_event` to move "Design review" from 3 Nov to 4 Nov at 14:00, then confirmed the final state with two more lookups:
+
+![Alan session moving an event through the Anvil adapter](docs/screenshots/12-alan-session.png)
 
 ### Claude Desktop, Cursor and other MCP clients
 
