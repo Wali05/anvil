@@ -119,7 +119,21 @@ From a checkout: `npm ci`, then `node bin/anvil-mcp.mjs --domain calendar` (or `
 
 Options: `--domain calendar|issues`, `--condition adapted|original|descriptions`, `--adapter default|saved|file`, `--adapter-file <bundle.json>` (a bundle exported from the workbench), `--data-dir <dir>` (default `~/.anvil`).
 
-**Claude Desktop** (`claude_desktop_config.json`), Cursor (`.cursor/mcp.json`) or any client that launches stdio servers:
+### Add it to Alan
+
+In Alan desktop, add a **custom MCP connector** (stdio) for each domain you want:
+
+| Field | macOS / Linux | Windows |
+| --- | --- | --- |
+| Name | `anvil-calendar` | `anvil-calendar` |
+| Command | `npx` | `cmd` |
+| Args | `-y -p github:Wali05/anvil anvil-mcp --domain calendar` | `/c npx -y -p github:Wali05/anvil anvil-mcp --domain calendar` |
+
+Repeat with `--domain issues` for the issue tracker. The first start takes a few seconds while npm installs and builds the package. After that, the adapted tools (`find_events`, `schedule_event`, `move_event`, `cancel_event`, …) show up in Alan, and every call is logged as the original call it compiled to.
+
+### Claude Desktop, Cursor and other MCP clients
+
+`claude_desktop_config.json`, `.cursor/mcp.json` or any client config that launches stdio servers, on macOS / Linux:
 
 ```json
 {
@@ -136,9 +150,20 @@ Options: `--domain calendar|issues`, `--condition adapted|original|descriptions`
 }
 ```
 
-For a local checkout, use `"command": "node"` and `"args": ["/path/to/anvil/bin/anvil-mcp.mjs", "--domain", "calendar"]`.
+On Windows, wrap it in `cmd /c`:
 
-**Alan:** add the same command and args as a custom MCP connector wherever your Alan client accepts a local command. Alan's public plugin guide (checked 26 Oct 2026) lists remote HTTPS MCP servers only, so the packaged plugin in `plugins/anvil/` keeps a placeholder `https://anvil-mcp.invalid/mcp` URL and is not published.
+```json
+{
+  "mcpServers": {
+    "anvil-calendar": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "-p", "github:Wali05/anvil", "anvil-mcp", "--domain", "calendar"]
+    }
+  }
+}
+```
+
+For a local checkout, use `"command": "node"` with `"args": ["/path/to/anvil/bin/anvil-mcp.mjs", "--domain", "calendar"]` (run `npm ci` in the checkout first).
 
 There is also a workbench MCP server (`node dist/cli.js workbench-mcp`) with tools to list domains and interfaces, validate adapters, preview mappings, and list, inspect or start bounded experiments.
 
