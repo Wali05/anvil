@@ -76,7 +76,7 @@ Live evidence exists from a local open model (`qwen2.5:7b` via Ollama) on eval v
 - **Server**: local HTTP API, SSE progress, in-memory model setup, adapter validation/preview/save/reset, evidence and adapter downloads, real MCP health check, compiled dashboard serving.
 - **Dashboard**: workbench, honest empty state, simulation vs live separation, three-condition comparison, paired same-task counts, task matrix, trace/checks/diff/raw trial views, condition switching, adapter import/edit/save/reset, schema inspector, mapping preview, experiments list, integration page, 390px layout.
 - **MCP**: workbench server (8 tools), adapted adapter executor, exported-bundle execution via `--adapter-file`, stderr-only call logging, fixture utilities.
-- **Packaging**: MIT license, lockfile, `.env.example`, `.gitignore`, CLI, plugin manifest, marketplace entry, skill, template `mcp.json` with a reserved `.invalid` URL.
+- **Packaging**: MIT license, lockfile, `.env.example`, `.gitignore`, CLI, plugin manifest, marketplace entry, skill, `mcp.json` that launches the stdio adapter server via `npx -y -p github:Wali05/anvil anvil-mcp --domain calendar`.
 
 ## Commands
 
@@ -177,7 +177,7 @@ Screenshots are in `docs/screenshots/`. The first seven were produced by the Pla
 - Workbench MCP: official SDK, stdio, 8 tools, handshake and tool invocation verified by a real client.
 - Adapter MCP: calendar and issue adapted tools executed in separate processes; close/query behavior verified; original call fields verified from stderr logs.
 - Exported bundle: `anvil.adapter-bundle/v1`, adapter hash matched the executor, `schedule_event` compiled to `calendar_create_event`, duration mapping produced the expected end time, and `find_events` reflected the created event.
-- Alan: plugin manifest/marketplace/skill present. `mcp.json` uses `https://anvil-mcp.invalid/mcp` because no public HTTPS deployment exists. **File presence is not installation.**
+- Alan: Alan desktop supports custom stdio MCP connectors, so the adapter server is added as Command `npx`, args `-y -p github:Wali05/anvil anvil-mcp --domain calendar` (Windows: Command `cmd`, args `/c npx -y -p github:Wali05/anvil anvil-mcp --domain calendar`). Plugin manifest/marketplace/skill present; `mcp.json` uses the same npx command. The `github:` spec resolves only once the repo is public. **File presence is not installation**; a run inside Alan has not been recorded yet.
 
 ## Storage and security
 
@@ -194,7 +194,7 @@ Screenshots are in `docs/screenshots/`. The first seven were produced by the Pla
 1. **Larger evidence:** more tasks, multiple trials, a second open model and a proper paired analysis. The current 26-task pilot is a sanity check.
 2. **Output mapping:** adapters currently map inputs only; original outputs are returned unchanged.
 3. **Real connectors:** both domains are disposable local fixtures, not Google Calendar/GitHub clients.
-4. **Remote HTTPS MCP:** no deployment; the plugin template URL is intentionally non-resolving. Alan installation is unverified and not claimed.
+4. **Hosted MCP:** the MCP server is local stdio only; there is no hosted HTTPS endpoint (not needed for Alan desktop, which runs stdio connectors). Use inside Alan is not yet recorded.
 5. **Optional adapter proposal:** not implemented. Adapters are explicit, validated JSON.
 6. **Cost:** provider cost is unknown for Ollama. A paid OpenAI-compatible endpoint may report cost; the field remains null if it does not.
 7. **Statistical claims:** none. Wilson intervals are descriptive, not a significance test.
@@ -211,4 +211,4 @@ Screenshots are in `docs/screenshots/`. The first seven were produced by the Pla
 5. `npm run smoke:mcp` to re-verify exported adapter execution in a separate process.
 6. Read `README.md`, `docs/RESEARCH_NOTES.md` and this file before publishing anything.
 
-No GitHub push, deployment, marketplace submission or social posting was performed.
+Apart from the replay site, no GitHub push, marketplace submission or social posting was performed.

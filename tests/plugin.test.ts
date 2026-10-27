@@ -16,13 +16,14 @@ describe('Alan plugin package', () => {
     expect(entry?.source).toBe('plugins/anvil');
 
     const mcp = JSON.parse(await readFile('plugins/anvil/mcp.json', 'utf8')) as {
-      mcpServers: Record<string, { type: string; url: string }>;
+      mcpServers: Record<string, { type: string; command: string; args: string[] }>;
     };
     const server = mcp.mcpServers.anvil;
-    expect(server?.type).toBe('http');
-    expect(server?.url.startsWith('https://')).toBe(true);
-    // The reserved .invalid TLD is deliberate: no public deployment exists.
-    expect(new URL(server!.url).hostname.endsWith('.invalid')).toBe(true);
+    expect(server?.type).toBe('stdio');
+    expect(server?.command).toBe('npx');
+    expect(server?.args).toEqual(['-y', '-p', 'github:Wali05/anvil', 'anvil-mcp', '--domain', 'calendar']);
+    const pkg = JSON.parse(await readFile('package.json', 'utf8')) as { bin: Record<string, string> };
+    expect(pkg.bin['anvil-mcp']).toBe('bin/anvil-mcp.mjs');
 
     const skill = await readFile('plugins/anvil/skills/anvil-workbench/SKILL.md', 'utf8');
     expect(skill.startsWith('---\nname: anvil-workbench')).toBe(true);
@@ -32,7 +33,7 @@ describe('Alan plugin package', () => {
   it('does not claim installation or a live deployment in package docs', async () => {
     const readme = await readFile('plugins/anvil/README.md', 'utf8');
     expect(readme).toContain('not deployed and not installed');
-    expect(readme).toContain('anvil-mcp.invalid');
+    expect(readme).toContain('npx -y -p github:Wali05/anvil anvil-mcp --domain calendar');
     expect(readme).toContain('A file in this repository is not an installed Alan integration');
   });
 });

@@ -4,7 +4,7 @@
 
 - Openfire asks for an open-source tool for people using Alan and open models. Submission requires a public repository, working link, and X demo: https://luma.com/2k6cxr0n . User supplied the event instructions.
 - The relevant Alan product is https://tryalan.ai . The public plugin repository is https://github.com/tryalan-ai/plugins . Its README and CONTRIBUTING were retrieved through GitHub on 2026-10-26.
-- The public plugin format supports custom marketplaces, a `.cursor-plugin` manifest, `mcp.json`, and optional skills. The contribution guide currently specifies remote HTTPS MCP; local stdio availability in the desktop UI is not yet confirmed.
+- The public plugin format supports custom marketplaces, a `.cursor-plugin` manifest, `mcp.json`, and optional skills. The contribution guide describes remote HTTPS MCP for marketplace listings, but Alan desktop also supports custom stdio MCP connectors (Command `npx`, args `-y <package>`; on Windows Command `cmd`, args `/c npx -y <package>`), so Anvil's local stdio server can be added directly.
 
 ## Prior art and differentiation
 
