@@ -1,25 +1,47 @@
 # Anvil
 
-**A tool-interface adapter workbench that makes open models better at tool use, with a before/after eval to prove it.**
+**A workbench that rewrites tool interfaces so open models call tools correctly, and proves it with sealed before/after evals.**
 
-Anvil wraps an existing set of tools in a small, typed, versioned adapter and measures whether the change helps a model finish tasks. It runs the same tasks three ways and checks the resulting state independently, so "the model said done" never counts as a pass.
+Open models often call a tool, get a confusing error or an empty result, and then report success anyway. In our eval, `gpt-oss-20b` was asked for the open P2 bugs in a repo and confidently answered `[]`. The right answer was `[7, 9, 12, 22]`.
 
-**Live replay of the eval runs:** <https://anvil-two-opal.vercel.app> (read-only; open **Sealed eval v2** or **Experiments**)
+Anvil wraps the same tools in a small, typed adapter (flat fields, friendly names, safe lookups) that still calls the original tools underneath. It then runs each task three ways and checks the final state and the answer independently, so "the model said done" never counts as a pass.
+
+**▶ Live replay of every eval run:** <https://anvil-two-opal.vercel.app>
+
+## Results
+
+Tasks passed on sealed eval v2, per condition:
+
+| Model | Original tools | Better descriptions | Anvil adapter |
+| --- | --- | --- | --- |
+| `openai/gpt-oss-20b` | 20/45 | 34/45 | **43/45** |
+| `deepseek-v4.1-flash` | 43/45 | 45/45 | 45/45 |
+| `nvidia/nemotron-3-ultra` | 15/15 | 15/15 | 15/15 |
+
+Small sample: 15 synthetic fixture tasks × 3 attempts (Nemotron × 1), temperature 0. The smaller model gains the most. The strong models are already near the ceiling. Full caveats are [below](#eval-v2-in-detail).
+
+## Use it in Alan
+
+In Alan, open **Settings → Plugins → MCP → Add custom connector** and add a command connector:
+
+```bash
+npx -y -p github:Wali05/anvil anvil-mcp --domain calendar
+```
+
+On Windows, use `cmd /c npx -y -p github:Wali05/anvil anvil-mcp --domain calendar`. Use `--domain issues` for the issue tracker. Nothing to clone. The connector shows **Connected** after about 30 s, and the adapted tools (`find_events`, `move_event`, `cancel_event`, …) appear in your session. More detail is in [Add it to Alan](#add-it-to-alan).
 
 ![Anvil live comparison](docs/screenshots/08-live-results-1440.png)
 
-## The problem
-
-Open models often look successful when they are not. They call a tool, get a confusing error or an empty result, and then report success anyway. Either the answer is wrong or the state behind it is.
+## The failure, step by step
 
 A real trace from the sealed eval (`openai/gpt-oss-20b`, task `iss-e2-query-priority-label`, original tools, the same in 3 of 3 attempts):
 
 1. Task: list the open P2 bugs in the `acme/orbit` repo.
 2. The model calls `issues_search` with `limit: 100`, which is rejected because the maximum is 50.
-3. It retries with `q: "status:open priority:P2 label:bug"`, a query dialect the tool does not support, and gets 0 results.
-4. It confidently answers `{"issue_numbers": []}`. The correct answer is `[7, 9, 12, 22]`.
+3. It retries with `q: "status:open priority:P2 label:bug"`, a query dialect the tool doesn't support, and gets 0 results.
+4. It answers `{"issue_numbers": []}`. The correct answer is `[7, 9, 12, 22]`.
 
-Nothing was written, so a check that only looks at state would call this fine. Anvil's answer-contract check fails it. With better descriptions it passed 2 of 3 attempts. With the adapted interface (a flat `search_issues` tool with `status`, `priority` and `label` fields), it passed 1 of 3; see the regression note below. The raw failing trace is in `docs/evidence/runs/` and in the replay.
+Nothing was written, so a state-only check would call this fine. Anvil's answer-contract check fails it. With better descriptions it passed 2 of 3 attempts. With the adapted interface (a flat `search_issues` tool with `status`, `priority` and `label` fields) it passed 1 of 3 (see the regression note below). The raw trace is in `docs/evidence/runs/` and in the replay.
 
 ## How it works
 
@@ -42,15 +64,9 @@ Every task runs under three conditions, with the same model, prompt, fixture res
 
 ![Paired comparison](docs/screenshots/10-live-paired-1440.png)
 
-## Results: sealed eval v2
+## Eval v2 in detail
 
 Eval v2 is 15 tasks (9 calendar, 6 issues) written after the dev failures were studied. At least half come from task families not in dev. Task files, fixtures and the frozen adapters are hashed in `docs/evidence/eval-v2-manifest.json`, and `npm run seal:check` verifies them before any run. All runs used hosted open models over OpenAI-compatible endpoints at temperature 0, with 8 turns, 6 tool calls and 180 s per trial.
-
-| Model | Attempts per task | Original | Descriptions | Adapted |
-| --- | --- | --- | --- | --- |
-| `openai/gpt-oss-20b` | 3 | 20/45 (44%) | 34/45 (76%) | **43/45 (96%)** |
-| `deepseek-v4.1-flash:free` | 3 | 43/45 | 45/45 | 45/45 |
-| `nvidia/nemotron-3-ultra-550b-a55b` | 1 | 15/15 | 15/15 | 15/15 |
 
 gpt-oss-20b by domain: calendar 7/27 → 19/27 → **27/27**; issues 13/18 → 15/18 → 16/18. Paired by task, 10 of 15 tasks improve from original to adapted, none drop below original and the other 5 are already 3/3, e.g. `cal-e2-cancel-disambiguate` 0/3 → 3/3, `cal-e2-move-across-days` 0/3 → 3/3, `cal-e2-update-prefix-distractor` 0/3 → 3/3 and `cal-e2-cancel-if-present` 0/3 → 3/3 (descriptions alone: 1/3). Most original-condition losses are `invalid`: the model burns its 8 turns fighting the raw schema.
 
@@ -190,12 +206,14 @@ docs/          status, research notes, evidence runs, screenshots
 
 Tool description and prompt optimization already exist, and Anvil doesn't claim to invent it. Nearby projects include **toolfit**, **DSPy/GEPA** and **Karenina**. Anvil's focus is narrower: a transparent three-condition experiment with real tool execution, an independently checked end state, and an exported typed adapter that still calls the original tools.
 
-## Limitations
+## Limits and what's next
 
-- Synthetic fixtures only; no production Google Calendar or GitHub compatibility.
-- One public call maps to at most one lookup plus one original call; no general composition or output remapping.
-- Small task sets and few attempts; no seed control across providers (temperature 0 only).
-- The MCP server is local stdio; there is no hosted HTTPS endpoint.
+- **Built-in fixtures for now.** The adapters run on the built-in calendar and issue-tracker fixtures, which are local and resettable. They don't talk to real Google Calendar or GitHub yet.
+- **Next: proxy mode.** Put Anvil in front of a real upstream MCP server and pass its tools through with adapted names, schemas and descriptions, so you can bring your own tools.
+- **Known bug: the token cap.** The run-level `maxTotalTokens` budget isn't reliably enforced yet, so a run can keep making model requests after the cap is reached. Turn, tool-call and time limits are enforced.
+- **Adapter scope.** One public call maps to at most one lookup plus one original call. There's no general composition or output remapping.
+- **Small evals.** 15 tasks with 1–3 attempts each, and no seed control across providers. Treat the numbers as a pilot, not a benchmark.
+- **Local only.** The MCP server runs over local stdio, and the replay site is read-only.
 
 ## License
 
