@@ -38,7 +38,7 @@ Local MCP clients, including Alan desktop custom connectors, can launch these co
 ## Before a public listing
 
 1. Make the repository public so `github:Wali05/anvil` resolves.
-2. Add the connector in Alan desktop and verify `tools/list` and a real tool call, not just discovery.
+2. ~~Add the connector in Alan desktop and verify `tools/list` and a real tool call.~~ Done 27 Oct 2026 for the calendar connector (see `docs/screenshots/11-alan-connector.png`, `12-alan-session.png`).
 3. Check whether the marketplace listing accepts stdio or still needs a hosted HTTPS endpoint.
 4. Run the public repository validator.
 5. Update `docs/BUILD_STATUS.md` and this file with the actual deployment evidence.

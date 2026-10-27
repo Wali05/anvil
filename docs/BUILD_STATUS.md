@@ -56,7 +56,7 @@ Caveats: synthetic fixtures; small n (15 tasks, 1–3 attempts); most eval v2 ta
 
 ## Current state
 
-The local end-to-end application is implemented and verified: two fixture domains, three interface conditions, independent state checks, executable adapters, persistence, dashboard, exports, and official-SDK MCP servers. The recorded replay site is deployed at https://anvil-two-opal.vercel.app (read-only, no model calls). The repo is public at https://github.com/Wali05/anvil; Anvil is not yet installed in Alan.
+The local end-to-end application is implemented and verified: two fixture domains, three interface conditions, independent state checks, executable adapters, persistence, dashboard, exports, and official-SDK MCP servers. The recorded replay site is deployed at https://anvil-two-opal.vercel.app (read-only, no model calls). The repo is public at https://github.com/Wali05/anvil, and the calendar adapter server has been run inside Alan desktop as a custom stdio connector.
 
 Live evidence exists from a local open model (`qwen2.5:7b` via Ollama) on eval v1 and from three hosted open models on eval v2 (above). Both are small pilots on synthetic fixtures, not a benchmark and not a claim of uplift. Scripted simulations are labeled and excluded from live summaries.
 
@@ -177,7 +177,7 @@ Screenshots are in `docs/screenshots/`. The first seven were produced by the Pla
 - Workbench MCP: official SDK, stdio, 8 tools, handshake and tool invocation verified by a real client.
 - Adapter MCP: calendar and issue adapted tools executed in separate processes; close/query behavior verified; original call fields verified from stderr logs.
 - Exported bundle: `anvil.adapter-bundle/v1`, adapter hash matched the executor, `schedule_event` compiled to `calendar_create_event`, duration mapping produced the expected end time, and `find_events` reflected the created event.
-- Alan: Alan desktop supports custom stdio MCP connectors, so the adapter server is added as Command `npx`, args `-y -p github:Wali05/anvil anvil-mcp --domain calendar` (Windows: Command `cmd`, args `/c npx -y -p github:Wali05/anvil anvil-mcp --domain calendar`). Plugin manifest/marketplace/skill present; `mcp.json` uses the same npx command. The `github:` spec resolves only once the repo is public. **File presence is not installation**; a run inside Alan has not been recorded yet.
+- Alan: Alan desktop supports custom stdio MCP connectors, so the adapter server is added as Command `npx`, args `-y -p github:Wali05/anvil anvil-mcp --domain calendar` (Windows: Command `cmd`, args `/c npx -y -p github:Wali05/anvil anvil-mcp --domain calendar`). Plugin manifest/marketplace/skill present; `mcp.json` uses the same npx command. The `github:` spec resolves only once the repo is public. Verified in Alan desktop on 27 Oct: the `anvil-calendar` custom connector showed Connected after ~30 s, and an Alan session on DeepSeek V4.1 Flash used `anvil_adapter_info`, `anvil_fixture_state`, `find_events` and `move_event` to move "Design review" from 3 Nov to 4 Nov 14:00, then confirmed it with lookups (`docs/screenshots/11-alan-connector.png`, `12-alan-session.png`). This was one session against the fixture, not an evaluation.
 
 ## Storage and security
 
@@ -194,7 +194,7 @@ Screenshots are in `docs/screenshots/`. The first seven were produced by the Pla
 1. **Larger evidence:** more tasks, multiple trials, a second open model and a proper paired analysis. The current 26-task pilot is a sanity check.
 2. **Output mapping:** adapters currently map inputs only; original outputs are returned unchanged.
 3. **Real connectors:** both domains are disposable local fixtures, not Google Calendar/GitHub clients.
-4. **Hosted MCP:** the MCP server is local stdio only; there is no hosted HTTPS endpoint (not needed for Alan desktop, which runs stdio connectors). Use inside Alan is not yet recorded.
+4. **Hosted MCP:** the MCP server is local stdio only; there is no hosted HTTPS endpoint (not needed for Alan desktop, which runs stdio connectors). Use inside Alan is verified for the calendar connector (one manual session).
 5. **Optional adapter proposal:** not implemented. Adapters are explicit, validated JSON.
 6. **Cost:** provider cost is unknown for Ollama. A paid OpenAI-compatible endpoint may report cost; the field remains null if it does not.
 7. **Statistical claims:** none. Wilson intervals are descriptive, not a significance test.

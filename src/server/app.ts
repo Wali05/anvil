@@ -534,7 +534,7 @@ export function createApp(deps: AppDeps): Express {
         fileAdapterCommand: `node "${cliPath}" mcp --domain calendar --adapter file --adapter-file "<PATH_TO_BUNDLE_JSON>"`,
         compatibleWith: 'Local MCP clients that can launch a stdio server (for example Claude Desktop, Cursor, or an MCP inspector).',
         alanDesktopStatus:
-          'Alan desktop runs custom stdio MCP connectors: Command `npx`, args `-y -p github:Wali05/anvil anvil-mcp --domain calendar` (Windows: Command `cmd`, args `/c npx -y -p github:Wali05/anvil anvil-mcp --domain calendar`). A run inside Alan has not been recorded yet.',
+          'Alan desktop runs custom stdio MCP connectors: Command `npx`, args `-y -p github:Wali05/anvil anvil-mcp --domain calendar` (Windows: Command `cmd`, args `/c npx -y -p github:Wali05/anvil anvil-mcp --domain calendar`). Tested in Alan desktop on 27 Oct 2026: the calendar connector connected and an Alan session used the adapted tools to move a fixture event.',
       },
       plugin: {
         directory: pluginDir,
@@ -544,7 +544,7 @@ export function createApp(deps: AppDeps): Express {
         manifestPresent: existsSync(manifest) && Boolean(pluginManifest),
         manifest: pluginManifest,
         installed: false,
-        note: 'The plugin package is in the repository and its mcp.json launches the stdio adapter server with npx. It is not installed in Alan.',
+        note: 'The plugin package is in the repository and its mcp.json launches the stdio adapter server with npx. The marketplace package is not installed in Alan; the same command was added as a custom connector.',
       },
       deployment: {
         deployed: false,

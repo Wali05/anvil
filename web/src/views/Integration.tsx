@@ -156,8 +156,8 @@ export function Integration({ model }: { model: ModelStatus | null }) {
                   <dd>{info.plugin.manifestPresent ? 'yes' : 'no'}</dd>
                 </div>
                 <div>
-                  <dt>Installed in Alan</dt>
-                  <dd>no</dd>
+                  <dt>Plugin package installed</dt>
+                  <dd>no (custom connector tested)</dd>
                 </div>
                 <div>
                   <dt>Transport</dt>
@@ -178,7 +178,10 @@ export function Integration({ model }: { model: ModelStatus | null }) {
                   repository is public; until then, point the command at a local checkout (<code>node bin/anvil-mcp.mjs --domain calendar</code>).
                 </p>
               </div>
-              <p className="small muted">A run of these tools inside Alan has not been recorded yet.</p>
+              <p className="small muted">
+                Tested in Alan desktop on 27 Oct 2026: the calendar connector showed Connected, and an Alan session used the adapted tools to
+                move a fixture event and confirm it with lookups.
+              </p>
               {info.plugin.manifest ? (
                 <details>
                   <summary className="mono small">Plugin manifest</summary>
@@ -234,7 +237,7 @@ export function Integration({ model }: { model: ModelStatus | null }) {
               </div>
               <ul className="limit-list">
                 <li>Fixture execution is real; compatibility with production Google Calendar or GitHub APIs is not claimed.</li>
-                <li>No hosted MCP endpoint, no recorded run inside Alan and no real-user adoption exist yet.</li>
+                <li>No hosted MCP endpoint and no real-user adoption exist yet. Alan use is one manual session against the fixture, not an evaluation.</li>
                 <li>Simulation results are rehearsals. Live uplift remains unmeasured until a sanctioned model run is recorded.</li>
                 <li>Protocol interoperability is verified only by the MCP handshake and tool calls run from this checkout.</li>
                 <li>Proxying Alan's own OAuth-backed connectors may require credentials held by Alan; Anvil does not attempt to extract them.</li>
