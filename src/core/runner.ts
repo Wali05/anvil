@@ -489,9 +489,10 @@ export class ExperimentRunner {
           break;
         }
         const requestStarted = Date.now();
+        const remainingMs = deadline - requestStarted;
         let response;
         try {
-          response = await transport.complete({ messages, tools: iface.tools, signal });
+          response = await transport.complete({ messages, tools: iface.tools, signal, timeoutMs: remainingMs });
         } catch (caught) {
           if (signal.aborted || run.cancelRequestedAt) {
             status = 'canceled';
@@ -547,6 +548,15 @@ export class ExperimentRunner {
         });
         if (response.warnings.length > 0 && notes.length < 20) {
           notes.push(...response.warnings.filter((warning) => !notes.includes(warning)));
+        }
+        if (Date.now() > deadline) {
+          // The model answered, but only after the trial's wall-clock deadline passed. A late
+          // final answer must not be scored as a pass: the trial is invalid regardless of content.
+          status = 'error';
+          error = { code: 'trial_timeout', message: `The trial exceeded ${run.config.budget.maxWallClockMsPerTrial} ms.` };
+          statusReason = 'Trial wall-clock timeout.';
+          stopLoop = true;
+          break;
         }
         if (budget.totalTokens > run.config.budget.maxTotalTokens) {
           status = 'invalid';

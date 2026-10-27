@@ -376,6 +376,58 @@ describe('scripted experiment runner', () => {
     expect(finished.trials[0]!.turns).toHaveLength(2);
   });
 
+  it('gives each model call the time remaining before the deadline, not the full trial budget', async () => {
+    const store = await tempStore();
+    const transport = new FakeTransport([
+      (request) =>
+        new Promise<CompletionResponse>((resolve) => {
+          setTimeout(
+            () =>
+              resolve(
+                response({
+                  toolCalls: [{ id: 'call_1', name: 'find_events', argumentsRaw: '{"from":"2026-11-01T00:00","to":"2026-11-02T00:00"}' }],
+                  finishReason: 'tool_calls',
+                }),
+              ),
+            250,
+          );
+        }),
+      (request) => new Promise<CompletionResponse>((resolve) => setTimeout(() => resolve(response({ content: 'Done.' })), 10)),
+    ]);
+    const runner = new ExperimentRunner({ store, transportFactory: () => transport });
+    const run = await runner.start(
+      liveInput({ conditions: ['adapted'], budget: { maxWallClockMsPerTrial: 10_000, maxTurnsPerTrial: 2, maxUnderlyingToolCallsPerTrial: 20 } }),
+      liveModel,
+    );
+    await waitFor(store, run.id);
+    expect(transport.requests).toHaveLength(2);
+    const firstTimeout = transport.requests[0]!.timeoutMs!;
+    const secondTimeout = transport.requests[1]!.timeoutMs!;
+    // The second call started after the first turn's real delay, so it must have gotten
+    // strictly less time than the first call, not the full per-trial budget again.
+    expect(secondTimeout).toBeLessThan(firstTimeout);
+    expect(firstTimeout).toBeLessThanOrEqual(10_000);
+    expect(secondTimeout).toBeLessThanOrEqual(10_000 - 200);
+  });
+
+  it('marks a trial as a timeout, not a pass, when the final answer arrives after the wall-clock deadline', async () => {
+    const store = await tempStore();
+    const transport = new FakeTransport([
+      () =>
+        new Promise<CompletionResponse>((resolve) => {
+          setTimeout(() => resolve(response({ content: 'Finally done, but late.' })), 5_300);
+        }),
+    ]);
+    const runner = new ExperimentRunner({ store, transportFactory: () => transport });
+    const run = await runner.start(liveInput({ conditions: ['adapted'], budget: { maxWallClockMsPerTrial: 5_000 } }), liveModel);
+    const finished = await waitFor(store, run.id, 15_000);
+    const trial = finished.trials[0]!;
+    expect(trial.status).toBe('error');
+    expect(trial.error?.code).toBe('trial_timeout');
+    expect(trial.statusReason).toContain('wall-clock');
+    expect(trial.finalAnswer).toBe('');
+  });
+
   it('does not treat an empty final message as a win', async () => {
     const store = await tempStore();
     const transport = new FakeTransport([response({ content: '' })]);

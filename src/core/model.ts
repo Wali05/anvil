@@ -18,6 +18,8 @@ export interface CompletionRequest {
   messages: WireMessage[];
   tools: ToolDefinition[];
   signal?: AbortSignal;
+  /** Overrides the transport's default per-call timeout, e.g. with the time remaining before a trial deadline. */
+  timeoutMs?: number;
 }
 
 export interface CompletionUsage {
@@ -108,8 +110,9 @@ export class OpenAICompatibleTransport implements ModelTransport {
     return text.split(this.apiKey).join('[redacted]');
   }
 
-  private async fetchWithTimeout(url: string, init: RequestInit): Promise<Response> {
-    const timeout = AbortSignal.timeout(this.timeoutMs);
+  private async fetchWithTimeout(url: string, init: RequestInit, timeoutMs?: number): Promise<Response> {
+    const effectiveTimeoutMs = Math.max(0, timeoutMs ?? this.timeoutMs);
+    const timeout = AbortSignal.timeout(effectiveTimeoutMs);
     const signals = init.signal ? [init.signal, timeout] : [timeout];
     const signal = signals.length === 2 ? AbortSignal.any(signals) : timeout;
     try {
@@ -118,7 +121,7 @@ export class OpenAICompatibleTransport implements ModelTransport {
       const err = error as Error;
       if (init.signal?.aborted) throw new ModelTransportError('aborted', 'The request was canceled.');
       if (err.name === 'TimeoutError' || err.name === 'AbortError') {
-        throw new ModelTransportError('timeout', `The provider did not answer within ${this.timeoutMs} ms.`);
+        throw new ModelTransportError('timeout', `The provider did not answer within ${effectiveTimeoutMs} ms.`);
       }
       throw new ModelTransportError('network_error', `Could not reach the model endpoint: ${this.redact(err.message)}`);
     }
@@ -162,12 +165,16 @@ export class OpenAICompatibleTransport implements ModelTransport {
       max_tokens: this.maxTokens,
       stream: false,
     };
-    const response = await this.fetchWithTimeout(`${this.baseUrl}/chat/completions`, {
-      method: 'POST',
-      headers: this.headers(),
-      body: JSON.stringify(body),
-      signal: request.signal,
-    });
+    const response = await this.fetchWithTimeout(
+      `${this.baseUrl}/chat/completions`,
+      {
+        method: 'POST',
+        headers: this.headers(),
+        body: JSON.stringify(body),
+        signal: request.signal,
+      },
+      request.timeoutMs,
+    );
     const text = await response.text();
     if (!response.ok) {
       throw new ModelTransportError(
