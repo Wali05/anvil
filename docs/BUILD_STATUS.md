@@ -110,7 +110,7 @@ Optional live configuration is explicit: run the local Ollama server yourself, t
 | `npm run e2e` | **2/2 Playwright flows pass** at 1440px and 390px, including simulation, drill-down, adapter error, export, MCP handshake, keyboard access, narrow layout. |
 | `node dist/cli.js check-mcp` | Handshake success; server `anvil-workbench` 0.1.0; 8 tools. |
 | Live pilot | 78 matched attempts across four full-split runs, plus one 3-attempt smoke run. See below. |
-| Deploy/push | Not performed, by instruction. |
+| Deploy/push | Replay site deployed (27 Oct); not pushed. |
 
 ### Test coverage highlights
 
