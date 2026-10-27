@@ -65,6 +65,83 @@ Run IDs, per-run counts and the earlier `qwen2.5:7b` eval v1 pilot are in [`docs
 
 ![A failing check](docs/screenshots/09-live-failure-1440.png)
 
+## Quickstart
+
+Requirements: Node.js 20.11+ and npm.
+
+```bash
+npm ci
+npm run build
+npm start            # dashboard + API on http://127.0.0.1:4317
+```
+
+For development with hot reload, run `npm run dev` (API on :4317, Vite on :5173). **Explore a simulation** exercises the real interfaces, compiler and validators with a scripted policy and needs no model or key. Simulations are labelled and never counted as live results.
+
+CLI:
+
+```bash
+node dist/cli.js --help
+node dist/cli.js export --domain calendar --kind bundle --out calendar-bundle.json
+node dist/cli.js check-mcp
+```
+
+Live pilot against any OpenAI-compatible endpoint (local Ollama by default). Set these environment variables; the key is read from the environment only and never written to disk, run records or exports:
+
+| Variable | Meaning |
+| --- | --- |
+| `ANVIL_MODEL_PROVIDER` | `ollama` (default) or `openai-compatible` |
+| `ANVIL_MODEL_BASE_URL` | e.g. `http://127.0.0.1:11434/v1` |
+| `ANVIL_MODEL` | model id |
+| `ANVIL_MODEL_API_KEY` | key for hosted endpoints (optional) |
+| `ANVIL_MIN_REQUEST_INTERVAL_MS` | spacing between requests for rate-limited providers (optional) |
+| `ANVIL_DATA_DIR` | where run JSON is written (default `.anvil`) |
+
+```bash
+npm run seal:check
+npm run live -- calendar eval2 all 1     # domain, split, tasks (or all), attempts per task
+```
+
+`.env.example` lists the supported variables. `.env` is gitignored.
+
+Checks: `npm run typecheck`, `npm test`, `npm run smoke:mcp`, `npm run smoke:api`, `npm run check:sim`, `npm run e2e`, `npm run build:static` (the recorded replay site in `dist-static/`).
+
+## Use the adapter as an MCP server
+
+The adapter server speaks MCP over stdio using the official SDK. It exposes the adapted tools for a domain plus `anvil_adapter_info` and `anvil_fixture_state`, runs against the disposable fixture, and logs every compiled original call to stderr. It touches no real account.
+
+One command, no clone needed (npm builds the server on install):
+
+```bash
+npx -y -p github:Wali05/anvil anvil-mcp --domain calendar
+```
+
+From a checkout: `npm ci`, then `node bin/anvil-mcp.mjs --domain calendar` (or `npx tsx src/mcp/adapterServer.ts --domain calendar`).
+
+Options: `--domain calendar|issues`, `--condition adapted|original|descriptions`, `--adapter default|saved|file`, `--adapter-file <bundle.json>` (a bundle exported from the workbench), `--data-dir <dir>` (default `~/.anvil`).
+
+**Claude Desktop** (`claude_desktop_config.json`), Cursor (`.cursor/mcp.json`) or any client that launches stdio servers:
+
+```json
+{
+  "mcpServers": {
+    "anvil-calendar": {
+      "command": "npx",
+      "args": ["-y", "-p", "github:Wali05/anvil", "anvil-mcp", "--domain", "calendar"]
+    },
+    "anvil-issues": {
+      "command": "npx",
+      "args": ["-y", "-p", "github:Wali05/anvil", "anvil-mcp", "--domain", "issues"]
+    }
+  }
+}
+```
+
+For a local checkout, use `"command": "node"` and `"args": ["/path/to/anvil/bin/anvil-mcp.mjs", "--domain", "calendar"]`.
+
+**Alan:** add the same command and args as a custom MCP connector wherever your Alan client accepts a local command. Alan's public plugin guide (checked 26 Oct 2026) lists remote HTTPS MCP servers only, so the packaged plugin in `plugins/anvil/` keeps a placeholder `https://anvil-mcp.invalid/mcp` URL and is not published.
+
+There is also a workbench MCP server (`node dist/cli.js workbench-mcp`) with tools to list domains and interfaces, validate adapters, preview mappings, and list, inspect or start bounded experiments.
+
 ## Architecture
 
 ```text
@@ -77,6 +154,10 @@ bin/           anvil-mcp entry
 tests/, e2e/   vitest + Playwright
 docs/          status, research notes, evidence runs, screenshots
 ```
+
+## Related work
+
+Tool description and prompt optimization already exist, and Anvil doesn't claim to invent it. Nearby projects include **toolfit**, **DSPy/GEPA** and **Karenina**. Anvil's focus is narrower: a transparent three-condition experiment with real tool execution, an independently checked end state, and an exported typed adapter that still calls the original tools.
 
 ## Limitations
 
