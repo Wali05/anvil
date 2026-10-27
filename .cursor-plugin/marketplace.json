@@ -1,0 +1,13 @@
+{
+  "name": "Anvil Local Plugins",
+  "owner": {
+    "name": "Anvil contributors"
+  },
+  "plugins": [
+    {
+      "name": "anvil",
+      "source": "plugins/anvil",
+      "description": "Compare raw, descriptions-only and executable adapted tool interfaces for open models, with independent state checks."
+    }
+  ]
+}

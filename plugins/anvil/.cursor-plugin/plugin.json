@@ -1,0 +1,20 @@
+{
+  "name": "anvil",
+  "displayName": "Anvil",
+  "version": "0.1.0",
+  "description": "Compare raw, descriptions-only and executable adapted tool interfaces for open models, with independently checked fixture state.",
+  "author": {
+    "name": "Anvil contributors"
+  },
+  "license": "MIT",
+  "category": "developer-tools",
+  "keywords": [
+    "tool-interfaces",
+    "evaluation",
+    "open-models",
+    "mcp",
+    "adapters"
+  ],
+  "mcpServers": "./mcp.json",
+  "skills": "./skills/"
+}
