@@ -534,7 +534,7 @@ export function createApp(deps: AppDeps): Express {
         fileAdapterCommand: `node "${cliPath}" mcp --domain calendar --adapter file --adapter-file "<PATH_TO_BUNDLE_JSON>"`,
         compatibleWith: 'Local MCP clients that can launch a stdio server (for example Claude Desktop, Cursor, or an MCP inspector).',
         alanDesktopStatus:
-          'Not verified and not claimed. The public Alan plugin contribution guide retrieved 2026-10-26 says Alan currently accepts remote HTTPS MCP servers, not stdio.',
+          'Alan desktop runs custom stdio MCP connectors: Command `npx`, args `-y -p github:Wali05/anvil anvil-mcp --domain calendar` (Windows: Command `cmd`, args `/c npx -y -p github:Wali05/anvil anvil-mcp --domain calendar`). A run inside Alan has not been recorded yet.',
       },
       plugin: {
         directory: pluginDir,
@@ -544,13 +544,13 @@ export function createApp(deps: AppDeps): Express {
         manifestPresent: existsSync(manifest) && Boolean(pluginManifest),
         manifest: pluginManifest,
         installed: false,
-        note: 'The plugin package is prepared in the repository, but it is not installed in Alan. No public HTTPS endpoint exists yet.',
+        note: 'The plugin package is in the repository and its mcp.json launches the stdio adapter server with npx. It is not installed in Alan.',
       },
       deployment: {
         deployed: false,
-        requiredTransport: 'https',
-        placeholderUrl: 'https://your-anvil-host.example/mcp',
-        note: 'Replace the placeholder after deploying an HTTPS MCP endpoint. Do not list the placeholder as live.',
+        requiredTransport: 'stdio',
+        placeholderUrl: '',
+        note: 'The MCP server is local stdio, launched by the client (Alan desktop custom connector, Claude Desktop, Cursor). There is no hosted HTTPS endpoint.',
       },
       lastCheck: mcpCheckCache
         ? { at: new Date(mcpCheckCache.at).toISOString(), ...mcpCheckCache.result }

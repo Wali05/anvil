@@ -246,12 +246,15 @@ describe('HTTP API', () => {
   it('keeps the API free of CORS wildcards and reports integration honestly', async () => {
     const integration = await request<{
       plugin: { installed: boolean };
-      deployment: { deployed: boolean };
-      local: { cliBuilt: boolean };
+      deployment: { deployed: boolean; requiredTransport: string };
+      local: { cliBuilt: boolean; alanDesktopStatus: string };
     }>('/api/integration');
     expect(integration.status).toBe(200);
     expect(integration.body.plugin.installed).toBe(false);
     expect(integration.body.deployment.deployed).toBe(false);
+    expect(integration.body.deployment.requiredTransport).toBe('stdio');
+    expect(integration.body.local.alanDesktopStatus).toContain('npx -y -p github:Wali05/anvil anvil-mcp');
+    expect(JSON.stringify(integration.body)).not.toMatch(/accepts remote HTTPS|your-anvil-host/);
     const health = await request('/api/health');
     expect(health.headers.get('access-control-allow-origin')).toBeNull();
   });
