@@ -11,12 +11,12 @@ Changes in this pass:
 - **Calendar adapter 2.0.0** (v2): `update_event`, `move_event` (keeps the matched event's own duration) and `cancel_event` take title + date (+ optional start_time) instead of a model-supplied id. Motivated by the dev-split failures (guessed `evt_1001` on cancel/update, wrong reschedule ends). The issue adapter is unchanged.
 - **Eval v1 is now "seen":** its failures were inspected on 27 Oct, so the old `eval` split is labelled "eval v1 (seen)" everywhere. Its results are kept, unedited.
 - **Sealed eval v2:** 15 new tasks (9 calendar, 6 issues), split `eval2`, ≥ half from families not in dev, with same-title/same-day and prefix-title distractors (new December fixtures that no earlier task reads). `docs/evidence/eval-v2-manifest.json` records hashes of the task files, fixtures and frozen adapters; `npm run seal:check` verifies them. Live results are in the eval v2 section below. Known bias: most eval v2 tasks target an existing record by title and day, which is what the v2 lookup addresses; report per family.
-- **Recorded replay site:** `npm run build:static` → `dist-static/`, a read-only dashboard over the committed runs in `docs/evidence/runs/` (raw run JSON, now committed). Adapter validation and previews run in the page; nothing can call a model. `vercel.json` builds it. Not deployed.
+- **Recorded replay site:** `npm run build:static` → `dist-static/`, a read-only dashboard over the committed runs in `docs/evidence/runs/` (raw run JSON, now committed). Adapter validation and previews run in the page; nothing can call a model. `vercel.json` builds it. Deployed 27 Oct at https://anvil-two-opal.vercel.app.
 - MCP adapter server logs the lookup step and shows candidates on ambiguity; adapted tools inherit the target's permissions/destructive hints.
 
 Verification in this pass (Linux workspace, Node 22): typecheck pass; **106/106 tests** (15 new lookup tests + runner budget test + eval v2 shape test); production build pass; `check:sim` all rehearsals pass including eval v2 (27 calendar + 18 issue trials, all conditions); `seal:check` intact; `smoke:mcp` pass including lookup cancel (2 calls) and ambiguous refusal (1 call, no write); Playwright 2/2 with bundled Chromium; replay site checked at 1440 px and 390 px with no console errors or horizontal overflow. `smoke:api` passes except "local Ollama model listing", which needs Ollama (not present in that workspace).
 
-Still to do: deployment of the replay site; README.
+README rewritten with the eval v2 results; replay site deployed.
 
 ## Eval v2 live results (27 Oct 2026)
 
@@ -56,7 +56,7 @@ Caveats: synthetic fixtures; small n (15 tasks, 1–3 attempts); most eval v2 ta
 
 ## Current state
 
-The local end-to-end application is implemented and verified: two fixture domains, three interface conditions, independent state checks, executable adapters, persistence, dashboard, exports, and official-SDK MCP servers. It is **not deployed, not pushed, and not installed in Alan**. There is no public URL.
+The local end-to-end application is implemented and verified: two fixture domains, three interface conditions, independent state checks, executable adapters, persistence, dashboard, exports, and official-SDK MCP servers. The recorded replay site is deployed at https://anvil-two-opal.vercel.app (read-only, no model calls). The repo is not pushed and not installed in Alan.
 
 Live evidence exists from a local open model (`qwen2.5:7b` via Ollama) on eval v1 and from three hosted open models on eval v2 (above). Both are small pilots on synthetic fixtures, not a benchmark and not a claim of uplift. Scripted simulations are labeled and excluded from live summaries.
 

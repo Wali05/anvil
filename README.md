@@ -4,7 +4,7 @@
 
 Anvil wraps an existing set of tools in a small, typed, versioned adapter and measures whether the change helps a model finish tasks. It runs the same tasks three ways and checks the resulting state independently, so "the model said done" never counts as a pass.
 
-**Live replay of the eval runs:** REPLAY_URL
+**Live replay of the eval runs:** <https://anvil-two-opal.vercel.app> (read-only; open **Sealed eval v2** or **Experiments**)
 
 ![Anvil live comparison](docs/screenshots/08-live-results-1440.png)
 
