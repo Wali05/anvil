@@ -24,6 +24,22 @@ const NAV: Array<{ id: View; label: string; hint: string }> = [
   { id: 'integration', label: 'Integration', hint: 'MCP and Alan status' },
 ];
 
+/**
+ * The recorded replay opens on the clearest sealed eval v2 contrast: the
+ * largest completed live gpt-oss-20b calendar run (all three conditions),
+ * falling back to any completed live eval v2 run.
+ */
+function replayLandingRun(runs: RunListItem[]): RunListItem | null {
+  const eval2 = runs.filter((run) => run.split === 'eval2' && run.mode === 'live' && run.status === 'completed');
+  const largest = (list: RunListItem[]) =>
+    list.reduce<RunListItem | null>((best, run) => (!best || run.attempts > best.attempts ? run : best), null);
+  return (
+    largest(eval2.filter((run) => run.domain === 'calendar' && run.model.includes('gpt-oss'))) ??
+    largest(eval2.filter((run) => run.model.includes('gpt-oss'))) ??
+    largest(eval2)
+  );
+}
+
 export function App() {
   const [view, setView] = useState<View>('workbench');
   const [domains, setDomains] = useState<DomainInfo[]>([]);
@@ -79,7 +95,10 @@ export function App() {
           }),
         );
         setTasksByDomain(Object.fromEntries(taskEntries));
-        const latest = runResponse.runs.find((candidate) => candidate.domain === 'calendar' && candidate.split === 'dev') ?? runResponse.runs[0];
+        const latest =
+          (IS_REPLAY ? replayLandingRun(runResponse.runs) : null) ??
+          runResponse.runs.find((candidate) => candidate.domain === 'calendar' && candidate.split === 'dev') ??
+          runResponse.runs[0];
         if (latest) {
           setDomainId(latest.domain);
           setSplit(latest.split);
