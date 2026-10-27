@@ -1,6 +1,7 @@
 import { resolve } from 'node:path';
 import { Store } from '../src/core/store.js';
 import { ExperimentRunner, type StartExperimentInput } from '../src/core/runner.js';
+import { createTransport, type ModelTransport } from '../src/core/model.js';
 
 const domainArg = process.argv[2] ?? 'calendar';
 const splitArg = (process.argv[3] ?? 'dev') as 'dev' | 'eval' | 'eval2';
@@ -13,6 +14,11 @@ const taskIdsArg = rawTaskArg && rawTaskArg !== 'all' ? rawTaskArg.split(',').fi
 const trialsArg = Number(process.argv[5] ?? '1');
 const modelId = process.env.ANVIL_MODEL ?? 'qwen2.5:7b';
 const baseUrl = process.env.ANVIL_MODEL_BASE_URL ?? 'http://127.0.0.1:11434/v1';
+// Hosted OpenAI-compatible providers: the key is read from the environment only and never persisted.
+const provider = process.env.ANVIL_MODEL_PROVIDER === 'openai-compatible' ? 'openai-compatible' : 'ollama';
+const apiKey = process.env.ANVIL_MODEL_API_KEY;
+// Optional minimum spacing between completions, for rate-limited providers.
+const minIntervalMs = Math.max(0, Number(process.env.ANVIL_MIN_REQUEST_INTERVAL_MS ?? '0') || 0);
 
 if (splitArg === 'eval2') {
   // Refuse to run the sealed set if its tasks, fixtures or frozen adapters changed since sealing.
@@ -26,7 +32,24 @@ if (splitArg === 'eval2') {
 
 const store = new Store(resolve(process.env.ANVIL_DATA_DIR ?? '.anvil'));
 await store.init();
-const runner = new ExperimentRunner({ store });
+let lastRequestAt = 0;
+const runner = new ExperimentRunner({
+  store,
+  transportFactory: (config, timeoutMs): ModelTransport => {
+    const inner = createTransport(config, timeoutMs);
+    if (minIntervalMs === 0) return inner;
+    return {
+      kind: inner.kind,
+      listModels: () => inner.listModels(),
+      async complete(request) {
+        const wait = lastRequestAt + minIntervalMs - Date.now();
+        if (wait > 0) await new Promise((resolveWait) => setTimeout(resolveWait, wait));
+        lastRequestAt = Date.now();
+        return inner.complete(request);
+      },
+    };
+  },
+});
 
 const input: StartExperimentInput = {
   mode: 'live',
@@ -51,9 +74,10 @@ function trials1(value: number): number {
 const run = await runner.start(
   input,
   {
-    provider: 'ollama',
+    provider,
     baseUrl,
     model: modelId,
+    ...(apiKey ? { apiKey } : {}),
     temperature: 0,
     maxTokensPerCompletion: 900,
   },
@@ -65,7 +89,9 @@ console.log(`started ${run.id} (${run.mode}) against ${modelId} at ${baseUrl}`);
 for (let attempt = 0; attempt < 3 * 60 * 60; attempt += 1) {
   const current = store.getRun(run.id);
   if (!current) break;
-  if (current.status !== 'running') {
+  if (current.status !== 'running' && current.finishedAt) {
+    // Persist the finalized record before exiting; the runner's own final save may still be in flight.
+    await store.saveRun(current);
     console.log(`\nrun ${current.status} in ${current.trials.length} attempts`);
     for (const trial of current.trials) {
       console.log(`- ${trial.taskId} [${trial.condition}] ${trial.status} ${trial.statusReason ?? ''}`);
