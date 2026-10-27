@@ -5,7 +5,7 @@
  * a model run or change settings. Adapter validation and mapping previews still
  * run, in the page, with the same core code as the server.
  */
-import { replayFileName } from './replayKeys';
+import { replayFileName, replayKey } from './replayKeys';
 
 export { replayFileName, replayKey } from './replayKeys';
 
@@ -19,14 +19,18 @@ export interface ReplayData {
   builtAt: string;
   sourceRuns: Array<{ id: string; mode: string; domain: string; split: string }>;
   responses: Record<string, unknown>;
+  /** Download paths (replay keys) the build could not capture. */
+  skippedDownloads?: string[];
 }
 
 let loading: Promise<ReplayData> | null = null;
+let loaded: ReplayData | null = null;
 
 export function replayData(): Promise<ReplayData> {
   loading ??= fetch(`${import.meta.env.BASE_URL}replay/data.json`).then(async (response) => {
     if (!response.ok) throw new Error(`Replay data missing (HTTP ${response.status}).`);
-    return (await response.json()) as ReplayData;
+    loaded = (await response.json()) as ReplayData;
+    return loaded;
   });
   return loading;
 }
@@ -35,4 +39,10 @@ export function replayData(): Promise<ReplayData> {
 export function downloadHref(path: string): string {
   if (!IS_REPLAY) return path;
   return `${import.meta.env.BASE_URL}replay/files/${replayFileName(path)}`;
+}
+
+/** False when the replay build skipped this download (no file was captured). */
+export function downloadAvailable(path: string): boolean {
+  if (!IS_REPLAY) return true;
+  return !(loaded?.skippedDownloads ?? []).includes(replayKey(path));
 }

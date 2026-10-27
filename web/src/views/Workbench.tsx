@@ -27,7 +27,7 @@ import {
 } from '../components';
 import { formatDuration, formatTime, percent, shortHash } from '../api';
 import { splitName } from '../types';
-import { downloadHref, IS_REPLAY } from '../replay';
+import { downloadAvailable, downloadHref, IS_REPLAY } from '../replay';
 import type { Selection } from '../App';
 
 const CONDITIONS: ConditionId[] = ['original', 'descriptions', 'adapted'];
@@ -137,10 +137,14 @@ export function Workbench({
               Stop run
             </button>
           ) : null}
-          {run ? (
+          {run && downloadAvailable(`/api/runs/${run.id}/export`) ? (
             <a className="btn btn-ghost btn-small" href={downloadHref(`/api/runs/${run.id}/export`)} download>
               Export evidence
             </a>
+          ) : run ? (
+            <span className="mono tiny" title="The evidence bundle for this run was not captured in this replay.">
+              Export not in replay
+            </span>
           ) : null}
           {!IS_REPLAY ? (
             <button

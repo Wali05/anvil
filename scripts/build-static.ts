@@ -32,6 +32,9 @@ for (const file of (await readdir(sourceDir)).filter((name) => name.endsWith('.j
 const running = await startServer({ port: 0, host: '127.0.0.1', dataDir, rootDir: root });
 const responses: Record<string, unknown> = {};
 const files: Array<{ path: string; body: string }> = [];
+// Downloads the server refused with 409 (e.g. a run whose recorded adapter no
+// longer matches the current one). The replay hides their download links.
+const skippedDownloads: Array<{ path: string; status: number; reason: string }> = [];
 const get = async (path: string): Promise<unknown> => {
   const response = await fetch(`${running.url}${path}`);
   if (!response.ok) throw new Error(`GET ${path} → HTTP ${response.status}`);
@@ -41,6 +44,19 @@ const get = async (path: string): Promise<unknown> => {
 };
 const download = async (path: string) => {
   const response = await fetch(`${running.url}${path}`);
+  if (response.status === 409) {
+    const body = await response.text();
+    let reason = body.slice(0, 300);
+    try {
+      const parsed = JSON.parse(body) as { error?: unknown; message?: unknown };
+      reason = String(parsed.error ?? parsed.message ?? reason);
+    } catch {
+      // keep the raw text
+    }
+    console.warn(`warning: skipping download ${path} (HTTP 409: ${reason})`);
+    skippedDownloads.push({ path, status: 409, reason });
+    return;
+  }
   if (!response.ok) throw new Error(`GET ${path} → HTTP ${response.status}`);
   files.push({ path, body: await response.text() });
 };
@@ -69,6 +85,7 @@ try {
     builtAt: new Date().toISOString(),
     sourceRuns: list.runs.map((run) => ({ id: run.id, mode: run.mode, domain: run.domain, split: run.split })),
     responses,
+    skippedDownloads: skippedDownloads.map((item) => replayKey(item.path)),
   };
 
   await build({ configFile: join(root, 'vite.config.ts'), mode: 'replay', logLevel: 'warn' });
@@ -77,7 +94,8 @@ try {
   for (const file of files) await writeFile(join(outDir, 'replay', 'files', replayFileName(file.path)), scrub(file.body), 'utf8');
   console.log(
     `dist-static/ written: ${list.runs.length} recorded runs (${list.runs.filter((run) => run.mode === 'live').length} live), ` +
-      `${Object.keys(responses).length} captured responses, ${files.length} downloads.`,
+      `${Object.keys(responses).length} captured responses, ${files.length} downloads` +
+      (skippedDownloads.length ? `, ${skippedDownloads.length} skipped (HTTP 409).` : '.'),
   );
 } finally {
   await running.close();
