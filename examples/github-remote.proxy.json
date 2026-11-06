@@ -1,0 +1,12 @@
+{
+  "schema": "anvil.proxy/v1",
+  "name": "github-via-anvil",
+  "upstream": {
+    "url": "https://api.githubcopilot.com/mcp/",
+    "headers": { "Authorization": "Bearer ${GITHUB_TOKEN}" }
+  },
+  "tools": {
+    "exclude": ["delete_*"]
+  },
+  "log": { "file": "./github-calls.jsonl" }
+}

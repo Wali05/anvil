@@ -20,6 +20,11 @@ const LOCAL_DATE_TIME = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/
 const LOCAL_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const OFFSET = /^[+-](\d{2}):(\d{2})$/;
 const MAX_MAPPINGS = 40;
+/** Upstream MCP tool names: letters, digits, `_`, `-`, `.` and `/` (SEP-986 plus common server prefixes). */
+const ORIGINAL_TOOL_NAME = /^[A-Za-z0-9_][A-Za-z0-9_.\-/]{0,127}$/;
+export const MAX_ADAPTER_TOOLS = 64;
+/** Ajv messages for value-level constraints (as opposed to type, required or unknown-field errors). */
+const SAMPLE_VALUE_CONSTRAINT = /must match (pattern|format)|must NOT have (fewer|more) than \d+ characters|must be (>=|<=|>|<) |must be multiple of|must be equal to one of the allowed values|must be equal to constant/;
 
 export interface AdapterParseResult {
   ok: boolean;
@@ -69,8 +74,8 @@ export function parseAdapterSpec(raw: unknown): AdapterParseResult {
         issues.push({ path: '$.limits.oneToOne', message: `must be ${!declaresLookup} for this adapter`, severity: 'error' });
       }
     }
-    if (!Number.isInteger(spec.limits.maxTools) || spec.limits.maxTools < 1 || spec.limits.maxTools > 12) {
-      issues.push({ path: '$.limits.maxTools', message: 'must be an integer between 1 and 12', severity: 'error' });
+    if (!Number.isInteger(spec.limits.maxTools) || spec.limits.maxTools < 1 || spec.limits.maxTools > MAX_ADAPTER_TOOLS) {
+      issues.push({ path: '$.limits.maxTools', message: `must be an integer between 1 and ${MAX_ADAPTER_TOOLS}`, severity: 'error' });
     }
   }
   if (!Array.isArray(spec.tools)) {
@@ -78,7 +83,7 @@ export function parseAdapterSpec(raw: unknown): AdapterParseResult {
     return { ok: false, issues };
   }
   if (spec.tools.length === 0) issues.push({ path: '$.tools', message: 'must contain at least one tool', severity: 'error' });
-  const maxTools = isPlainObject(spec.limits) && typeof spec.limits.maxTools === 'number' ? spec.limits.maxTools : 12;
+  const maxTools = isPlainObject(spec.limits) && typeof spec.limits.maxTools === 'number' ? spec.limits.maxTools : MAX_ADAPTER_TOOLS;
   if (spec.tools.length > maxTools) {
     issues.push({ path: '$.tools', message: `declares ${spec.tools.length} tools but limits.maxTools is ${maxTools}`, severity: 'error' });
   }
@@ -99,7 +104,7 @@ export function parseAdapterSpec(raw: unknown): AdapterParseResult {
     if (typeof tool.description !== 'string' || tool.description.trim().length < 8) {
       issues.push({ path: `$.tools[${index}].description`, message: 'must be at least 8 characters', severity: 'error' });
     }
-    if (typeof tool.target !== 'string' || !/^[A-Za-z][A-Za-z0-9_.-]{1,63}$/.test(tool.target)) {
+    if (typeof tool.target !== 'string' || !ORIGINAL_TOOL_NAME.test(tool.target)) {
       issues.push({ path: `$.tools[${index}].target`, message: 'must be an original tool name', severity: 'error' });
     }
     const schemaCheck = validateAdapterInputSchema(tool.inputSchema, `$.tools[${index}].inputSchema`);
@@ -124,7 +129,7 @@ function parseLookupShape(lookup: unknown, at: string): AdapterIssue[] {
   const issues: AdapterIssue[] = [];
   if (!isPlainObject(lookup)) return [{ path: at, message: 'must be an object', severity: 'error' }];
   const spec = lookup as unknown as AdapterLookupSpec;
-  if (typeof spec.tool !== 'string' || !/^[A-Za-z][A-Za-z0-9_.-]{1,63}$/.test(spec.tool)) {
+  if (typeof spec.tool !== 'string' || !ORIGINAL_TOOL_NAME.test(spec.tool)) {
     issues.push({ path: `${at}.tool`, message: 'must be an original tool name', severity: 'error' });
   }
   if (!Array.isArray(spec.arguments) || spec.arguments.length === 0 || spec.arguments.length > MAX_MAPPINGS) {
@@ -159,6 +164,12 @@ export interface CompileOptions {
   rawToolNames: string[];
   /** Original tools that are read-only; a v2 lookup may only call one of these. */
   readOnlyTools?: Set<string>;
+  /**
+   * Proxy mode: a public tool may reuse the name of its own target, replacing
+   * that original tool in the exposed catalog. It may still never shadow a
+   * different original tool.
+   */
+  allowReplacingTarget?: boolean;
 }
 
 /** Runtime context for compiling the target call of a lookup tool. */
@@ -187,7 +198,8 @@ export function validateAdapter(spec: AdapterSpec, options: CompileOptions): Ada
       issues.push({ path: `tools.${tool.name}.name`, message: `duplicate public tool name "${tool.name}"`, severity: 'error' });
     }
     adapterNames.add(tool.name.toLowerCase());
-    if (rawNames.has(tool.name.toLowerCase())) {
+    const replacesOwnTarget = options.allowReplacingTarget === true && tool.name.toLowerCase() === tool.target.toLowerCase();
+    if (rawNames.has(tool.name.toLowerCase()) && !replacesOwnTarget) {
       issues.push({
         path: `tools.${tool.name}.name`,
         message: `"${tool.name}" collides with an original tool name; public names must be unambiguous`,
@@ -221,7 +233,17 @@ export function validateAdapter(spec: AdapterSpec, options: CompileOptions): Ada
       }
       const context = tool.lookup ? sampleLookupContext(tool) : undefined;
       const compiled = compileToOriginal(tool, sample, options, context);
-      for (const error of compiled.errors) issues.push(error);
+      for (const error of compiled.errors) {
+        // A placeholder sample cannot satisfy arbitrary value constraints (a pattern, a URI format, a
+        // length); only the structure of the compiled call is checked here. Every real call is still
+        // validated against the full target schema before it is executed.
+        const valueOnly = error.path === 'compiled' && SAMPLE_VALUE_CONSTRAINT.test(error.message);
+        issues.push({
+          ...error,
+          path: `tools.${tool.name}.${error.path}`,
+          ...(valueOnly ? { severity: 'warning' as const, message: `not verifiable with a sample value: ${error.message}` } : {}),
+        });
+      }
     }
   }
 
@@ -658,13 +680,27 @@ function buildSampleInput(schema: JsonSchema): Record<string, unknown> {
 function sampleFor(property: JsonSchemaProperty, required: boolean): unknown {
   if (property.type === 'string') {
     if (property.enum && property.enum.length > 0) return property.enum[0];
-    if (property.format === 'date-time') return '2026-11-02T09:00';
+    // A declared date-time format is RFC 3339; local "YYYY-MM-DDTHH:MM" inputs declare a pattern instead.
+    if (property.format === 'date-time') return '2026-11-02T09:00:00+00:00';
+    if (property.format === 'date') return '2026-11-02';
     if (typeof property.pattern === 'string' && property.pattern.includes('d{4}')) {
       return property.pattern.includes('T') ? '2026-11-02T09:00' : '2026-11-02';
     }
     if (typeof property.pattern === 'string' && property.pattern.includes(':')) return '09:00';
-    if (property.format === 'email') return 'sample@example.com';
-    return required ? 'sample' : 'sample';
+    const byFormat: Record<string, string> = {
+      email: 'sample@example.com',
+      uri: 'https://example.com/sample',
+      url: 'https://example.com/sample',
+      'uri-reference': '/sample',
+      uuid: '00000000-0000-4000-8000-000000000000',
+      time: '09:00:00+00:00',
+      hostname: 'example.com',
+      ipv4: '192.0.2.1',
+    };
+    let text = property.format && byFormat[property.format] ? byFormat[property.format]! : 'sample';
+    if (typeof property.minLength === 'number' && text.length < property.minLength) text = text.padEnd(property.minLength, 'x');
+    if (typeof property.maxLength === 'number' && text.length > property.maxLength) text = text.slice(0, Math.max(property.maxLength, 0));
+    return text;
   }
   if (property.type === 'integer' || property.type === 'number') {
     return property.minimum ?? (property.enum && property.enum.length > 0 ? property.enum[0] : 30);

@@ -12,6 +12,7 @@ import { AnvilError, errorMessage } from './core/errors.js';
 import { loadProjectEnv } from './core/env.js';
 import { APP_VERSION } from './core/version.js';
 import { requireDomain } from './domains/index.js';
+import { runInspectCommand, runProxyCommand, runReportCommand, runScaffoldCommand } from './proxy/cli.js';
 
 function parseFlags(argv: string[]): { command: string; flags: Record<string, string>; rest: string[] } {
   const command = argv[0] && !argv[0].startsWith('--') ? argv[0] : 'serve';
@@ -32,29 +33,63 @@ function parseFlags(argv: string[]): { command: string; flags: Record<string, st
   return { command, flags, rest };
 }
 
-const HELP = `Anvil ${APP_VERSION} — local tool-interface workbench for open models
+const HELP = `Anvil ${APP_VERSION} — make MCP tools easier for models to call, and measure it
 
-Usage:
+Put Anvil in front of any MCP server:
+  anvil inspect  (--url <url> | -- <command> [args…] | --tools-file <tools.json> | --domain <fixture>)
+                 [--json] [--verbose] [--fail-on error|warn] [--out <file>]
+      Lint a tool catalog for patterns that make models fail (nesting, hidden limits,
+      opaque ids, query dialects, missing formats, catalog size).
+  anvil scaffold (--url <url> | -- <command> [args…] | --tools-file <tools.json>)
+                 [--tools a,b,…] [--name <id>] [--out adapter.json]
+      Generate a validated starter adapter that flattens nested tool inputs.
+  anvil proxy    (--url <url> [--header "Name: value"]… | -- <command> [args…] | --config anvil.proxy.json)
+                 [--adapter adapter.json] [--passthrough all|none] [--include a,b] [--exclude x,y]
+                 [--keep-targets] [--log-file calls.jsonl] [--log-args] [--http <port> [--host 127.0.0.1]]
+                 [--dry-run] [--timeout <seconds>]
+      Serve the upstream's tools (adapted, filtered, re-described) over stdio or HTTP.
+  anvil report   <calls.jsonl> [--json]
+      Summarize a proxy call log: which tools fail, where, and with which errors.
+
+Workbench and built-in fixtures:
   anvil serve [--port 4317] [--host 127.0.0.1] [--data-dir .anvil]
   anvil workbench-mcp
   anvil mcp --domain <calendar|issues> [--condition adapted|original|descriptions]
-            [--adapter default|saved|file] [--adapter-file <bundle-or-spec.json>]
+            [--adapter default|saved|file] [--adapter-file <bundle-or-spec.json>] [--http <port>]
   anvil export --domain <calendar|issues> [--source default|saved]
                [--kind bundle|spec|mcp-config] [--out <file>] [--run-id <id>]
   anvil check-mcp
   anvil --help
 
 Notes:
-  - The server and MCP stdio servers are local-only by default.
+  - Secrets: reference them as \${VAR} in proxy configs and --header values; they are read from the
+    environment and never written to logs, run records or exports.
+  - HTTP serving binds 127.0.0.1 by default. A public --host requires ANVIL_HTTP_TOKEN (bearer auth).
   - Simulation runs are labelled scripted rehearsals and are not live model evidence.
-  - No API key is persisted; the workbench keeps it in process memory only.
 `;
 
 async function main(): Promise<void> {
   loadProjectEnv();
   const { command, flags } = parseFlags(process.argv.slice(2));
-  if (flags.help === 'true' || command === 'help') {
+  const rest = process.argv.slice(3);
+  if (command === 'help' || command === '-h' || (flags.help === 'true' && !rest.includes('--'))) {
     process.stdout.write(HELP);
+    return;
+  }
+  if (command === 'proxy') {
+    await runProxyCommand(rest);
+    return;
+  }
+  if (command === 'inspect') {
+    process.exitCode = await runInspectCommand(rest);
+    return;
+  }
+  if (command === 'scaffold') {
+    process.exitCode = await runScaffoldCommand(rest);
+    return;
+  }
+  if (command === 'report') {
+    await runReportCommand(rest);
     return;
   }
   if (command === 'serve') {
