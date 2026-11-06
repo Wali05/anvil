@@ -344,12 +344,20 @@ export class ExperimentRunner {
       transport = this.transportFactory(modelConfig, Math.min(run.config.budget.maxWallClockMsPerTrial, 300_000));
     }
 
+    let tokenBudgetStop: string | null = null;
+    const plannedTrials = tasks.length * run.config.trialsPerTask * run.config.conditions.length;
     try {
       outer: for (const task of tasks) {
         for (let trialIndex = 1; trialIndex <= run.config.trialsPerTask; trialIndex += 1) {
           for (const condition of run.config.conditions) {
             if (signal.aborted || run.cancelRequestedAt) {
               run.status = 'canceled';
+              break outer;
+            }
+            if (run.mode === 'live' && budget.totalTokens >= run.config.budget.maxTotalTokens) {
+              // The run-level cap is a hard stop: never start another trial (and so never
+              // send another model request) once it is spent.
+              tokenBudgetStop = `Stopped early: the run token budget (${run.config.budget.maxTotalTokens}) was spent after ${run.trials.length} of ${plannedTrials} planned trials (${budget.totalTokens} tokens used). The remaining trials were not run.`;
               break outer;
             }
             const iface = interfaces.get(condition);
@@ -380,6 +388,7 @@ export class ExperimentRunner {
     } finally {
       run.finishedAt = nowIso();
       run.summary = computeRunSummary(run.trials, run.config.conditions, run.mode);
+      if (tokenBudgetStop) run.summary.notes.push(tokenBudgetStop);
       if (run.cancelRequestedAt) {
         run.status = run.status === 'failed' ? 'failed' : 'canceled';
         if (!run.summary.notes.some((note) => note.toLowerCase().includes('cancel'))) {
@@ -488,6 +497,12 @@ export class ExperimentRunner {
           stopLoop = true;
           break;
         }
+        if (budget.totalTokens >= run.config.budget.maxTotalTokens) {
+          status = 'invalid';
+          statusReason = `Run token budget exhausted before turn ${turnIndex} (${budget.totalTokens} >= ${run.config.budget.maxTotalTokens}); no request was sent.`;
+          stopLoop = true;
+          break;
+        }
         const requestStarted = Date.now();
         const remainingMs = deadline - requestStarted;
         let response;
@@ -558,9 +573,11 @@ export class ExperimentRunner {
           stopLoop = true;
           break;
         }
-        if (budget.totalTokens > run.config.budget.maxTotalTokens) {
+        if (budget.totalTokens >= run.config.budget.maxTotalTokens && response.toolCalls.length > 0) {
+          // The cap was reached mid-trial and the model still wants to act: stop here rather than
+          // executing tools whose results would need yet another request.
           status = 'invalid';
-          statusReason = `Run token budget exhausted (${budget.totalTokens} > ${run.config.budget.maxTotalTokens}).`;
+          statusReason = `Run token budget exhausted (${budget.totalTokens} >= ${run.config.budget.maxTotalTokens}).`;
           finalAnswer = response.content;
           stopLoop = true;
           break;
