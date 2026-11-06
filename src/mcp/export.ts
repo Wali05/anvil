@@ -5,6 +5,7 @@ import { buildConditionInterface } from '../core/interfaces.js';
 import { requireDomain } from '../domains/index.js';
 import { validateAdapter } from '../core/adapter.js';
 import { rawToolSchemaMap, readOnlyToolNames } from '../core/interfaces.js';
+import { clientSetups, npxLaunch, windowsLaunch } from './clients.js';
 
 export interface AdapterBundleInput {
   spec: AdapterSpec;
@@ -87,19 +88,17 @@ export function adapterBundle(input: AdapterBundleInput): Record<string, unknown
     mcpConfig,
     mcpConfigNotes: [
       'Replace <ANVIL_CLI_OR_CHECKOUT> with this checkout path and <PATH_TO_THIS_BUNDLE_JSON> with the exported bundle file.',
-      'Alan desktop runs custom stdio MCP connectors: add one with Command `npx` and args `-y -p github:Wali05/anvil anvil-mcp --domain <domain>` (Windows: Command `cmd`, args `/c npx -y -p github:Wali05/anvil anvil-mcp --domain <domain>`). For an exported bundle, use the local command below with `--adapter file`.',
       `Ready local command in this checkout: node "${cliPath}" mcp --domain ${domain.id} --adapter ${input.adapterSource === 'saved' ? 'saved' : 'default'}`,
-      'The MCP server is local stdio only; there is no hosted HTTPS endpoint.',
+      'Without a checkout: npx -y -p github:Wali05/anvil anvil-mcp --domain <domain> --adapter file --adapter-file <bundle.json>.',
+      'Any MCP client that launches stdio servers works; add --http <port> to serve Streamable HTTP instead.',
     ],
-    alanStatus: {
-      installed: false,
-      transport: 'stdio',
-      customConnector: { command: 'npx', args: ['-y', '-p', 'github:Wali05/anvil', 'anvil-mcp', '--domain', domain.id] },
-      customConnectorWindows: { command: 'cmd', args: ['/c', 'npx', '-y', '-p', 'github:Wali05/anvil', 'anvil-mcp', '--domain', domain.id] },
-      remoteUrl: null,
-      pluginPackage: 'plugins/anvil',
-      note: 'A plugin file is included in the repository. File presence is not installation.',
+    npx: {
+      fixture: npxLaunch(bundleName, 'anvil-mcp', ['--domain', domain.id, '--adapter', 'file', '--adapter-file', '<PATH_TO_THIS_BUNDLE_JSON>']),
+      fixtureWindows: windowsLaunch(npxLaunch(bundleName, 'anvil-mcp', ['--domain', domain.id, '--adapter', 'file', '--adapter-file', '<PATH_TO_THIS_BUNDLE_JSON>'])),
     },
+    clients: clientSetups(npxLaunch(bundleName, 'anvil-mcp', ['--domain', domain.id, '--adapter', 'file', '--adapter-file', '<PATH_TO_THIS_BUNDLE_JSON>'])).map(
+      ({ id, client, where, snippet }) => ({ id, client, where, snippet }),
+    ),
     evidence: input.run
       ? {
           runId: input.run.id,

@@ -10,8 +10,8 @@ export default defineConfig({
   reporter: [['list']],
   use: {
     baseURL: 'http://127.0.0.1:4319',
-    // Installed Edge by default (Windows dev box); ANVIL_E2E_BROWSER=bundled uses Playwright's own Chromium.
-    ...(process.env.ANVIL_E2E_BROWSER === 'bundled' ? {} : { channel: 'msedge' as const }),
+    // Playwright's bundled Chromium by default; ANVIL_E2E_BROWSER=msedge (or chrome) uses an installed browser instead.
+    ...(process.env.ANVIL_E2E_BROWSER && process.env.ANVIL_E2E_BROWSER !== 'bundled' ? { channel: process.env.ANVIL_E2E_BROWSER } : {}),
     ...(process.env.ANVIL_E2E_EXECUTABLE ? { launchOptions: { executablePath: process.env.ANVIL_E2E_EXECUTABLE } } : {}),
     headless: true,
     viewport: { width: 1440, height: 1000 },

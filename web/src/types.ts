@@ -227,6 +227,21 @@ export interface InterfaceResponse {
   };
 }
 
+export interface ServerLaunch {
+  name: string;
+  command: string;
+  args: string[];
+}
+
+export interface ClientSetup {
+  id: string;
+  client: string;
+  where: string;
+  format: 'json' | 'toml' | 'shell';
+  snippet: string;
+  note?: string;
+}
+
 export interface IntegrationInfo {
   ok: true;
   local: {
@@ -236,20 +251,15 @@ export interface IntegrationInfo {
     calendarAdapterCommand: string;
     issuesAdapterCommand: string;
     fileAdapterCommand: string;
+    inspectCommand: string;
+    scaffoldCommand: string;
+    proxyCommand: string;
     compatibleWith: string;
-    alanDesktopStatus: string;
   };
-  plugin: {
-    directory: string;
-    manifestPath: string;
-    marketplacePath: string;
-    mcpPath: string;
-    manifestPresent: boolean;
-    manifest: unknown;
-    installed: false;
-    note: string;
-  };
-  deployment: { deployed: false; requiredTransport: string; placeholderUrl: string; note: string };
+  npx: { package: string; fixture: ServerLaunch; fixtureWindows: ServerLaunch; proxyExample: ServerLaunch };
+  clients: ClientSetup[];
+  transports: { stdio: boolean; streamableHttp: string };
+  deployment: { deployed: false; requiredTransport: string; note: string };
   lastCheck: (Record<string, unknown> & { at?: string; ok?: boolean; tools?: Array<{ name: string }>; error?: string | null }) | null;
 }
 

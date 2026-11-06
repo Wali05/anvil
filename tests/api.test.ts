@@ -245,15 +245,21 @@ describe('HTTP API', () => {
 
   it('keeps the API free of CORS wildcards and reports integration honestly', async () => {
     const integration = await request<{
-      plugin: { installed: boolean };
       deployment: { deployed: boolean; requiredTransport: string };
-      local: { cliBuilt: boolean; alanDesktopStatus: string };
+      local: { cliBuilt: boolean; proxyCommand: string };
+      npx: { fixture: { command: string; args: string[] }; fixtureWindows: { command: string; args: string[] } };
+      clients: Array<{ id: string; snippet: string }>;
     }>('/api/integration');
     expect(integration.status).toBe(200);
-    expect(integration.body.plugin.installed).toBe(false);
     expect(integration.body.deployment.deployed).toBe(false);
     expect(integration.body.deployment.requiredTransport).toBe('stdio');
-    expect(integration.body.local.alanDesktopStatus).toContain('npx -y -p github:Wali05/anvil anvil-mcp');
+    expect(integration.body.local.proxyCommand).toContain('proxy --adapter');
+    expect(integration.body.npx.fixture).toEqual({ name: 'anvil-calendar', command: 'npx', args: ['-y', '-p', 'github:Wali05/anvil', 'anvil-mcp', '--domain', 'calendar'] });
+    expect(integration.body.npx.fixtureWindows.command).toBe('cmd');
+    const clients = new Map(integration.body.clients.map((client) => [client.id, client.snippet]));
+    expect([...clients.keys()]).toEqual(expect.arrayContaining(['claude-code', 'claude-desktop', 'cursor', 'vscode', 'windsurf', 'codex', 'generic']));
+    expect(clients.get('claude-code')).toBe('claude mcp add anvil-calendar -- npx -y -p github:Wali05/anvil anvil-mcp --domain calendar');
+    expect(JSON.parse(clients.get('vscode')!).servers['anvil-calendar'].type).toBe('stdio');
     expect(JSON.stringify(integration.body)).not.toMatch(/accepts remote HTTPS|your-anvil-host/);
     const health = await request('/api/health');
     expect(health.headers.get('access-control-allow-origin')).toBeNull();

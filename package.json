@@ -1,10 +1,27 @@
 {
   "name": "anvil-workbench",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "A local-first tool-interface workbench for open models: compare raw, described and executable adapted tools against independently checked state.",
+  "description": "Make MCP tools easier for models to call: lint any MCP server's tools, put a validated adapter proxy in front of it, and measure the effect with independently checked before/after evals.",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "mcp-proxy",
+    "tool-calling",
+    "function-calling",
+    "llm",
+    "agents",
+    "open-models",
+    "evals",
+    "json-schema"
+  ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Wali05/anvil.git"
+  },
+  "homepage": "https://github.com/Wali05/anvil#readme",
   "engines": {
     "node": ">=20.11"
   },
@@ -63,6 +80,10 @@
     "bin",
     "dist",
     "scripts/build-server.mjs",
+    "skills",
+    "examples",
+    "docs/PROXY.md",
+    "docs/ADAPTER_SPEC.md",
     "README.md",
     "LICENSE"
   ]

@@ -148,7 +148,13 @@ try {
   });
   check(configured.body.status.configured && configured.body.status.keyInMemory, 'model configured in memory');
   const test = await json<{ ok: boolean; modelCount: number }>('/api/config/test', { method: 'POST' });
-  check(test.body.ok && test.body.modelCount > 0, 'local Ollama model listing');
+  // Optional: only meaningful when a local Ollama is running. Set ANVIL_SMOKE_REQUIRE_OLLAMA=1 to make it a hard check.
+  const ollamaUp = await fetch('http://127.0.0.1:11434/api/tags', { signal: AbortSignal.timeout(1500) }).then((r) => r.ok).catch(() => false);
+  if (ollamaUp || process.env.ANVIL_SMOKE_REQUIRE_OLLAMA === '1') {
+    check(test.body.ok && test.body.modelCount > 0, 'local Ollama model listing');
+  } else {
+    console.log('  skip local Ollama model listing (no Ollama on 127.0.0.1:11434)');
+  }
 
   const files = await readdir(join(dataDir, 'runs'));
   let leaked = false;
@@ -159,8 +165,8 @@ try {
   check(!leaked, 'API key never persisted to run files');
   await json('/api/config/model', { method: 'DELETE' });
 
-  const integration = await json<{ local: { cliBuilt: boolean }; plugin: { installed: boolean }; deployment: { deployed: boolean } }>('/api/integration');
-  check(integration.body.local.cliBuilt && integration.body.plugin.installed === false && integration.body.deployment.deployed === false, 'integration status is honest');
+  const integration = await json<{ local: { cliBuilt: boolean }; clients: unknown[]; deployment: { deployed: boolean } }>('/api/integration');
+  check(integration.body.local.cliBuilt && integration.body.clients.length > 0 && integration.body.deployment.deployed === false, 'integration status is honest');
 
   const mcpCheck = await json<{ ok: boolean; result: { tools: unknown[]; ok: boolean } }>('/api/integration/check', { method: 'POST' });
   check(mcpCheck.body.ok && mcpCheck.body.result.ok && mcpCheck.body.result.tools.length === 8, 'live MCP handshake through API');

@@ -1,161 +1,115 @@
 # Anvil
 
-**A workbench that rewrites tool interfaces so open models call tools correctly, and proves it with sealed before/after evals.**
+**Make MCP tools easier for models to call, and prove it.**
 
-Open models often call a tool, get a confusing error or an empty result, and then report success anyway. In our eval, `gpt-oss-20b` was asked for the open P2 bugs in a repo and confidently answered `[]`. The right answer was `[7, 9, 12, 22]`.
+Agents fail on tool interfaces more often than on reasoning. They nest a field one level too deep, guess an id they never looked up, ask for 100 results from a tool that allows 50, invent a query syntax, get back an empty list, and report success.
 
-Anvil wraps the same tools in a small, typed adapter (flat fields, friendly names, safe lookups) that still calls the original tools underneath. It then runs each task three ways and checks the final state and the answer independently, so "the model said done" never counts as a pass.
+Anvil fixes that at the interface, without touching the server:
 
-**▶ Live replay of every eval run:** <https://anvil-two-opal.vercel.app>
+- **`anvil inspect`** lints any MCP server's tool catalog for the patterns that make models fail, with a concrete fix for each.
+- **`anvil scaffold`** writes a validated starter adapter that flattens nested inputs.
+- **`anvil proxy`** sits in front of the real server and serves adapted, filtered and re-described tools to any MCP client. Every call is compiled back into the original call, validated, and logged.
+- **`anvil report`** turns the proxy's call log into "which tools fail, where, and why".
+- **The workbench** measures whether an interface change actually helps a given model: the same tasks under original, better-described and adapted tools, with the end state checked independently.
 
-## Results
+Works with any MCP client (Claude Code, Claude Desktop, Cursor, VS Code, Windsurf, Codex, …), any MCP server (stdio or Streamable HTTP), and any OpenAI-compatible model for evals. MIT licensed.
 
-Tasks passed on sealed eval v2, per condition:
+**▶ Replay of every recorded eval run:** <https://anvil-two-opal.vercel.app>
 
-| Model | Original tools | Better descriptions | Anvil adapter |
-| --- | --- | --- | --- |
-| `openai/gpt-oss-20b` | 20/45 | 34/45 | **43/45** |
-| `deepseek-v4.1-flash` | 43/45 | 45/45 | 45/45 |
-| `nvidia/nemotron-3-ultra` | 15/15 | 15/15 | 15/15 |
+## Try it in one minute
 
-Small sample: 15 synthetic fixture tasks × 3 attempts (Nemotron × 1), temperature 0. The smaller model gains the most. The strong models are already near the ceiling. Full caveats are [below](#eval-v2-in-detail).
-
-## Use it in Alan
-
-In Alan, open **Settings → Plugins → MCP → Add custom connector** and add a command connector:
+Nothing to install or clone. Lint the built-in issue-tracker fixture (no network to a server, no model):
 
 ```bash
-npx -y -p github:Wali05/anvil anvil-mcp --domain calendar
+npx -y -p github:Wali05/anvil anvil inspect --domain issues
 ```
 
-On Windows, use `cmd /c npx -y -p github:Wali05/anvil anvil-mcp --domain calendar`. Use `--domain issues` for the issue tracker. Nothing to clone. The connector shows **Connected** after about 30 s, and the adapted tools (`find_events`, `move_event`, `cancel_event`, …) appear in your session. More detail is in [Add it to Alan](#add-it-to-alan).
+```text
+Score 87/100 · 4 tools · ~559 catalog tokens · 0 errors, 4 warnings, 2 notes
 
-![Anvil live comparison](docs/screenshots/08-live-results-1440.png)
+ 76  issues_search  (3 params, depth 1, ~97 tokens)
+     ▲ q: "q" takes a free-text query. Models invent syntax the server does not support, then trust an empty result.
+         fix: Expose structured filter fields and assemble the query string in an adapted tool (bounded query assembly).
+     ▲ limit: "limit" has maximum 50, but the description does not say so. Models routinely ask for more and get a validation error.
+         fix: State the limit in the description, or set a default in an adapted tool.
+```
 
-## The failure, step by step
+Those two findings are exactly why `gpt-oss-20b` failed this task in 3 of 3 attempts in our eval (details [below](#the-failure-step-by-step)). Now point it at a server you use:
 
-A real trace from the sealed eval (`openai/gpt-oss-20b`, task `iss-e2-query-priority-label`, original tools, the same in 3 of 3 attempts):
+```bash
+npx -y -p github:Wali05/anvil anvil inspect -- npx -y @modelcontextprotocol/server-filesystem ~/Documents
+npx -y -p github:Wali05/anvil anvil inspect --url https://example.com/mcp --header 'Authorization: Bearer ${TOKEN}'
+```
 
-1. Task: list the open P2 bugs in the `acme/orbit` repo.
-2. The model calls `issues_search` with `limit: 100`, which is rejected because the maximum is 50.
-3. It retries with `q: "status:open priority:P2 label:bug"`, a query dialect the tool doesn't support, and gets 0 results.
-4. It answers `{"issue_numbers": []}`. The correct answer is `[7, 9, 12, 22]`.
+## Put Anvil in front of your MCP server
 
-Nothing was written, so a state-only check would call this fine. Anvil's answer-contract check fails it. With better descriptions it passed 2 of 3 attempts. With the adapted interface (a flat `search_issues` tool with `status`, `priority` and `label` fields) it passed 1 of 3 (see the regression note below). The raw trace is in `docs/evidence/runs/` and in the replay.
+```bash
+# 1. Find what trips models up
+anvil inspect -- <your server command>
 
-## How it works
+# 2. Generate a starter adapter for the nested tools, then edit it
+anvil scaffold --out adapter.json -- <your server command>
 
-Every task runs under three conditions, with the same model, prompt, fixture reset, temperature and budgets:
+# 3. Serve the adapted tools; check the exposed catalog first with --dry-run
+anvil proxy --adapter adapter.json --log-file calls.jsonl -- <your server command>
 
-| Condition | What the model sees |
+# 4. After some real use, see which tools still fail and why
+anvil report calls.jsonl
+```
+
+(`anvil` here is `npx -y -p github:Wali05/anvil anvil`, or `node dist/cli.js` in a checkout.)
+
+What the proxy does with the upstream's tools:
+
+- **Adapted tools** come from the adapter and are validated against the live upstream schemas at start-up. Each call is checked against the friendly schema, compiled into the original call, checked against the original schema, and sent. They replace the originals they call, so the model isn't offered both.
+- **Everything else passes through** unchanged, optionally filtered (`--include`, `--exclude`, `*` globs) and renamed or re-described (`tools.overrides`). An adapter is optional: a proxy config alone can give you, say, a read-only view of a filesystem server with clearer descriptions.
+- **Results come back verbatim** (`content`, `structuredContent`, `isError`).
+- **Secrets stay in the environment**: `${VAR}` in headers, env, args or URL is read at start-up and never logged.
+
+A config file keeps it reviewable ([`examples/`](examples/) has runnable ones):
+
+```json
+{
+  "schema": "anvil.proxy/v1",
+  "name": "files-readonly",
+  "upstream": { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-filesystem", "${HOME}/Documents"] },
+  "tools": {
+    "exclude": ["write_file", "edit_file", "move_file", "create_directory"],
+    "overrides": { "search_files": { "description": "Find files whose names match a glob. Call list_allowed_directories first." } }
+  },
+  "log": { "file": "./files-calls.jsonl" }
+}
+```
+
+Full reference: [docs/PROXY.md](docs/PROXY.md) (commands, config, inspect rules, HTTP serving) and [docs/ADAPTER_SPEC.md](docs/ADAPTER_SPEC.md) (mappings, transforms, lookups).
+
+### What an adapter can do
+
+An adapter is plain JSON, no code. Each public tool maps its inputs onto one original call:
+
+| Problem the model has | Adapter feature |
 | --- | --- |
-| **Original** | The raw tools: real names, nested schemas, strict query syntax, terse errors. |
-| **Descriptions** | The same tools and schemas, with better tool and field documentation only. |
-| **Adapted** | Tools generated from a JSON adapter spec: flat fields, friendly names, bounded mappings. Each call is compiled back into the original tool call. |
+| Nested objects (`event.start.dateTime`) | Flat fields mapped to dot paths (what `scaffold` generates) |
+| Needs an id it doesn't have | **Lookup**: one read-only search, exactly one exact match, the id is bound in. Zero or several matches → nothing is written, the candidates are returned |
+| Invents query syntax | Structured filter fields assembled into the query string |
+| RFC 3339 with offsets | Local time → ISO with a declared offset; date → day bounds; start + duration → end |
+| Cryptic enum values | `valueMap` (`"high"` → `"P1"`) |
+| Values it shouldn't choose | `const` and `default` |
+| `[{ "email": … }]` wrappers | `wrapEmail` |
 
-**Adapter spec (`anvil.adapter/v2`).** An adapter is plain, validated JSON. There is no generated code, `eval` or shell. A public tool declares its schema, one original target and explicit argument mappings: rename and select paths, constants and defaults, enum maps, local time to a declared UTC offset, start plus duration to end, email wrapping and bounded query assembly. v2 adds one optional **read-only lookup**: exactly one original search call with exact equality filters (and an optional `HH:MM` time filter), then exactly one target call with the matched id bound in. If the lookup finds zero or several matches, it returns the candidates and writes nothing. Both calls are logged and counted against the budget. That is how `cancel_event(title, date)` replaces "guess the event id".
+Hard limits by design: at most one lookup plus one target call per public call, inputs only (outputs are returned unchanged), no `eval`, shell or generated code.
 
-**Two simulated domains.** They run on local, resettable fixtures, not production Google Calendar or GitHub:
+## Add it to your MCP client
 
-- **Calendar:** nested event resources, RFC 3339 times with a required time zone, attendee objects, same-title and prefix-title distractors.
-- **Issue tracker:** two repos, nested create and update envelopes, a query dialect, priorities, labels, milestones and comments, plus an injection-style fixture body that must be treated as data.
+The proxy and the fixture servers are ordinary stdio MCP servers. To try the adapted calendar fixture (a disposable local calendar, no account touched):
 
-**Independent validators.** After each trial, server-side checks inspect the final fixture state and the answer contract: exact fields on the target record, no extra writes, unrelated records unchanged byte for byte, and the exact answer for queries. A trial is `pass`, `fail`, or `invalid` (no verdict, e.g. turn or tool budget exhausted). A missing result is never a win.
-
-![Paired comparison](docs/screenshots/10-live-paired-1440.png)
-
-## Eval v2 in detail
-
-Eval v2 is 15 tasks (9 calendar, 6 issues) written after the dev failures were studied. At least half come from task families not in dev. Task files, fixtures and the frozen adapters are hashed in `docs/evidence/eval-v2-manifest.json`, and `npm run seal:check` verifies them before any run. All runs used hosted open models over OpenAI-compatible endpoints at temperature 0, with 8 turns, 6 tool calls and 180 s per trial.
-
-gpt-oss-20b by domain: calendar 7/27 → 19/27 → **27/27**; issues 13/18 → 15/18 → 16/18. Paired by task, 10 of 15 tasks improve from original to adapted, none drop below original and the other 5 are already 3/3, e.g. `cal-e2-cancel-disambiguate` 0/3 → 3/3, `cal-e2-move-across-days` 0/3 → 3/3, `cal-e2-update-prefix-distractor` 0/3 → 3/3 and `cal-e2-cancel-if-present` 0/3 → 3/3 (descriptions alone: 1/3). Most original-condition losses are `invalid`: the model burns its 8 turns fighting the raw schema.
-
-**Caveats:**
-
-- **Ceiling:** Nemotron-3-ultra passes everything in every condition and DeepSeek nearly does, so the strong models don't separate the conditions. The uplift shows up on the smaller model.
-- **One regression:** on `iss-e2-query-priority-label`, gpt-oss-20b scored 2/3 with descriptions but only 1/3 adapted (0/3 original). Both adapted misses came from the model emitting a corrupted tool name (`search_issues<|channel|>commentary`) from turn 2 and looping until the turn limit. The adapter mapping was not wrong, but it is a loss all the same.
-- **Small n:** 15 synthetic tasks and 1–3 attempts per task. The Wilson 95% intervals for gpt-oss-20b (original 31–59%, adapted 85–99%) don't overlap, but this is a pilot, not a benchmark.
-- **Bias:** most eval v2 tasks target a record by title and day, which is exactly what the v2 lookup addresses. Report per family, not just the total.
-
-Run IDs, per-run counts and the earlier `qwen2.5:7b` eval v1 pilot are in [`docs/BUILD_STATUS.md`](docs/BUILD_STATUS.md). The raw run JSON is in [`docs/evidence/runs/`](docs/evidence/runs/).
-
-![A failing check](docs/screenshots/09-live-failure-1440.png)
-
-## Quickstart
-
-Requirements: Node.js 20.11+ and npm.
+**Claude Code**
 
 ```bash
-npm ci
-npm run build
-npm start            # dashboard + API on http://127.0.0.1:4317
+claude mcp add anvil-calendar -- npx -y -p github:Wali05/anvil anvil-mcp --domain calendar
 ```
 
-For development with hot reload, run `npm run dev` (API on :4317, Vite on :5173). **Explore a simulation** exercises the real interfaces, compiler and validators with a scripted policy and needs no model or key. Simulations are labelled and never counted as live results.
-
-CLI:
-
-```bash
-node dist/cli.js --help
-node dist/cli.js export --domain calendar --kind bundle --out calendar-bundle.json
-node dist/cli.js check-mcp
-```
-
-Live pilot against any OpenAI-compatible endpoint (local Ollama by default). Set these environment variables; the key is read from the environment only and never written to disk, run records or exports:
-
-| Variable | Meaning |
-| --- | --- |
-| `ANVIL_MODEL_PROVIDER` | `ollama` (default) or `openai-compatible` |
-| `ANVIL_MODEL_BASE_URL` | e.g. `http://127.0.0.1:11434/v1` |
-| `ANVIL_MODEL` | model id |
-| `ANVIL_MODEL_API_KEY` | key for hosted endpoints (optional) |
-| `ANVIL_MIN_REQUEST_INTERVAL_MS` | spacing between requests for rate-limited providers (optional) |
-| `ANVIL_DATA_DIR` | where run JSON is written (default `.anvil`) |
-
-```bash
-npm run seal:check
-npm run live -- calendar eval2 all 1     # domain, split, tasks (or all), attempts per task
-```
-
-`.env.example` lists the supported variables. `.env` is gitignored.
-
-Checks: `npm run typecheck`, `npm test`, `npm run smoke:mcp`, `npm run smoke:api`, `npm run check:sim`, `npm run e2e`, `npm run build:static` (the recorded replay site in `dist-static/`).
-
-## Use the adapter as an MCP server
-
-The adapter server speaks MCP over stdio using the official SDK. It exposes the adapted tools for a domain plus `anvil_adapter_info` and `anvil_fixture_state`, runs against the disposable fixture, and logs every compiled original call to stderr. It touches no real account.
-
-One command, no clone needed (npm builds the server on install):
-
-```bash
-npx -y -p github:Wali05/anvil anvil-mcp --domain calendar
-```
-
-From a checkout: `npm ci`, then `node bin/anvil-mcp.mjs --domain calendar` (or `npx tsx src/mcp/adapterServer.ts --domain calendar`).
-
-Options: `--domain calendar|issues`, `--condition adapted|original|descriptions`, `--adapter default|saved|file`, `--adapter-file <bundle.json>` (a bundle exported from the workbench), `--data-dir <dir>` (default `~/.anvil`).
-
-### Add it to Alan
-
-Tested in Alan desktop (27 Oct 2026). Open **Settings → Plugins → MCP → Add custom connector** and add a stdio connector for each domain you want:
-
-| Field | macOS / Linux | Windows |
-| --- | --- | --- |
-| Name | `anvil-calendar` | `anvil-calendar` |
-| Command | `npx` | `cmd` |
-| Args | `-y -p github:Wali05/anvil anvil-mcp --domain calendar` | `/c npx -y -p github:Wali05/anvil anvil-mcp --domain calendar` |
-
-Repeat with `--domain issues` for the issue tracker. The first start takes a few seconds while npm installs and builds the package (the connector showed **Connected** after about 30 s). After that, the adapted tools (`find_events`, `schedule_event`, `move_event`, `cancel_event`, …) show up in Alan, and every call is logged as the original call it compiled to.
-
-![anvil-calendar connected in Alan's MCP settings](docs/screenshots/11-alan-connector.png)
-
-In a new Alan session on DeepSeek V4.1 Flash, the agent called `anvil_adapter_info`, `anvil_fixture_state`, `find_events` and `move_event` to move "Design review" from 3 Nov to 4 Nov at 14:00, then confirmed the final state with two more lookups:
-
-![Alan session moving an event through the Anvil adapter](docs/screenshots/12-alan-session.png)
-
-### Claude Desktop, Cursor and other MCP clients
-
-`claude_desktop_config.json`, `.cursor/mcp.json` or any client config that launches stdio servers, on macOS / Linux:
+**Claude Desktop, Cursor, Windsurf** (`claude_desktop_config.json`, `.cursor/mcp.json`, `~/.codeium/windsurf/mcp_config.json`):
 
 ```json
 {
@@ -163,57 +117,145 @@ In a new Alan session on DeepSeek V4.1 Flash, the agent called `anvil_adapter_in
     "anvil-calendar": {
       "command": "npx",
       "args": ["-y", "-p", "github:Wali05/anvil", "anvil-mcp", "--domain", "calendar"]
-    },
-    "anvil-issues": {
-      "command": "npx",
-      "args": ["-y", "-p", "github:Wali05/anvil", "anvil-mcp", "--domain", "issues"]
     }
   }
 }
 ```
 
-On Windows, wrap it in `cmd /c`:
+**VS Code** (`.vscode/mcp.json`):
 
 ```json
 {
-  "mcpServers": {
-    "anvil-calendar": {
-      "command": "cmd",
-      "args": ["/c", "npx", "-y", "-p", "github:Wali05/anvil", "anvil-mcp", "--domain", "calendar"]
-    }
+  "servers": {
+    "anvil-calendar": { "type": "stdio", "command": "npx", "args": ["-y", "-p", "github:Wali05/anvil", "anvil-mcp", "--domain", "calendar"] }
   }
 }
 ```
 
-For a local checkout, use `"command": "node"` with `"args": ["/path/to/anvil/bin/anvil-mcp.mjs", "--domain", "calendar"]` (run `npm ci` in the checkout first).
+**Codex CLI** (`~/.codex/config.toml`):
 
-There is also a workbench MCP server (`node dist/cli.js workbench-mcp`) with tools to list domains and interfaces, validate adapters, preview mappings, and list, inspect or start bounded experiments.
+```toml
+[mcp_servers.anvil-calendar]
+command = "npx"
+args = ["-y", "-p", "github:Wali05/anvil", "anvil-mcp", "--domain", "calendar"]
+```
+
+On Windows, use `"command": "cmd"` and put `"/c", "npx"` in front of the args. The first start takes about 30 s while npm installs and builds the package. Use `--domain issues` for the issue tracker. For your own server, swap the args for `anvil proxy --config /abs/path/anvil.proxy.json`. Clients that want a URL instead: add `--http 8808` and connect to `http://127.0.0.1:8808/mcp` (loopback only unless `ANVIL_HTTP_TOKEN` is set). The dashboard's **Integration** tab generates all of these for you.
+
+There's also an agent skill in [`skills/anvil/SKILL.md`](skills/anvil/SKILL.md) that teaches an agent when and how to use these commands.
+
+## Does it help? The eval
+
+Interface changes are easy to make and hard to verify, so Anvil ships the measurement too. Every task runs three ways with the same model, prompt, fixture reset, temperature and budgets:
+
+| Condition | What the model sees |
+| --- | --- |
+| **Original** | The raw tools: nested schemas, strict query syntax, terse errors. |
+| **Descriptions** | The same tools and schemas with better documentation only. |
+| **Adapted** | Tools from an adapter, each call compiled back into the original call. |
+
+Independent validators then inspect the final state and the answer: exact fields on the target record, no extra writes, unrelated records unchanged byte for byte, and the exact answer for queries. A trial is `pass`, `fail` or `invalid` (no verdict, e.g. the budget ran out). "The model said done" never counts.
+
+Tasks passed on the sealed eval v2 split (15 tasks written after the dev failures were studied, hashes frozen before any run):
+
+| Model | Original tools | Better descriptions | Anvil adapter |
+| --- | --- | --- | --- |
+| `openai/gpt-oss-20b` | 20/45 | 34/45 | **43/45** |
+| `deepseek-v4.1-flash` | 43/45 | 45/45 | 45/45 |
+| `nvidia/nemotron-3-ultra` | 15/15 | 15/15 | 15/15 |
+
+Synthetic fixtures, 3 attempts per task (Nemotron 1), temperature 0. The smaller model gains the most; the strong models are already near the ceiling. Descriptions alone close a good part of the gap, which is why they are their own condition. There is one regression against descriptions, and the sample is small. All of it, with run IDs, per-task pairs and the earlier `qwen2.5:7b` pilot, is in [docs/EVALUATION.md](docs/EVALUATION.md).
+
+![Paired comparison](docs/screenshots/10-live-paired-1440.png)
+
+### The failure, step by step
+
+`openai/gpt-oss-20b`, task `iss-e2-query-priority-label`, original tools, the same in 3 of 3 attempts:
+
+1. Task: list the open P2 bugs in the `acme/orbit` repo.
+2. The model calls `issues_search` with `limit: 100`, which is rejected because the maximum is 50.
+3. It retries with `q: "status:open priority:P2 label:bug"`, a query dialect the tool doesn't support, and gets 0 results.
+4. It answers `{"issue_numbers": []}`. The correct answer is `[7, 9, 12, 22]`.
+
+Nothing was written, so a state-only check would call this fine. The answer-contract check fails it. The adapted `search_issues` takes `status`, `priority` and `label` as enum fields and builds the query itself.
+
+## Run the workbench
+
+Requirements: Node.js 20.11+.
+
+```bash
+git clone https://github.com/Wali05/anvil && cd anvil
+npm ci
+npm run build
+npm start            # dashboard + API on http://127.0.0.1:4317
+```
+
+**Explore a simulation** exercises the real interfaces, compiler and validators with a scripted policy and needs no model or key; simulations are labelled and never counted as results. To run live, configure any OpenAI-compatible endpoint in the dashboard (OpenRouter, Together, Groq, vLLM, LM Studio, a hosted provider) or a local Ollama model. The **Interfaces** tab edits adapters with live validation and compile previews.
+
+From the command line:
+
+| Variable | Meaning |
+| --- | --- |
+| `ANVIL_MODEL_PROVIDER` | `ollama` (default) or `openai-compatible` |
+| `ANVIL_MODEL_BASE_URL` | e.g. `http://127.0.0.1:11434/v1` |
+| `ANVIL_MODEL` | model id |
+| `ANVIL_MODEL_API_KEY` | key for hosted endpoints (read from the environment only; never written to disk, run records or exports) |
+| `ANVIL_MIN_REQUEST_INTERVAL_MS` | spacing between requests for rate-limited providers |
+| `ANVIL_DATA_DIR` | where run JSON is written (default `.anvil`) |
+
+```bash
+npm run seal:check
+npm run live -- calendar eval2 all 1     # domain, split, tasks (or all), attempts per task
+```
+
+Budgets per trial (turns, underlying tool calls, wall clock) and per run (tool calls, tokens) are enforced; the run token cap stops the run before any further model request once it is spent.
+
+## CLI
+
+```text
+anvil inspect   lint a tool catalog          (--url | -- <cmd> | --tools-file | --domain) [--json] [--fail-on warn]
+anvil scaffold  write a starter adapter      (--url | -- <cmd> | --tools-file | --domain) [--tools a,b] --out adapter.json
+anvil proxy     serve adapted/filtered tools (--url | -- <cmd> | --config) [--adapter] [--include] [--exclude] [--log-file] [--http <port>] [--dry-run]
+anvil report    summarize a proxy call log   <calls.jsonl> [--json]
+anvil serve     workbench dashboard + API    [--port 4317]
+anvil mcp       a built-in fixture server    --domain calendar|issues [--condition adapted|original|descriptions] [--http <port>]
+anvil workbench-mcp   the workbench as MCP tools (validate adapters, preview mappings, run bounded experiments)
+anvil export    an adapter bundle            --domain calendar|issues [--kind bundle|spec|mcp-config]
+```
+
+`anvil --help` has every flag. Checks: `npm run typecheck`, `npm test`, `npm run smoke:mcp`, `npm run smoke:api`, `npm run check:sim`, `npm run e2e`, `npm run build:static`.
 
 ## Architecture
 
 ```text
-src/core/      schemas, adapter compiler + lookup, model transport, runner, metrics, JSON store
-src/domains/   calendar + issue fixtures, raw tools, validators, tasks, frozen adapters
-src/server/    Express API, SSE progress, exports
-src/mcp/       adapter MCP server, workbench MCP server, bundle export
+src/proxy/     upstream client (stdio + HTTP), schema normalization, catalog, async executor, inspect, scaffold, report
+src/core/      adapter schema + compiler + lookup, interfaces, model transport, runner, metrics, JSON store
+src/domains/   calendar + issue-tracker fixtures, raw tools, validators, tasks, frozen adapters
+src/mcp/       MCP serving (stdio + Streamable HTTP), fixture server, workbench server, client snippets, export
+src/server/    Express API, SSE progress
 web/           React/Vite dashboard (also builds the static replay)
-bin/           anvil-mcp entry
-tests/, e2e/   vitest + Playwright
-docs/          status, research notes, evidence runs, screenshots
+examples/      proxy configs and adapters
+skills/        agent skill
+docs/          proxy guide, adapter spec, evaluation, evidence runs, screenshots
 ```
 
 ## Related work
 
-Tool description and prompt optimization already exist, and Anvil doesn't claim to invent it. Nearby projects include **toolfit**, **DSPy/GEPA** and **Karenina**. Anvil's focus is narrower: a transparent three-condition experiment with real tool execution, an independently checked end state, and an exported typed adapter that still calls the original tools.
+Rewriting tool interfaces isn't new, and Anvil doesn't claim to have invented it:
 
-## Limits and what's next
+- **Proxies and gateways that rename and re-describe tools:** FastMCP's tool transformation (rename, hide or default arguments), [mcp-transform-proxy](https://github.com/bbrowning/mcp-transform-proxy), and the WSO2 AI gateway's MCP rewrite policy.
+- **Description and prompt optimization:** toolfit, DSPy / GEPA, Karenina.
 
-- **Built-in fixtures for now.** The adapters run on the built-in calendar and issue-tracker fixtures, which are local and resettable. They don't talk to real Google Calendar or GitHub yet.
-- **Next: proxy mode.** Put Anvil in front of a real upstream MCP server and pass its tools through with adapted names, schemas and descriptions, so you can bring your own tools.
-- **Known bug: the token cap.** The run-level `maxTotalTokens` budget isn't reliably enforced yet, so a run can keep making model requests after the cap is reached. Turn, tool-call and time limits are enforced.
-- **Adapter scope.** One public call maps to at most one lookup plus one original call. There's no general composition or output remapping.
-- **Small evals.** 15 tasks with 1–3 attempts each, and no seed control across providers. Treat the numbers as a pilot, not a benchmark.
-- **Local only.** The MCP server runs over local stdio, and the replay site is read-only.
+Anvil's angle is the combination: a linter that names the failure patterns, adapters that go beyond renames (flattening, lookups that replace ids, query assembly, time transforms) while staying declarative and bounded, a Node proxy that drops into any client with `npx`, and a three-condition experiment with independently checked end state, so you can tell whether the change helped or the descriptions alone would have done it.
+
+## Limits
+
+- **Inputs only.** Adapters don't reshape outputs, and one public call makes at most one lookup plus one target call.
+- **Tools only.** The proxy forwards tools, not the upstream's resources or prompts.
+- **Mappable fields.** Mapping paths must be identifiers; fields named like `a-b` pass through but can't be adapted.
+- **Lookups need annotations.** A lookup only calls upstream tools annotated `readOnlyHint: true`.
+- **Small, synthetic evals.** 15 sealed tasks with 1–3 attempts each, on local fixtures rather than live services. Treat the numbers as a pilot, not a benchmark. Evals don't run against proxied servers yet: you can log and report real usage, but measured before/after comparisons need fixture tasks with validators.
+- **Heuristic lint.** `inspect` rules are name- and schema-based heuristics; a high score is not a guarantee.
 
 ## License
 

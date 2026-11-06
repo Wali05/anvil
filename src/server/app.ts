@@ -1,5 +1,5 @@
 import express, { type Express, type Request, type Response } from 'express';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import type { AdapterSpec, ConditionId, RunRecord, Split } from '../core/types.js';
 import { CONDITIONS } from '../core/types.js';
@@ -17,6 +17,7 @@ import { createTransport } from '../core/model.js';
 import { hashJson, nowIso } from '../core/util.js';
 import { APP_VERSION, APP_NAME } from '../core/version.js';
 import { adapterBundle, bundleFileName, evidenceFileName } from '../mcp/export.js';
+import { clientSetups, NPX_PACKAGE, npxLaunch, windowsLaunch } from '../mcp/clients.js';
 import { smokeStdioMcp, type McpSmokeResult } from '../mcp/smoke.js';
 
 export interface AppDeps {
@@ -513,16 +514,8 @@ export function createApp(deps: AppDeps): Express {
 
   app.get('/api/integration', (_req, res) => {
     const { cliPath, built } = mcpTarget(deps.rootDir);
-    const pluginDir = join(deps.rootDir, 'plugins', 'anvil');
-    const manifest = join(pluginDir, '.cursor-plugin', 'plugin.json');
-    const marketplace = join(deps.rootDir, '.cursor-plugin', 'marketplace.json');
-    const mcpJson = join(pluginDir, 'mcp.json');
-    let pluginManifest: unknown = null;
-    try {
-      pluginManifest = JSON.parse(readFileSync(manifest, 'utf8'));
-    } catch {
-      pluginManifest = null;
-    }
+    const fixture = npxLaunch('anvil-calendar', 'anvil-mcp', ['--domain', 'calendar']);
+    const proxyExample = npxLaunch('my-server-via-anvil', 'anvil', ['proxy', '--adapter', '/path/to/adapter.json', '--log-file', '/path/to/calls.jsonl', '--', '<your MCP server command>']);
     res.json({
       ok: true,
       local: {
@@ -532,25 +525,26 @@ export function createApp(deps: AppDeps): Express {
         calendarAdapterCommand: `node "${cliPath}" mcp --domain calendar --adapter default`,
         issuesAdapterCommand: `node "${cliPath}" mcp --domain issues --adapter default`,
         fileAdapterCommand: `node "${cliPath}" mcp --domain calendar --adapter file --adapter-file "<PATH_TO_BUNDLE_JSON>"`,
-        compatibleWith: 'Local MCP clients that can launch a stdio server (for example Claude Desktop, Cursor, or an MCP inspector).',
-        alanDesktopStatus:
-          'Alan desktop runs custom stdio MCP connectors: Command `npx`, args `-y -p github:Wali05/anvil anvil-mcp --domain calendar` (Windows: Command `cmd`, args `/c npx -y -p github:Wali05/anvil anvil-mcp --domain calendar`). Tested in Alan desktop on 27 Oct 2026: the calendar connector connected and an Alan session used the adapted tools to move a fixture event.',
+        inspectCommand: `node "${cliPath}" inspect -- <your MCP server command>`,
+        scaffoldCommand: `node "${cliPath}" scaffold --out adapter.json -- <your MCP server command>`,
+        proxyCommand: `node "${cliPath}" proxy --adapter adapter.json --log-file calls.jsonl -- <your MCP server command>`,
+        compatibleWith: 'Any MCP client that launches stdio servers (Claude Code, Claude Desktop, Cursor, VS Code, Windsurf, Codex CLI, …). Add --http <port> to serve Streamable HTTP instead.',
       },
-      plugin: {
-        directory: pluginDir,
-        manifestPath: manifest,
-        marketplacePath: marketplace,
-        mcpPath: mcpJson,
-        manifestPresent: existsSync(manifest) && Boolean(pluginManifest),
-        manifest: pluginManifest,
-        installed: false,
-        note: 'The plugin package is in the repository and its mcp.json launches the stdio adapter server with npx. The marketplace package is not installed in Alan; the same command was added as a custom connector.',
+      npx: {
+        package: NPX_PACKAGE,
+        fixture,
+        fixtureWindows: windowsLaunch(fixture),
+        proxyExample,
+      },
+      clients: clientSetups(fixture),
+      transports: {
+        stdio: true,
+        streamableHttp: 'For clients that want a URL, add --http <port> to anvil proxy or anvil mcp and connect to http://127.0.0.1:<port>/mcp. It binds 127.0.0.1; set ANVIL_HTTP_TOKEN to require a bearer token',
       },
       deployment: {
         deployed: false,
         requiredTransport: 'stdio',
-        placeholderUrl: '',
-        note: 'The MCP server is local stdio, launched by the client (Alan desktop custom connector, Claude Desktop, Cursor). There is no hosted HTTPS endpoint.',
+        note: 'Anvil runs where your MCP client runs: the client launches it over stdio, or you start it with --http. Nothing is hosted for you.',
       },
       lastCheck: mcpCheckCache
         ? { at: new Date(mcpCheckCache.at).toISOString(), ...mcpCheckCache.result }

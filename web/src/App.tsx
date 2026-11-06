@@ -21,7 +21,7 @@ const NAV: Array<{ id: View; label: string; hint: string }> = [
   { id: 'workbench', label: 'Workbench', hint: 'Compare and inspect trials' },
   { id: 'experiments', label: 'Experiments', hint: 'Saved runs and evidence' },
   { id: 'interfaces', label: 'Interfaces', hint: 'Schemas and adapter editing' },
-  { id: 'integration', label: 'Integration', hint: 'MCP and Alan status' },
+  { id: 'integration', label: 'Integration', hint: 'Use it in any MCP client' },
 ];
 
 /**
@@ -270,7 +270,7 @@ export function App() {
           ))}
         </nav>
         <div className="rail-foot">
-          <span className="mono">v0.1</span>
+          <span className="mono">v0.2</span>
           <span className="mono">{IS_REPLAY ? 'replay' : 'local'}</span>
         </div>
       </aside>
