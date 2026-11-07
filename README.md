@@ -119,7 +119,7 @@ npm run live -- calendar eval2 all 1     # domain, split, tasks (or all), attemp
 
 `.env.example` lists the supported variables. `.env` is gitignored.
 
-Checks: `npm run typecheck`, `npm test`, `npm run smoke:mcp`, `npm run smoke:api`, `npm run check:sim`, `npm run e2e`, `npm run build:static` (the recorded replay site in `dist-static/`).
+Checks: `npm run typecheck`, `npm test`, `npm run smoke:mcp`, `npm run smoke:proxy`, `npm run smoke:api`, `npm run check:sim`, `npm run e2e`, `npm run build:static` (the recorded replay site in `dist-static/`).
 
 ## Use the adapter as an MCP server
 
@@ -189,15 +189,41 @@ For a local checkout, use `"command": "node"` with `"args": ["/path/to/anvil/bin
 
 There is also a workbench MCP server (`node dist/cli.js workbench-mcp`) with tools to list domains and interfaces, validate adapters, preview mappings, and list, inspect or start bounded experiments.
 
+### Proxy mode (bring your own MCP tools)
+
+Anvil can sit in front of a **user-owned** upstream MCP server over local stdio, expose adapted public tools, and compile each call back into the original upstream tool call(s). Original calls are logged to stderr the same way as the fixture adapter server.
+
+Quick demo with the packaged sample upstream (awkward nested ticket-desk tools) and the committed sample adapter:
+
+```bash
+npm ci
+npm run build:server
+node bin/anvil-mcp-proxy.mjs --sample
+# or: npx -y -p github:Wali05/anvil anvil-mcp-proxy --sample
+```
+
+Against your own upstream:
+
+```bash
+node bin/anvil-mcp-proxy.mjs \
+  --upstream-command node \
+  --upstream-arg ./my-mcp-server.js \
+  --adapter-file ./my-adapter.json
+```
+
+The adapter JSON is the same `anvil.adapter/v1|v2` shape, but `target` / lookup tool names must be **upstream** tool names (not the built-in calendar/issues domains). Example: [`docs/examples/proxy-sample-adapter.json`](docs/examples/proxy-sample-adapter.json). Checks: `npm run smoke:proxy`.
+
+What this does **not** do: host an HTTPS MCP, hold OAuth tokens for Alan marketplace plugins, remap tool outputs, or pretend every remote connector can be proxied.
+
 ## Architecture
 
 ```text
 src/core/      schemas, adapter compiler + lookup, model transport, runner, metrics, JSON store
 src/domains/   calendar + issue fixtures, raw tools, validators, tasks, frozen adapters
 src/server/    Express API, SSE progress, exports
-src/mcp/       adapter MCP server, workbench MCP server, bundle export
+src/mcp/       adapter MCP server, proxy MCP server, sample upstream, workbench MCP, bundle export
 web/           React/Vite dashboard (also builds the static replay)
-bin/           anvil-mcp entry
+bin/           anvil-mcp and anvil-mcp-proxy entries
 tests/, e2e/   vitest + Playwright
 docs/          status, research notes, evidence runs, screenshots
 ```
@@ -208,12 +234,12 @@ Tool description and prompt optimization already exist, and Anvil doesn't claim 
 
 ## Limits and what's next
 
-- **Built-in fixtures for now.** The adapters run on the built-in calendar and issue-tracker fixtures, which are local and resettable. They don't talk to real Google Calendar or GitHub yet.
-- **Next: proxy mode.** Put Anvil in front of a real upstream MCP server and pass its tools through with adapted names, schemas and descriptions, so you can bring your own tools.
+- **Built-in fixtures for now.** The calendar and issue-tracker adapters still run on local resettable fixtures. They don't talk to real Google Calendar or GitHub.
+- **Shipped: MCP proxy mode (stdio).** Put Anvil in front of a user-owned upstream MCP server and pass its tools through with adapted names, schemas and descriptions. See [Proxy mode](#proxy-mode-bring-your-own-mcp-tools). Remaining limits: local stdio only, no OAuth/Alan credential proxy, no output remapping.
 - **Known bug: the token cap.** The run-level `maxTotalTokens` budget isn't reliably enforced yet, so a run can keep making model requests after the cap is reached. Turn, tool-call and time limits are enforced.
 - **Adapter scope.** One public call maps to at most one lookup plus one original call. There's no general composition or output remapping.
 - **Small evals.** 15 tasks with 1–3 attempts each, and no seed control across providers. Treat the numbers as a pilot, not a benchmark.
-- **Local only.** The MCP server runs over local stdio, and the replay site is read-only.
+- **Local only.** The fixture and proxy MCP servers run over local stdio, and the replay site is read-only.
 
 ## License
 

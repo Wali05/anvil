@@ -1,6 +1,32 @@
 # Anvil build status and handoff
 
-Last updated: 2026-10-27 (eval v2 live runs)
+Last updated: 2026-11-07 (MCP proxy mode)
+
+## 7 Nov 2026 update — MCP proxy mode (stdio)
+
+Shipped a vertical slice of the README's advertised next step: put Anvil in front of a **user-owned** upstream MCP server over local stdio and pass its tools through with adapted names/schemas/descriptions.
+
+What landed:
+
+- `src/mcp/upstreamClient.ts` — official SDK stdio client: list tools, call by name, parse text JSON results.
+- `src/mcp/proxyExecute.ts` — thin adapted-call path against an upstream tool-schema catalog (no fixture `DomainDefinition`).
+- `src/mcp/proxyServer.ts` + `bin/anvil-mcp-proxy.mjs` — `--upstream-command` / repeatable `--upstream-arg` / `--adapter-file`, plus `--sample` for the packaged demo.
+- `src/mcp/sampleUpstream.ts` — awkward in-memory ticket desk (nested query/ticket envelopes, O|C status codes, id-required cancel).
+- `docs/examples/proxy-sample-adapter.json` — flattens that desk; `cancel_ticket` uses a v2 lookup.
+- Tests: `tests/mcp-proxy.test.ts` (list adapted tools, open with compiled nested call, cancel via lookup, refuse ambiguous same-title). Smoke: `npm run smoke:proxy`.
+- Build entryPoints include `proxyServer` and `sampleUpstream`. Existing fixture adapter server unchanged.
+
+Honest remaining gaps: no hosted HTTPS MCP, no OAuth/Alan credential proxy, no output remapping, local stdio only.
+
+Verification (Linux workspace, Node 22, 2026-11-07): `npm run typecheck` pass; **112/112 tests** pass; `npm run build:server` pass; `npm run smoke:proxy` pass (see commands below).
+
+```bash
+npm run typecheck
+npm test
+npm run build:server
+npm run smoke:proxy
+node bin/anvil-mcp-proxy.mjs --sample   # demo; leave running for an MCP client
+```
 
 ## 27 Oct 2026 update (pass 2)
 
@@ -75,7 +101,7 @@ Live evidence exists from a local open model (`qwen2.5:7b` via Ollama) on eval v
 - **Runner**: live OpenAI-compatible loop, multiple tool calls per turn, malformed-output surfacing, system-prompt isolation, budgets, wall clock, cancellation, prompt-injection notes, persisted partial state, interrupted-run recovery.
 - **Server**: local HTTP API, SSE progress, in-memory model setup, adapter validation/preview/save/reset, evidence and adapter downloads, real MCP health check, compiled dashboard serving.
 - **Dashboard**: workbench, honest empty state, simulation vs live separation, three-condition comparison, paired same-task counts, task matrix, trace/checks/diff/raw trial views, condition switching, adapter import/edit/save/reset, schema inspector, mapping preview, experiments list, integration page, 390px layout.
-- **MCP**: workbench server (8 tools), adapted adapter executor, exported-bundle execution via `--adapter-file`, stderr-only call logging, fixture utilities.
+- **MCP**: workbench server (8 tools), adapted adapter executor, **stdio proxy mode** (`anvil-mcp-proxy`) with sample upstream + sample adapter, exported-bundle execution via `--adapter-file`, stderr-only call logging, fixture utilities.
 - **Packaging**: MIT license, lockfile, `.env.example`, `.gitignore`, CLI, plugin manifest, marketplace entry, skill, `mcp.json` that launches the stdio adapter server via `npx -y -p github:Wali05/anvil anvil-mcp --domain calendar`.
 
 ## Commands
@@ -193,8 +219,8 @@ Screenshots are in `docs/screenshots/`. The first seven were produced by the Pla
 
 1. **Larger evidence:** more tasks, multiple trials, a second open model and a proper paired analysis. The current 26-task pilot is a sanity check.
 2. **Output mapping:** adapters currently map inputs only; original outputs are returned unchanged.
-3. **Real connectors:** both domains are disposable local fixtures, not Google Calendar/GitHub clients.
-4. **Hosted MCP:** the MCP server is local stdio only; there is no hosted HTTPS endpoint (not needed for Alan desktop, which runs stdio connectors). Use inside Alan is verified for the calendar connector (one manual session).
+3. **Real connectors:** calendar/issues domains remain disposable local fixtures, not Google Calendar/GitHub clients. **Proxy mode (stdio)** can sit in front of a user-owned upstream MCP with an adapter JSON; OAuth-backed Alan plugins are still out of scope.
+4. **Hosted MCP:** still local stdio only (fixture adapter + proxy); there is no hosted HTTPS endpoint. Use inside Alan is verified for the calendar fixture connector (one manual session).
 5. **Optional adapter proposal:** not implemented. Adapters are explicit, validated JSON.
 6. **Cost:** provider cost is unknown for Ollama. A paid OpenAI-compatible endpoint may report cost; the field remains null if it does not.
 7. **Statistical claims:** none. Wilson intervals are descriptive, not a significance test.
