@@ -1,0 +1,81 @@
+{
+  "schema": "anvil.tasks/v1",
+  "system": "Workspace slug: acme. Ticket priorities run from P1 (most urgent) to P3. Ticket ids look like T-1001.",
+  "tasks": [
+    {
+      "id": "open-p1-assigned",
+      "family": "create",
+      "prompt": "In the acme workspace, open a ticket titled \"Printer on fire\" with priority P1, assigned to ops@acme.test.",
+      "checks": [
+        { "kind": "called", "tool": "desk_open_ticket", "times": 1, "label": "exactly one ticket opened" },
+        {
+          "kind": "state",
+          "label": "the new ticket has the right priority, assignee and status",
+          "call": { "tool": "desk_list_tickets", "args": { "query": { "workspace": "acme", "title_eq": "Printer on fire" } } },
+          "path": "items",
+          "contains": { "status": "O", "priority": { "level": "1" }, "assignee": { "email": "ops@acme.test" } }
+        }
+      ]
+    },
+    {
+      "id": "cancel-by-title",
+      "family": "cancel",
+      "prompt": "Cancel the ticket titled \"Unique billing glitch\" in the acme workspace.",
+      "checks": [
+        { "kind": "called", "tool": "desk_cancel_ticket", "args": { "ticket_id": "T-1003" }, "times": 1 },
+        { "kind": "called", "tool": "desk_cancel_ticket", "times": 1, "label": "no other ticket canceled" },
+        {
+          "kind": "state",
+          "label": "two tickets are still open",
+          "call": { "tool": "desk_list_tickets", "args": { "query": { "workspace": "acme", "status": "O" } } },
+          "path": "items",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": "cancel-duplicate-by-priority",
+      "family": "cancel_disambiguate",
+      "prompt": "Two tickets in acme are titled \"Broken login redirect\". Cancel only the P3 one and leave the other open.",
+      "checks": [
+        { "kind": "called", "tool": "desk_cancel_ticket", "args": { "ticket_id": "T-1002" }, "times": 1 },
+        { "kind": "not_called", "tool": "desk_cancel_ticket", "args": { "ticket_id": "T-1001" }, "label": "the P2 ticket was not canceled" }
+      ]
+    },
+    {
+      "id": "count-open",
+      "family": "query",
+      "prompt": "How many open tickets does the acme workspace have? Reply with JSON {\"open\": <number>}.",
+      "checks": [
+        { "kind": "answer", "json": { "open": 3 } },
+        { "kind": "not_called", "tool": "desk_open_ticket" },
+        { "kind": "not_called", "tool": "desk_cancel_ticket" }
+      ]
+    },
+    {
+      "id": "closed-titles",
+      "family": "query",
+      "prompt": "List the titles of the closed tickets in the acme workspace. Reply with JSON {\"titles\": [...]}.",
+      "checks": [
+        { "kind": "answer", "json": { "titles": ["Legacy invoice export"] }, "unordered": true },
+        { "kind": "max_calls", "max": 3 }
+      ]
+    },
+    {
+      "id": "cancel-if-present",
+      "family": "conditional",
+      "prompt": "If acme has an open ticket titled \"Server melted\", cancel it. Otherwise change nothing and reply with JSON {\"canceled\": false}.",
+      "checks": [
+        { "kind": "not_called", "tool": "desk_cancel_ticket" },
+        { "kind": "answer", "json": { "canceled": false } },
+        {
+          "kind": "state",
+          "label": "still three open tickets",
+          "call": { "tool": "desk_list_tickets", "args": { "query": { "workspace": "acme", "status": "O" } } },
+          "path": "items",
+          "count": 3
+        }
+      ]
+    }
+  ]
+}

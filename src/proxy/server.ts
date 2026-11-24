@@ -46,6 +46,8 @@ export interface ProxyCallEvent {
   arguments: Record<string, unknown>;
   compiledInput: unknown;
   result: UpstreamCallResult | null;
+  /** Every call that reached the upstream for this public call, in order (a lookup, then the target). */
+  upstreamCalls: Array<{ tool: string; input: unknown; ok: boolean; role: 'lookup' | 'target' }>;
 }
 
 export interface ProxyRuntime {
@@ -141,7 +143,7 @@ function toMcpTool(entry: CatalogEntry, upstream: Upstream, catalog: ProxyCatalo
             upstreamChars: null,
           };
           const result = textResult({ ok: false, error: `${entry.upstreamName} failed: ${errorMessage(error)}` }, true) as unknown as UpstreamCallResult;
-          emit({ log, arguments: args, compiledInput: args, result });
+          emit({ log, arguments: args, compiledInput: args, result, upstreamCalls: [{ tool: entry.upstreamName, input: args, ok: false, role: 'target' }] });
           return result as Record<string, unknown>;
         }
         const parsed = toExecResult(raw);
@@ -162,7 +164,7 @@ function toMcpTool(entry: CatalogEntry, upstream: Upstream, catalog: ProxyCatalo
           resultChars: out.resultChars,
           upstreamChars: out.upstreamChars,
         };
-        emit({ log, arguments: args, compiledInput: args, result: out.result });
+        emit({ log, arguments: args, compiledInput: args, result: out.result, upstreamCalls: [{ tool: entry.upstreamName, input: args, ok: parsed.ok, role: 'target' }] });
         return out.result as Record<string, unknown>;
       },
     };
@@ -218,7 +220,10 @@ function toMcpTool(entry: CatalogEntry, upstream: Upstream, catalog: ProxyCatalo
         originalCall: reachedTarget ? { tool: entry.spec.target, ...(includeArgs ? { input: execution.compiled.input } : {}) } : null,
         ...sizes,
       };
-      emit({ log, arguments: args, compiledInput: execution.compiled.input, result });
+      const upstreamCalls: ProxyCallEvent['upstreamCalls'] = [];
+      if (execution.lookup) upstreamCalls.push({ tool: execution.lookup.tool, input: execution.lookup.input, ok: !(execution.lookup.error ?? '').startsWith('Lookup call'), role: 'lookup' });
+      if (reachedTarget) upstreamCalls.push({ tool: entry.spec.target, input: execution.compiled.input, ok: execution.ok, role: 'target' });
+      emit({ log, arguments: args, compiledInput: execution.compiled.input, result, upstreamCalls });
       return result as Record<string, unknown>;
     },
   };
@@ -305,7 +310,7 @@ export async function startProxyRuntime(config: ResolvedProxyConfig, options: Pr
       upstreamChars: null,
       ...(config.log.includeArguments ? { arguments: args } : {}),
     };
-    emit({ log, arguments: args, compiledInput: null, result: null });
+    emit({ log, arguments: args, compiledInput: null, result: null, upstreamCalls: [] });
   };
   return { upstream, catalog, tools, onUnknownTool, serverName, instructions, close: () => upstream.close() };
 }

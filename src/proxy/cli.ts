@@ -1,5 +1,5 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { AnvilError } from '../core/errors.js';
 import { isPlainObject } from '../core/util.js';
 import { getDomain } from '../domains/index.js';
@@ -9,7 +9,7 @@ import { loadAdapterFile, loadProxyConfigFile, resolveProxyConfig, type Resolved
 import { formatInspectReport, inspectCatalog, type FindingSeverity } from './inspect.js';
 import { formatUsageReport, summarizeCallLogFile } from './report.js';
 import { scaffoldAdapter } from './scaffold.js';
-import { sampleAdapterPath, sampleUpstreamSpec } from './sample.js';
+import { sampleAdapterPath, sampleTasksPath, sampleUpstreamSpec } from './sample.js';
 import { runProxy, startProxyRuntime } from './server.js';
 import { connectUpstream, describeUpstream, type UpstreamSpec, type UpstreamTool } from './upstream.js';
 
@@ -23,7 +23,7 @@ export interface ParsedArgs {
   upstreamCommand: string[];
 }
 
-const BOOLEAN_FLAGS = new Set(['json', 'verbose', 'dry-run', 'keep-targets', 'log-args', 'help', 'stdout', 'sample', 'info-tool', 'force']);
+const BOOLEAN_FLAGS = new Set(['json', 'verbose', 'dry-run', 'keep-targets', 'log-args', 'help', 'stdout', 'sample', 'info-tool', 'force', 'check']);
 
 export function parseArgs(argv: string[]): ParsedArgs {
   const flags: Record<string, string> = {};
@@ -248,3 +248,78 @@ export async function runReportCommand(argv: string[]): Promise<void> {
 /** For the catalog check without a network: used by tests and `--dry-run` style tooling. */
 export { buildProxyCatalog, describeUpstream };
 export type { UpstreamSpec };
+
+export async function runEvalCommand(argv: string[], env: NodeJS.ProcessEnv = process.env): Promise<number> {
+  const { runEval, lintTasks } = await import('../eval/runner.js');
+  const { loadTasksFile } = await import('../eval/tasks.js');
+  const { formatEvalRun, formatTaskLint } = await import('../eval/format.js');
+  const args = parseArgs(argv);
+  const { flags } = args;
+  const tasksPath = flags.tasks ? resolve(flags.tasks) : flags.sample === 'true' ? sampleTasksPath() : null;
+  if (!tasksPath) throw new AnvilError('tasks_required', '--tasks <tasks.json> is required (anvil.tasks/v1). Try `anvil eval --sample` for the built-in demo.');
+  const tasks = await loadTasksFile(tasksPath);
+  const config = await proxyConfigFromArgs(args, env);
+
+  if (flags.check === 'true') {
+    const results = await lintTasks(config, tasks, timeout(flags));
+    process.stdout.write(flags.json === 'true' ? `${JSON.stringify(results, null, 2)}\n` : formatTaskLint(results));
+    return results.some((result) => result.passesUntouched || result.brokenStateChecks.length > 0) ? 1 : 0;
+  }
+
+  const provider = flags.provider ?? env.ANVIL_MODEL_PROVIDER ?? (flags['base-url'] || env.ANVIL_MODEL_BASE_URL ? 'openai-compatible' : 'ollama');
+  if (provider !== 'ollama' && provider !== 'openai-compatible') throw new AnvilError('flag_invalid', '--provider must be ollama or openai-compatible.');
+  const model = flags.model ?? env.ANVIL_MODEL;
+  if (!model) {
+    throw new AnvilError(
+      'model_required',
+      'Name the model: --model <id> (or ANVIL_MODEL). For a hosted OpenAI-compatible endpoint also set --base-url (or ANVIL_MODEL_BASE_URL) and the key in ANVIL_MODEL_API_KEY. Local Ollama is the default endpoint. Use --check to validate tasks without a model.',
+    );
+  }
+  const baseUrl = flags['base-url'] ?? env.ANVIL_MODEL_BASE_URL ?? 'http://127.0.0.1:11434/v1';
+  const conditions = splitList(args.multi.conditions) as Array<'original' | 'descriptions' | 'adapted'>;
+  for (const condition of conditions) {
+    if (!['original', 'descriptions', 'adapted'].includes(condition)) throw new AnvilError('flag_invalid', '--conditions takes original, descriptions and/or adapted.');
+  }
+  const numberFlag = (name: string, min: number, max: number): number | undefined => {
+    if (flags[name] === undefined) return undefined;
+    const value = Number(flags[name]);
+    if (!Number.isFinite(value) || value < min || value > max) throw new AnvilError('flag_invalid', `--${name} must be a number from ${min} to ${max}.`);
+    return value;
+  };
+  if (flags.reset && flags.reset !== 'restart' && flags.reset !== 'none') throw new AnvilError('flag_invalid', '--reset must be restart or none.');
+  const trialTimeout = numberFlag('trial-timeout', 5, 1800);
+  const run = await runEval({
+    base: config,
+    tasks,
+    tasksFile: tasksPath,
+    taskIds: splitList(args.multi.only),
+    conditions,
+    attempts: numberFlag('attempts', 1, 20),
+    budget: {
+      ...(numberFlag('max-turns', 1, 40) !== undefined ? { maxTurns: numberFlag('max-turns', 1, 40)! } : {}),
+      ...(numberFlag('max-calls', 1, 200) !== undefined ? { maxToolCalls: numberFlag('max-calls', 1, 200)! } : {}),
+      ...(trialTimeout !== undefined ? { trialTimeoutMs: trialTimeout * 1000 } : {}),
+    },
+    model: {
+      provider,
+      baseUrl,
+      model,
+      temperature: numberFlag('temperature', 0, 2) ?? 0,
+      maxTokensPerCompletion: numberFlag('max-tokens', 64, 32_000) ?? 1200,
+      ...(env.ANVIL_MODEL_API_KEY ? { apiKey: env.ANVIL_MODEL_API_KEY } : {}),
+    },
+    reset: flags.reset as 'restart' | 'none' | undefined,
+    connectTimeoutMs: timeout(flags),
+    onTrial(trial, done, total) {
+      if (flags.json !== 'true' || flags.out) {
+        process.stderr.write(`[${done}/${total}] ${trial.taskId} · ${trial.condition} #${trial.attempt}: ${trial.status}${trial.reason ? ` (${trial.reason})` : ''}\n`);
+      }
+    },
+  });
+  const outPath = resolve(flags.out ?? join(env.ANVIL_DATA_DIR ?? '.anvil', 'evals', `${run.id}.json`));
+  await mkdir(dirname(outPath), { recursive: true });
+  await writeFile(outPath, `${JSON.stringify(run, null, 2)}\n`, 'utf8');
+  process.stdout.write(flags.json === 'true' ? `${JSON.stringify(run, null, 2)}\n` : formatEvalRun(run, { verbose: flags.verbose === 'true' }));
+  process.stderr.write(`[anvil-eval] full record: ${outPath}\n`);
+  return 0;
+}

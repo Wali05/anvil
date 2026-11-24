@@ -12,7 +12,7 @@ import { AnvilError, errorMessage } from './core/errors.js';
 import { loadProjectEnv } from './core/env.js';
 import { APP_VERSION } from './core/version.js';
 import { requireDomain } from './domains/index.js';
-import { runInspectCommand, runProxyCommand, runReportCommand, runScaffoldCommand } from './proxy/cli.js';
+import { runEvalCommand, runInspectCommand, runProxyCommand, runReportCommand, runScaffoldCommand } from './proxy/cli.js';
 
 function parseFlags(argv: string[]): { command: string; flags: Record<string, string>; rest: string[] } {
   const command = argv[0] && !argv[0].startsWith('--') ? argv[0] : 'serve';
@@ -90,6 +90,10 @@ async function main(): Promise<void> {
   }
   if (command === 'report') {
     await runReportCommand(rest);
+    return;
+  }
+  if (command === 'eval') {
+    process.exitCode = await runEvalCommand(rest);
     return;
   }
   if (command === 'serve') {
