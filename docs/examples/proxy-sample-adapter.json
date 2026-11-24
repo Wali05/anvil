@@ -1,0 +1,212 @@
+{
+  "schema": "anvil.adapter/v2",
+  "domain": "sample-desk",
+  "version": "1.0.0",
+  "description": "Flattens the sample awkward ticket-desk upstream: nested query/ticket envelopes become flat fields, O/C and priority levels become open/closed and P1/P2/P3, and cancel resolves a title to a ticket id with one read-only lookup.",
+  "limits": {
+    "oneToOne": false,
+    "maxTools": 12,
+    "maxUnderlyingCallsPerInvocation": 2
+  },
+  "tools": [
+    {
+      "name": "list_tickets",
+      "description": "List tickets in a workspace with a friendly status (open|closed). Returns the original desk#ticketList envelope.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "workspace"
+        ],
+        "properties": {
+          "workspace": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Workspace slug, e.g. acme."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "closed"
+            ],
+            "description": "Optional status filter."
+          },
+          "title": {
+            "type": "string",
+            "description": "Optional exact title filter."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Page size (max 20)."
+          }
+        }
+      },
+      "target": "desk_list_tickets",
+      "arguments": [
+        {
+          "to": "query.workspace",
+          "from": "workspace",
+          "required": true
+        },
+        {
+          "to": "query.status",
+          "from": "status",
+          "valueMap": {
+            "open": "O",
+            "closed": "C"
+          }
+        },
+        {
+          "to": "query.title_eq",
+          "from": "title"
+        },
+        {
+          "to": "max_results",
+          "from": "limit",
+          "default": 20
+        }
+      ],
+      "notes": "No output remapping: the upstream list envelope is returned unchanged."
+    },
+    {
+      "name": "open_ticket",
+      "description": "Open a ticket from a flat title, priority (P1|P2|P3) and optional assignee email. The adapter nests the awkward ticket resource.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "workspace",
+          "title",
+          "priority"
+        ],
+        "properties": {
+          "workspace": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "P1",
+              "P2",
+              "P3"
+            ],
+            "description": "Friendly priority; mapped to upstream priority.level 1|2|3."
+          },
+          "assignee_email": {
+            "type": "string",
+            "format": "email"
+          }
+        }
+      },
+      "target": "desk_open_ticket",
+      "arguments": [
+        {
+          "to": "workspace",
+          "from": "workspace",
+          "required": true
+        },
+        {
+          "to": "ticket.title",
+          "from": "title",
+          "required": true
+        },
+        {
+          "to": "ticket.priority.level",
+          "from": "priority",
+          "valueMap": {
+            "P1": "1",
+            "P2": "2",
+            "P3": "3"
+          },
+          "required": true
+        },
+        {
+          "to": "ticket.assignee.email",
+          "from": "assignee_email"
+        }
+      ]
+    },
+    {
+      "name": "cancel_ticket",
+      "description": "Cancel ONE open ticket by its exact title in a workspace. The adapter finds it with one read-only list and closes only that id; if zero or several match (for example two open tickets share the title), nothing is changed and the candidates are returned.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "workspace",
+          "title"
+        ],
+        "properties": {
+          "workspace": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Exact title of the open ticket to cancel."
+          }
+        }
+      },
+      "target": "desk_cancel_ticket",
+      "lookup": {
+        "tool": "desk_list_tickets",
+        "arguments": [
+          {
+            "to": "query.workspace",
+            "from": "workspace",
+            "required": true
+          },
+          {
+            "to": "query.status",
+            "const": "O"
+          },
+          {
+            "to": "query.title_eq",
+            "from": "title",
+            "required": true
+          },
+          {
+            "to": "max_results",
+            "const": 20
+          }
+        ],
+        "resultsPath": "items",
+        "match": [
+          {
+            "field": "title",
+            "from": "title",
+            "compare": "exact"
+          }
+        ],
+        "idField": "id",
+        "bindTo": "ticket_id",
+        "display": [
+          "id",
+          "title",
+          "status",
+          "priority.level",
+          "workspace"
+        ]
+      },
+      "arguments": [
+        {
+          "to": "workspace",
+          "from": "workspace",
+          "required": true
+        }
+      ],
+      "notes": "One read-only desk_list_tickets (exact title among open tickets) binds ticket_id; then exactly one desk_cancel_ticket."
+    }
+  ]
+}

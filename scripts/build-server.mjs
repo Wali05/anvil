@@ -25,7 +25,7 @@ await build({
 
 await build({
   ...common,
-  entryPoints: ['src/mcp/workbench.ts', 'src/mcp/adapterServer.ts'],
+  entryPoints: ['src/mcp/workbench.ts', 'src/mcp/adapterServer.ts', 'src/mcp/proxyServer.ts', 'src/mcp/sampleUpstream.ts'],
   outdir: 'dist/mcp',
 });
 
