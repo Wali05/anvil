@@ -1,0 +1,10 @@
+{
+  "schema": "anvil.proxy/v1",
+  "name": "calendar-via-anvil",
+  "upstream": {
+    "command": "npx",
+    "args": ["-y", "-p", "github:Wali05/anvil", "anvil-mcp", "--domain", "calendar", "--condition", "original"]
+  },
+  "adapter": "./adapters/calendar.adapter.json",
+  "log": { "file": "./calls.jsonl" }
+}

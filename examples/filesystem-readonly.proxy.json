@@ -1,0 +1,17 @@
+{
+  "schema": "anvil.proxy/v1",
+  "name": "files-readonly",
+  "upstream": {
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-filesystem", "${HOME}/Documents"]
+  },
+  "tools": {
+    "exclude": ["write_file", "edit_file", "move_file", "create_directory"],
+    "overrides": {
+      "search_files": {
+        "description": "Find files whose names match a glob pattern under a directory. Call list_allowed_directories first to learn the valid roots."
+      }
+    }
+  },
+  "log": { "file": "./files-calls.jsonl" }
+}

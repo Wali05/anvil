@@ -1,9 +1,0 @@
-{
-  "mcpServers": {
-    "anvil": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "-p", "github:Wali05/anvil", "anvil-mcp", "--domain", "calendar"]
-    }
-  }
-}

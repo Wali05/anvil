@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-// Adapter MCP server over stdio, e.g. for Claude Desktop or any MCP client:
+// Built-in fixture adapter MCP server (stdio, or Streamable HTTP with --http <port>), for any MCP client:
 //   anvil-mcp --domain calendar [--condition adapted] [--adapter default|saved|file] [--adapter-file x.json]
+// To adapt your own MCP server, use `anvil proxy` instead (see README).
 // Run data defaults to ~/.anvil so the server works from any working directory.
 import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
@@ -17,7 +18,9 @@ if (!existsSync(entry)) {
 const argv = process.argv.slice(2);
 if (argv.includes('--help') || argv.includes('-h')) {
   process.stderr.write('usage: anvil-mcp --domain <calendar|issues> [--condition adapted|original|descriptions]\n' +
-    '                 [--adapter default|saved|file] [--adapter-file <bundle-or-spec.json>] [--data-dir <dir>]\n');
+    '                 [--adapter default|saved|file] [--adapter-file <bundle-or-spec.json>] [--data-dir <dir>]\n' +
+    '                 [--http <port> [--host 127.0.0.1]]\n' +
+    'To put Anvil in front of your own MCP server: anvil proxy --help\n');
   process.exit(0);
 }
 if (!argv.includes('--domain')) argv.push('--domain', 'calendar');

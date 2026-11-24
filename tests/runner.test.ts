@@ -376,6 +376,25 @@ describe('scripted experiment runner', () => {
     expect(finished.trials[0]!.turns).toHaveLength(2);
   });
 
+  it('treats the run token budget as a hard stop: no request after it is spent', async () => {
+    const store = await tempStore();
+    const expensive = response({
+      toolCalls: [{ id: 'call_1', name: 'calendar_list_events', argumentsRaw: '{"calendar_id":"primary","time_min":"2026-11-01T00:00:00+05:30","time_max":"2026-11-02T00:00:00+05:30"}' }],
+      finishReason: 'tool_calls',
+      usage: { promptTokens: 500, completionTokens: 100, totalTokens: 600, providerReportedCostUsd: null },
+    });
+    const transport = new FakeTransport([expensive]);
+    const runner = new ExperimentRunner({ store, transportFactory: () => transport });
+    // Three conditions are planned; the 1000-token cap is crossed on the second request of the first trial.
+    const run = await runner.start(liveInput({ budget: { maxTotalTokens: 1000, maxTurnsPerTrial: 8, maxUnderlyingToolCallsPerTrial: 20 } }), liveModel);
+    const finished = await waitFor(store, run.id);
+    expect(transport.requests).toHaveLength(2);
+    expect(finished.trials).toHaveLength(1);
+    expect(finished.trials[0]!.status).toBe('invalid');
+    expect(finished.trials[0]!.statusReason).toContain('token budget');
+    expect(finished.summary.notes.some((note) => note.includes('run token budget') && note.includes('1 of 3 planned trials'))).toBe(true);
+  });
+
   it('gives each model call the time remaining before the deadline, not the full trial budget', async () => {
     const store = await tempStore();
     const transport = new FakeTransport([

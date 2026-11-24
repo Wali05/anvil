@@ -5,7 +5,7 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 
 const distProxy = resolve('dist/mcp/proxyServer.js');
 const distSample = resolve('dist/mcp/sampleUpstream.js');
-const adapter = resolve('docs/examples/proxy-sample-adapter.json');
+const adapter = resolve('examples/adapters/sample-desk.adapter.json');
 
 if (!existsSync(distProxy) || !existsSync(distSample)) {
   console.error('dist/mcp/proxyServer.js or sampleUpstream.js is missing. Run npm run build:server first.');
@@ -59,7 +59,7 @@ try {
   const closed = JSON.parse(canceledText) as { id?: string; status?: string };
   if (closed.id !== 'T-1003' || closed.status !== 'C') throw new Error(`cancel_ticket failed: ${canceledText}`);
 
-  if (!stderr.includes('anvil_proxy_tool_call')) throw new Error('expected proxy stderr logs');
+  if (!stderr.includes('anvil_proxy_call')) throw new Error('expected proxy stderr logs');
   if (!stderr.includes('desk_open_ticket')) throw new Error('expected compiled desk_open_ticket in stderr');
   if (!stderr.includes('desk_cancel_ticket')) throw new Error('expected compiled desk_cancel_ticket in stderr');
 

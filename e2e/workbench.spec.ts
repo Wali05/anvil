@@ -84,12 +84,16 @@ test('browser flow: initial state, simulation, drill-down, adapter editing, expo
   // Integration: real MCP handshake.
   await page.getByRole('button', { name: 'Integration' }).click();
   await expect(page.getByRole('heading', { name: 'Integration' })).toBeVisible();
-  await expect(page.getByText('Not installed').first()).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Put Anvil in front of an MCP server' })).toBeVisible();
+  await expect(page.getByText('claude mcp add anvil-calendar -- npx -y -p github:Wali05/anvil anvil-mcp --domain calendar')).toBeVisible();
+  await page.getByRole('button', { name: 'VS Code (Copilot agent mode)' }).click();
+  await expect(page.getByText('"type": "stdio"')).toBeVisible();
+  await page.getByRole('button', { name: 'Claude Code' }).click();
+  await page.screenshot({ path: 'docs/screenshots/05-integration-1440.png', fullPage: false });
   await page.getByRole('button', { name: 'Run MCP handshake' }).click();
   await expect(page.getByText('Handshake succeeded')).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText('anvil_list_domains', { exact: true }).first()).toBeVisible();
   await page.locator('.mcp-result').scrollIntoViewIfNeeded();
-  await page.screenshot({ path: 'docs/screenshots/05-integration-1440.png', fullPage: false });
 
   // Narrow layout: readable, reachable navigation and no page-level horizontal overflow.
   await page.setViewportSize({ width: 390, height: 844 });

@@ -8,7 +8,7 @@ import { resolveAdapterSpec } from './resolveAdapter.js';
 import { hashJson } from '../core/util.js';
 import { APP_VERSION } from '../core/version.js';
 import { loadProjectEnv } from '../core/env.js';
-import { serveStdioMcp, type McpTool } from './common.js';
+import { serveMcp, type HttpServeOptions, type McpTool } from './common.js';
 
 export interface AdapterServerOptions {
   domain: string;
@@ -16,6 +16,8 @@ export interface AdapterServerOptions {
   adapterSource?: 'default' | 'saved' | 'file';
   adapterFile?: string;
   dataDir?: string;
+  /** Serve Streamable HTTP on this port instead of stdio. */
+  http?: HttpServeOptions;
 }
 
 export function parseAdapterServerArgs(argv: string[]): AdapterServerOptions {
@@ -48,12 +50,19 @@ export function parseAdapterServerArgs(argv: string[]): AdapterServerOptions {
   const adapterFile = flags['adapter-file'];
   const source = adapterFile ? 'file' : (flags.adapter ?? 'default');
   if (!['default', 'saved', 'file'].includes(source)) throw new Error('--adapter must be default, saved or file');
+  let http: HttpServeOptions | undefined;
+  if (flags.http) {
+    const port = Number(flags.http);
+    if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error('--http expects a port number');
+    http = { port, host: flags.host ?? '127.0.0.1', bearerToken: process.env.ANVIL_HTTP_TOKEN || undefined };
+  }
   return {
     domain,
     condition,
     adapterSource: source as 'default' | 'saved' | 'file',
     adapterFile,
     dataDir: flags['data-dir'],
+    http,
   };
 }
 
@@ -180,13 +189,16 @@ export async function runAdapterServer(options: AdapterServerOptions): Promise<v
     ...fixtureUtilities(domain, iface, state, adapter),
   ];
 
-  await serveStdioMcp({
-    name: `anvil-${domain.id}-${options.condition}`,
-    version: adapter?.version ?? APP_VERSION,
-    instructions:
-      'Anvil MCP adapter against a disposable local fixture. Every adapted call is compiled and logged as an original call. No external account is modified.',
-    tools: exposed,
-  });
+  await serveMcp(
+    {
+      name: `anvil-${domain.id}-${options.condition}`,
+      version: adapter?.version ?? APP_VERSION,
+      instructions:
+        'Anvil MCP adapter against a disposable local fixture. Every adapted call is compiled and logged as an original call. No external account is modified.',
+      tools: exposed,
+    },
+    options.http,
+  );
 }
 
 const invokedDirectly =

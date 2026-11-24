@@ -19,9 +19,9 @@ if (argv.includes('--help') || argv.includes('-h')) {
     'usage: anvil-mcp-proxy --sample\n' +
       '       anvil-mcp-proxy --upstream-command <cmd> [--upstream-arg <arg> ...] --adapter-file <adapter.json>\n' +
       '\n' +
-      'Puts Anvil in front of a user-owned upstream MCP (stdio). Adapted public tools\n' +
-      'compile to original upstream calls. Logs original calls to stderr. Local stdio only;\n' +
-      'does not proxy OAuth-backed Alan credentials or remap outputs.\n',
+      'Puts Anvil in front of an upstream MCP server (stdio). Adapted public tools compile\n' +
+      'to original upstream calls, logged to stderr. For passthrough tools, filters, HTTP\n' +
+      'upstreams, output shaping and config files, use `anvil proxy --help`.\n',
   );
   process.exit(0);
 }

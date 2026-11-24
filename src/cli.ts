@@ -12,6 +12,7 @@ import { AnvilError, errorMessage } from './core/errors.js';
 import { loadProjectEnv } from './core/env.js';
 import { APP_VERSION } from './core/version.js';
 import { requireDomain } from './domains/index.js';
+import { runEvalCommand, runInitCommand, runInspectCommand, runProxyCommand, runReportCommand, runScaffoldCommand } from './proxy/cli.js';
 
 function parseFlags(argv: string[]): { command: string; flags: Record<string, string>; rest: string[] } {
   const command = argv[0] && !argv[0].startsWith('--') ? argv[0] : 'serve';
@@ -32,29 +33,83 @@ function parseFlags(argv: string[]): { command: string; flags: Record<string, st
   return { command, flags, rest };
 }
 
-const HELP = `Anvil ${APP_VERSION} — local tool-interface workbench for open models
+const HELP = `Anvil ${APP_VERSION} — make MCP tools easier for models to call, and prove it
 
-Usage:
+Name the MCP server once, the same way for every command:
+  -- <command> [args…]                         a stdio server
+  --url <https://…/mcp> [--header 'K: \${VAR}']  a Streamable HTTP server (SSE fallback)
+  --config anvil.proxy.json                    a saved proxy config
+  --sample                                     the built-in awkward ticket-desk demo
+
+Fix a server:
+  anvil init      <server> [--dir anvil] [--name <id>] [--force]
+      Inspect + scaffold + stated-limit fixes + a ready proxy config and starter tasks, in one folder.
+  anvil inspect   <server> | --tools-file tools.json | --domain calendar|issues  [--json] [--verbose] [--fail-on error|warn]
+      Lint the tool catalog for what makes models fail, with a fix per finding.
+  anvil scaffold  <server> [--tools a,b] [--name <id>] [--out adapter.json]
+      Write a validated starter adapter that flattens nested inputs.
+  anvil proxy     <server> [--adapter adapter.json] [--passthrough all|none] [--include a,b] [--exclude x,y]
+                  [--keep-targets] [--info-tool] [--log-file calls.jsonl] [--log-args]
+                  [--http <port> [--host 127.0.0.1]] [--dry-run] [--timeout <seconds>]
+      Serve adapted, filtered, re-described and output-shaped tools over stdio or HTTP.
+
+Prove it:
+  anvil eval      <server> --tasks tasks.json --model <id> [--base-url <url>] [--provider ollama|openai-compatible]
+                  [--conditions original,descriptions,adapted] [--attempts N] [--only id,…]
+                  [--max-turns 8] [--max-calls 12] [--trial-timeout 180] [--reset restart|none] [--out run.json] [--json]
+      Run the same tasks through the raw and the adapted interface and grade each trial independently.
+      --check validates a task file against an untouched server, without a model.
+  anvil report    <calls.jsonl> [--json]
+      Which tools fail in real use, at which stage, with which errors, and which return too much.
+
+Workbench and built-in fixtures:
   anvil serve [--port 4317] [--host 127.0.0.1] [--data-dir .anvil]
   anvil workbench-mcp
   anvil mcp --domain <calendar|issues> [--condition adapted|original|descriptions]
-            [--adapter default|saved|file] [--adapter-file <bundle-or-spec.json>]
+            [--adapter default|saved|file] [--adapter-file <bundle-or-spec.json>] [--http <port>]
   anvil export --domain <calendar|issues> [--source default|saved]
                [--kind bundle|spec|mcp-config] [--out <file>] [--run-id <id>]
   anvil check-mcp
   anvil --help
 
 Notes:
-  - The server and MCP stdio servers are local-only by default.
-  - Simulation runs are labelled scripted rehearsals and are not live model evidence.
-  - No API key is persisted; the workbench keeps it in process memory only.
+  - Models for eval: ANVIL_MODEL, ANVIL_MODEL_BASE_URL, ANVIL_MODEL_PROVIDER, and the key only in ANVIL_MODEL_API_KEY.
+  - Secrets: write \${VAR} in configs and --header values (single-quoted in the shell); they are read from the
+    environment and never written to logs, run records or generated configs.
+  - HTTP serving binds 127.0.0.1 by default. A public --host requires ANVIL_HTTP_TOKEN (bearer auth).
+  - anvil-mcp-proxy (--upstream-command/--upstream-arg/--adapter-file, --sample) runs on the same engine as anvil proxy.
 `;
 
 async function main(): Promise<void> {
   loadProjectEnv();
   const { command, flags } = parseFlags(process.argv.slice(2));
-  if (flags.help === 'true' || command === 'help') {
+  const rest = process.argv.slice(3);
+  if (command === 'help' || command === '-h' || (flags.help === 'true' && !rest.includes('--'))) {
     process.stdout.write(HELP);
+    return;
+  }
+  if (command === 'proxy') {
+    await runProxyCommand(rest);
+    return;
+  }
+  if (command === 'inspect') {
+    process.exitCode = await runInspectCommand(rest);
+    return;
+  }
+  if (command === 'scaffold') {
+    process.exitCode = await runScaffoldCommand(rest);
+    return;
+  }
+  if (command === 'report') {
+    await runReportCommand(rest);
+    return;
+  }
+  if (command === 'init') {
+    process.exitCode = await runInitCommand(rest);
+    return;
+  }
+  if (command === 'eval') {
+    process.exitCode = await runEvalCommand(rest);
     return;
   }
   if (command === 'serve') {

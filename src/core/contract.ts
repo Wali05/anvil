@@ -1,6 +1,6 @@
 import type { OutputContract } from './types.js';
 
-function extractCandidateObjects(text: string): string[] {
+export function extractCandidateObjects(text: string): string[] {
   const candidates: string[] = [];
   const fence = /```(?:json)?\s*([\s\S]*?)```/gi;
   for (const match of text.matchAll(fence)) {
