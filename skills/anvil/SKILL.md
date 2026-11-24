@@ -1,13 +1,15 @@
 ---
 name: anvil
-description: Diagnose and fix MCP tool interfaces that models call badly. Use when an agent keeps misusing an MCP server's tools (wrong argument shapes, guessed ids, invented query syntax, ignored limits), when someone wants to lint an MCP server's tool catalog, put a simplified adapter or a filtered read-only view in front of an MCP server, summarize which tools fail in a call log, or measure whether an interface change actually helps a model.
+description: Diagnose, fix and measure MCP tool interfaces that models call badly. Use when an agent keeps misusing an MCP server's tools (wrong argument shapes, guessed ids, invented query syntax, ignored limits, oversized results), when someone wants to lint an MCP server's tool catalog, put a simplified adapter, a filtered read-only view or output trimming in front of an MCP server, measure with their own model whether an interface change helps, or summarize which tools fail in a call log.
 ---
 
 # Anvil
 
-Anvil sits between an MCP client and an MCP server. It can lint a server's tools, generate a starter adapter, serve adapted / filtered / re-described tools as a proxy, and summarize the proxy's call log. A separate workbench measures whether an interface change helps a model, on built-in fixtures with independent state checks.
+Anvil sits between an MCP client and an MCP server. It lints a server's tools, generates a starter adapter, serves adapted / filtered / re-described / output-trimmed tools as a proxy, measures original vs adapted with a real model (`anvil eval`), and summarizes the proxy's call log.
 
-Run it with `npx -y -p github:Wali05/anvil anvil <command>` (or `node dist/cli.js <command>` in a checkout). The upstream server is given as `--url <https://…/mcp>`, as `-- <command> [args…]` (everything after `--`), or with `--config <anvil.proxy.json>`.
+Run it with `npx -y -p github:Wali05/anvil anvil <command>` (or `node dist/cli.js <command>` in a checkout). The upstream server is given as `--url <https://…/mcp>`, as `-- <command> [args…]` (everything after `--`), with `--config <anvil.proxy.json>`, or `--sample` for the built-in demo desk.
+
+**Fastest start:** `anvil init -- <server command>` writes `anvil/anvil.proxy.json`, `anvil/adapter.json`, `anvil/inspect.txt` and a starter `anvil/tasks.json`, and prints next steps.
 
 ## Diagnose
 
@@ -28,12 +30,20 @@ Run it with `npx -y -p github:Wali05/anvil anvil <command>` (or `node dist/cli.j
   - `isoDateTime`, `dayStart`, `dayEnd`, `durationEnd` for local time → RFC 3339 with a declared offset
   - `wrapEmail` for `[{email}]` arrays, `issueQuery` parts to build a query string from structured filters
   - `anvil.adapter/v2` `lookup` to replace a required id with a name: one read-only search call (the upstream must annotate it `readOnlyHint: true`), exactly one exact match, else nothing is written and the candidates are returned
+- **Results are too big**: an output shape on the adapted tool (`output`) or a passthrough override (`tools.overrides.<tool>.output`): `pick` paths like `items[].title`, `maxItems`, `maxChars`. The model is told what was cut.
 - Serve it: `anvil proxy --adapter adapter.json --log-file calls.jsonl -- <server command>`. Check the exposed catalog first with `--dry-run`.
+
+## Measure
+
+1. Write tasks (`anvil.tasks/v1`, see docs/TASKS.md). Checks name the upstream's ORIGINAL tools: `called` / `not_called` (graded on the compiled original call), `state` (Anvil reads the upstream itself afterwards), `answer` (substring / regex / JSON subset), `max_calls`.
+2. `anvil eval --config anvil/anvil.proxy.json --tasks anvil/tasks.json --check` must show every task failing on an untouched server; fix any that pass with no action.
+3. `anvil eval … --model <id> [--base-url <url>] --attempts 3`. The key goes only in `ANVIL_MODEL_API_KEY`. Stdio upstreams restart per trial; HTTP upstreams don't, so keep those tasks read-only.
+4. Report the per-condition counts and the per-task pairs, not just the headline. Name tasks where adapted lost (▼); a few tasks with one attempt is a smoke test, not a result.
 
 ## Rules
 
 - Never put a secret in a config file or a command line that gets logged. Use `${VAR}` in `headers`, `env`, `args` and `url`; the value is read from the environment.
-- An adapter maps inputs only; upstream outputs are returned unchanged. One public call makes at most one lookup call plus one target call. There is no eval, code generation or shell.
+- An adapter maps inputs; outputs come back as the upstream sent them unless an output shape trims them (it can keep fields, cap lists and cap length, never rename or restructure). One public call makes at most one lookup call plus one target call. There is no eval, code generation or shell.
 - Adapted tools replace the originals they call (unless `--keep-targets`); hiding a tool is not a security boundary for the upstream itself, only for what the model is offered.
 - `--http <port>` binds 127.0.0.1. A public host needs `ANVIL_HTTP_TOKEN` (bearer auth); never disable that.
 - When reporting workbench results, quote numerators and denominators, say which model and split, and never present a **simulation** run (scripted policy) as model evidence. `invalid` and `error` trials are neither wins nor losses.

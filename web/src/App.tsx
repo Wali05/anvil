@@ -270,7 +270,7 @@ export function App() {
           ))}
         </nav>
         <div className="rail-foot">
-          <span className="mono">v0.2</span>
+          <span className="mono">v0.3</span>
           <span className="mono">{IS_REPLAY ? 'replay' : 'local'}</span>
         </div>
       </aside>

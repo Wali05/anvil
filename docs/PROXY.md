@@ -1,6 +1,8 @@
-# Proxy, inspect, scaffold and report
+# Init, inspect, scaffold, proxy and report
 
-These four commands put Anvil in front of an MCP server you already use. The model talks to Anvil; Anvil talks to the real server.
+These commands put Anvil in front of an MCP server you already use. The model talks to Anvil; Anvil talks to the real server. To measure whether it helped, see [TASKS.md](TASKS.md) (`anvil eval`).
+
+**Fastest start:** `anvil init -- <server command>` runs inspect and scaffold, states limits the schema hides, and writes `anvil/anvil.proxy.json`, `anvil/adapter.json`, `anvil/inspect.txt` and a starter `anvil/tasks.json`. It saves the upstream exactly as you typed it (so `${VAR}` stays a reference), refuses to overwrite without `--force`, and prints the next steps, including the line to add the proxy to your client.
 
 ```text
 MCP client ──stdio/HTTP──▶ anvil proxy ──stdio/HTTP──▶ your MCP server
@@ -14,6 +16,7 @@ In every command the upstream server is given one of three ways:
 | A command (stdio), after `--` | `-- npx -y @modelcontextprotocol/server-filesystem ~/Documents` |
 | A URL (Streamable HTTP, falls back to SSE) | `--url https://api.githubcopilot.com/mcp/ --header 'Authorization: Bearer ${GITHUB_TOKEN}'` |
 | A config file | `--config anvil.proxy.json` |
+| The built-in demo | `--sample`: an awkward in-memory ticket desk and the adapter that fixes it |
 
 `inspect` and `scaffold` also take `--tools-file tools.json` (a saved `tools/list` result) or `--domain calendar|issues` (the built-in fixtures), so they work offline and in CI.
 
@@ -68,13 +71,14 @@ The scaffold is a starting point. The adapter features that help most are the on
 
 ## `anvil proxy`
 
-Serves the upstream's tools, adapted, filtered and re-described, over stdio (default) or HTTP.
+Serves the upstream's tools, adapted, filtered, re-described and output-shaped, over stdio (default) or HTTP.
 
 ```bash
 anvil proxy --adapter adapter.json --log-file calls.jsonl -- <server command>
 anvil proxy --config anvil.proxy.json
 anvil proxy --config anvil.proxy.json --dry-run        # print the exposed catalog and exit
 anvil proxy --config anvil.proxy.json --http 8808      # http://127.0.0.1:8808/mcp
+anvil proxy --sample                                    # the demo desk, adapted
 ```
 
 What the client sees:
@@ -83,10 +87,25 @@ What the client sees:
 2. **Passthrough tools**: every other upstream tool, unchanged, except that
    - an adapted tool's target is hidden, so the model isn't offered both the hard and the easy version of one call (`--keep-targets` to keep it),
    - `--include` / `--exclude` (comma-separated, repeatable, `*` globs) filter them; exclude wins,
-   - `tools.overrides` can give one a clearer name or description,
+   - `tools.overrides` can give one a clearer name, a description, or an output shape,
    - `--passthrough none` exposes adapted tools only.
+3. Optionally `anvil_proxy_info` (`--info-tool` or `tools.infoTool`): the adapter, and which tools are exposed and hidden. Off by default, since every tool costs prompt tokens.
 
-Calls to adapted tools run: validate the arguments → optional read-only lookup (exactly one match, else nothing is written and the candidates are returned) → compile → validate against the original schema → one upstream call. The upstream's result (`content`, `structuredContent`, `isError`) is returned verbatim. Passthrough calls are forwarded as is.
+Calls to adapted tools run: validate the arguments → optional read-only lookup (exactly one match, else nothing is written and the candidates are returned) → compile → validate against the original schema → one upstream call. The upstream's result (`content`, `structuredContent`, `isError`) is returned as is, unless an output shape applies. Passthrough calls are forwarded as is.
+
+### Output shaping
+
+Real APIs return far more than a model needs. A GitHub issue has around 200 fields, and every extra field is paid for again on every later turn and gives the model more to misread. An output shape trims a successful result before the model sees it:
+
+```json
+"output": { "pick": ["total_count", "items[].number", "items[].title", "items[].state", "items[].labels[].name"], "maxItems": 20, "maxChars": 8000 }
+```
+
+- `pick` keeps only these dot paths. `key[]` maps over an array, and a leading `[]` maps over a result that is itself an array. Absent paths are skipped, never invented.
+- `maxItems` caps every array.
+- `maxChars` caps the text.
+
+Put it on an adapted tool (`output` in the adapter) or on any passed-through tool (`tools.overrides.<tool>.output`). Whenever something is cut, the model gets a second text block saying so ("items: showing 20 of 134 items… narrow the request to see the rest"), so it never mistakes a truncated list for a complete one. Errors are never shaped. A shaped passthrough tool stops advertising the upstream's `outputSchema`, because the trimmed result no longer matches it. `anvil report` shows tokens per result and suggests a shape for tools that return a lot.
 
 ### Config file (`anvil.proxy/v1`)
 
@@ -117,7 +136,7 @@ Calls to adapted tools run: validate the arguments → optional read-only lookup
 | `upstream.command`, `args`, `env`, `cwd` | A stdio server. `cwd` is relative to the config file. |
 | `upstream.url`, `headers`, `transport` | An HTTP server. `transport` is `auto` (default: Streamable HTTP, then SSE), `streamable-http` or `sse`. |
 | `adapter` | An adapter object, or a path to an adapter spec or exported bundle, relative to the config file. |
-| `tools.*` | As described above. |
+| `tools.*` | As described above, plus `infoTool` (boolean). `overrides.<tool>` takes `name`, `description` and `output`. |
 | `log.file` | Append one JSON line per call (relative to the config file). Lines also go to stderr. |
 | `log.includeArguments` | Also log the model's arguments and the compiled original input. Off by default because arguments can contain personal data. |
 
@@ -161,11 +180,24 @@ anvil report calls.jsonl
 anvil report calls.jsonl --json
 ```
 
-Stages: `input` (the arguments broke the public schema, or the tool doesn't exist / is hidden), `adapter` (couldn't compile), `lookup` (zero or several matches), `upstream` (the server returned an error). Each tool with a failure rate of 25% or more over at least 3 calls gets a suggestion.
+Stages: `input` (the arguments broke the public schema, or the tool doesn't exist / is hidden), `adapter` (couldn't compile), `lookup` (zero or several matches), `upstream` (the server returned an error). Each tool with a failure rate of 25% or more over at least 3 calls gets a suggestion, and so does each tool whose median result is over ~2,000 tokens.
+
+Each log line records the public tool, its kind and target, the outcome and stage, the lookup (`tool`, `matchedId`, `matchCount`), the original call that reached the upstream (`originalCall`, or `null` when nothing did), result sizes before and after shaping, and timing. Arguments and the compiled input are added only with `--log-args` / `log.includeArguments`.
+
+## `anvil-mcp-proxy`
+
+The earlier stdio entry point is kept for its flags, and runs on the same engine:
+
+```bash
+anvil-mcp-proxy --sample
+anvil-mcp-proxy --upstream-command node --upstream-arg ./my-server.js --adapter-file adapter.json
+```
+
+It exposes adapted tools only, adds `anvil_proxy_info`, and logs arguments and the compiled call to stderr. Everything else in this guide needs `anvil proxy`.
 
 ## Limits
 
-- Inputs only. Outputs are returned unchanged; there is no output reshaping.
+- Outputs can be trimmed (pick, cap, truncate) but not renamed or restructured.
 - One adapted call makes at most one lookup call and one target call. No general composition.
 - Paths in mappings must be identifiers (`a.b_c`); upstream fields with other characters can't be mapped (they still pass through).
 - Lookups only call tools the upstream annotates `readOnlyHint: true`.

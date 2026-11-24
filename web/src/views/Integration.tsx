@@ -82,21 +82,26 @@ export function Integration({ model }: { model: ModelStatus | null }) {
             </div>
             <ol className="step-list">
               <li>
-                <strong>Inspect</strong> the server&apos;s tools for patterns that make models fail: deep nesting, undocumented limits, opaque
-                ids on writes, free-text query dialects, missing date formats, oversized catalogs.
+                <strong>Init</strong> inspects the server for what makes models fail (deep nesting, undocumented limits, opaque ids on
+                writes, free-text query dialects, oversized catalogs), scaffolds an adapter that flattens nested inputs, states hidden limits,
+                and writes a ready proxy config and starter tasks.
               </li>
               <li>
-                <strong>Scaffold</strong> a starter adapter that flattens nested inputs, then edit it: friendlier names, enum maps, date
-                transforms, a lookup that finds a record by name instead of asking the model for its id.
+                <strong>Proxy</strong> serves the adapted tools in place of the originals they call; the rest pass through, filtered,
+                re-described and with outputs trimmed to what the model needs. Every call is logged as the original call it compiled to.
               </li>
               <li>
-                <strong>Proxy</strong> the server through the adapter. Adapted tools replace the originals they call; the rest pass through,
-                filtered and re-described. Every call is logged as the original call it compiled to.
+                <strong>Eval</strong> runs your tasks through the raw and the adapted interface with your model, on a fresh server per trial,
+                and grades each trial by what actually happened upstream, not by what the model said.
+              </li>
+              <li>
+                <strong>Report</strong> turns real usage into which tools fail, where, and which return too much.
               </li>
             </ol>
-            <Command label="1 · inspect" text={info.local.inspectCommand} />
-            <Command label="2 · scaffold" text={info.local.scaffoldCommand} />
-            <Command label="3 · proxy" text={info.local.proxyCommand} />
+            <Command label="1 · init" text={info.local.initCommand} />
+            <Command label="2 · proxy" text={info.local.proxyCommand} />
+            <Command label="3 · eval" text={info.local.evalCommand} />
+            <Command label="Try it on the built-in demo server" text={info.local.sampleEvalCommand} />
             <p className="small muted">
               Upstreams can be a command (stdio) or a URL (<code>--url https://…/mcp</code>, Streamable HTTP with SSE fallback). Reference tokens as{' '}
               <code>{'${VAR}'}</code> in headers and configs; they are read from the environment and never logged. <code>anvil report calls.jsonl</code>{' '}

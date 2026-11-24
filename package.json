@@ -1,9 +1,9 @@
 {
   "name": "anvil-workbench",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
-  "description": "Make MCP tools easier for models to call: lint any MCP server's tools, put a validated adapter proxy in front of it, and measure the effect with independently checked before/after evals.",
+  "description": "Make MCP tools easier for models to call, and prove it: lint any MCP server, put a validated adapter proxy in front of it, shape its outputs, and measure the effect with independently graded before/after evals.",
   "keywords": [
     "mcp",
     "model-context-protocol",
@@ -87,6 +87,7 @@
     "examples",
     "docs/PROXY.md",
     "docs/ADAPTER_SPEC.md",
+    "docs/TASKS.md",
     "README.md",
     "LICENSE",
     "docs/examples"

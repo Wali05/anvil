@@ -33,23 +33,34 @@ function parseFlags(argv: string[]): { command: string; flags: Record<string, st
   return { command, flags, rest };
 }
 
-const HELP = `Anvil ${APP_VERSION} — make MCP tools easier for models to call, and measure it
+const HELP = `Anvil ${APP_VERSION} — make MCP tools easier for models to call, and prove it
 
-Put Anvil in front of any MCP server:
-  anvil inspect  (--url <url> | -- <command> [args…] | --tools-file <tools.json> | --domain <fixture>)
-                 [--json] [--verbose] [--fail-on error|warn] [--out <file>]
-      Lint a tool catalog for patterns that make models fail (nesting, hidden limits,
-      opaque ids, query dialects, missing formats, catalog size).
-  anvil scaffold (--url <url> | -- <command> [args…] | --tools-file <tools.json>)
-                 [--tools a,b,…] [--name <id>] [--out adapter.json]
-      Generate a validated starter adapter that flattens nested tool inputs.
-  anvil proxy    (--url <url> [--header "Name: value"]… | -- <command> [args…] | --config anvil.proxy.json)
-                 [--adapter adapter.json] [--passthrough all|none] [--include a,b] [--exclude x,y]
-                 [--keep-targets] [--log-file calls.jsonl] [--log-args] [--http <port> [--host 127.0.0.1]]
-                 [--dry-run] [--timeout <seconds>]
-      Serve the upstream's tools (adapted, filtered, re-described) over stdio or HTTP.
-  anvil report   <calls.jsonl> [--json]
-      Summarize a proxy call log: which tools fail, where, and with which errors.
+Name the MCP server once, the same way for every command:
+  -- <command> [args…]                         a stdio server
+  --url <https://…/mcp> [--header 'K: \${VAR}']  a Streamable HTTP server (SSE fallback)
+  --config anvil.proxy.json                    a saved proxy config
+  --sample                                     the built-in awkward ticket-desk demo
+
+Fix a server:
+  anvil init      <server> [--dir anvil] [--name <id>] [--force]
+      Inspect + scaffold + stated-limit fixes + a ready proxy config and starter tasks, in one folder.
+  anvil inspect   <server> | --tools-file tools.json | --domain calendar|issues  [--json] [--verbose] [--fail-on error|warn]
+      Lint the tool catalog for what makes models fail, with a fix per finding.
+  anvil scaffold  <server> [--tools a,b] [--name <id>] [--out adapter.json]
+      Write a validated starter adapter that flattens nested inputs.
+  anvil proxy     <server> [--adapter adapter.json] [--passthrough all|none] [--include a,b] [--exclude x,y]
+                  [--keep-targets] [--info-tool] [--log-file calls.jsonl] [--log-args]
+                  [--http <port> [--host 127.0.0.1]] [--dry-run] [--timeout <seconds>]
+      Serve adapted, filtered, re-described and output-shaped tools over stdio or HTTP.
+
+Prove it:
+  anvil eval      <server> --tasks tasks.json --model <id> [--base-url <url>] [--provider ollama|openai-compatible]
+                  [--conditions original,descriptions,adapted] [--attempts N] [--only id,…]
+                  [--max-turns 8] [--max-calls 12] [--trial-timeout 180] [--reset restart|none] [--out run.json] [--json]
+      Run the same tasks through the raw and the adapted interface and grade each trial independently.
+      --check validates a task file against an untouched server, without a model.
+  anvil report    <calls.jsonl> [--json]
+      Which tools fail in real use, at which stage, with which errors, and which return too much.
 
 Workbench and built-in fixtures:
   anvil serve [--port 4317] [--host 127.0.0.1] [--data-dir .anvil]
@@ -62,10 +73,11 @@ Workbench and built-in fixtures:
   anvil --help
 
 Notes:
-  - Secrets: reference them as \${VAR} in proxy configs and --header values; they are read from the
-    environment and never written to logs, run records or exports.
+  - Models for eval: ANVIL_MODEL, ANVIL_MODEL_BASE_URL, ANVIL_MODEL_PROVIDER, and the key only in ANVIL_MODEL_API_KEY.
+  - Secrets: write \${VAR} in configs and --header values (single-quoted in the shell); they are read from the
+    environment and never written to logs, run records or generated configs.
   - HTTP serving binds 127.0.0.1 by default. A public --host requires ANVIL_HTTP_TOKEN (bearer auth).
-  - Simulation runs are labelled scripted rehearsals and are not live model evidence.
+  - anvil-mcp-proxy (--upstream-command/--upstream-arg/--adapter-file, --sample) runs on the same engine as anvil proxy.
 `;
 
 async function main(): Promise<void> {

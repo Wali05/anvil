@@ -64,6 +64,7 @@ The same adapter runs in three places: the workbench (measured against the fixtu
 | `target` | The original tool's exact name. |
 | `arguments` | 1–40 mappings, below. |
 | `lookup` | Optional (v2), below. |
+| `output` | Optional, proxy only: trim the target's result before the model sees it (`pick`, `maxItems`, `maxChars`). See [PROXY.md](PROXY.md#output-shaping). The fixture workbench ignores it. |
 | `notes` | Optional free text for humans. |
 
 ## Mappings
@@ -150,7 +151,7 @@ Exactly one match is required. With zero or several, the call stops, **nothing i
 
 ## What adapters cannot do
 
-- Map outputs. The original result is returned unchanged.
+- Rename or restructure outputs. An `output` shape can only keep fields, cap lists and cap length.
 - Call more than one lookup plus one target per public call, or compose calls.
 - Use fuzzy matching, hidden ids, validators or task answers.
 - Map fields whose names aren't identifiers (`a-b`, `$x`). Those can still pass through unadapted in the proxy.

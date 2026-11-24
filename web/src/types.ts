@@ -251,6 +251,9 @@ export interface IntegrationInfo {
     calendarAdapterCommand: string;
     issuesAdapterCommand: string;
     fileAdapterCommand: string;
+    initCommand: string;
+    evalCommand: string;
+    sampleEvalCommand: string;
     inspectCommand: string;
     scaffoldCommand: string;
     proxyCommand: string;
