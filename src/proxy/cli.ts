@@ -1,5 +1,5 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { AnvilError } from '../core/errors.js';
 import { isPlainObject } from '../core/util.js';
 import { getDomain } from '../domains/index.js';
@@ -321,5 +321,51 @@ export async function runEvalCommand(argv: string[], env: NodeJS.ProcessEnv = pr
   await writeFile(outPath, `${JSON.stringify(run, null, 2)}\n`, 'utf8');
   process.stdout.write(flags.json === 'true' ? `${JSON.stringify(run, null, 2)}\n` : formatEvalRun(run, { verbose: flags.verbose === 'true' }));
   process.stderr.write(`[anvil-eval] full record: ${outPath}\n`);
+  return 0;
+}
+
+export async function runInitCommand(argv: string[], env: NodeJS.ProcessEnv = process.env): Promise<number> {
+  const { planInit, writeInit } = await import('./init.js');
+  const args = parseArgs(argv);
+  const { flags } = args;
+  if (flags.config) throw new AnvilError('flag_invalid', '`anvil init` writes a proxy config; point it at the server with --url or `-- <command>` instead of --config.');
+  // The upstream as written, so `${VAR}` references stay references in the saved config.
+  let upstream: Record<string, unknown>;
+  if (flags.sample === 'true') {
+    const spec = sampleUpstreamSpec();
+    upstream = { command: spec.command, args: spec.args };
+  } else if (flags.url) {
+    upstream = { url: flags.url, ...(args.multi.header ? { headers: keyValues(args.multi.header, ':', 'header') } : {}), ...(flags.transport ? { transport: flags.transport } : {}) };
+  } else if (args.upstreamCommand.length > 0) {
+    upstream = { command: args.upstreamCommand[0], args: args.upstreamCommand.slice(1), ...(args.multi.env ? { env: keyValues(args.multi.env, '=', 'env') } : {}) };
+  } else {
+    throw new AnvilError('upstream_required', 'Name the server: `anvil init -- <command> [args…]`, `anvil init --url <https://…/mcp>`, or `anvil init --sample`.');
+  }
+  const loaded = await loadTools(args, env);
+  const slug = (loaded.name ?? 'server').toLowerCase().replace(/[^a-z0-9_-]+/g, '-').replace(/^-+|-+$/g, '') || 'server';
+  const name = flags.name ?? `${slug}-via-anvil`;
+  const plan = planInit({ tools: loaded.tools, server: { name: loaded.name, version: loaded.version, source: loaded.source }, upstream, name });
+  const result = await writeInit(plan, flags.dir ?? 'anvil', flags.force === 'true');
+  const configPath = join(result.dir, 'anvil.proxy.json');
+  const rel = (file: string) => relative(process.cwd(), join(result.dir, file)) || file;
+  const out: string[] = [];
+  out.push(`Anvil init — ${loaded.name ?? 'server'} (${loaded.tools.length} tools, lint score ${plan.report.score}/100: ${plan.report.counts.error} errors, ${plan.report.counts.warn} warnings)`);
+  out.push('');
+  out.push(`Wrote ${result.written.map((file) => rel(file)).join(', ')}`);
+  if (plan.adapter) out.push(`  adapter: ${plan.adapter.tools.length} tool(s) flattened (${plan.adapter.tools.map((tool) => tool.name).join(', ')})`);
+  else out.push('  adapter: none needed (no nested inputs); edit the config to filter or re-describe tools');
+  const fixed = Object.keys(plan.overrides);
+  if (fixed.length > 0) out.push(`  descriptions: stated hidden limits on ${fixed.join(', ')}`);
+  out.push(`  findings: ${rel('inspect.txt')} (fix what the adapter doesn't)`);
+  out.push('');
+  out.push('Next:');
+  out.push(`  1. Review ${rel('adapter.json')} and ${rel('anvil.proxy.json')}. Add lookups, enum maps and output shapes where inspect points (docs/ADAPTER_SPEC.md).`);
+  out.push(`  2. Check the catalog the model will see:  anvil proxy --config ${rel('anvil.proxy.json')} --dry-run`);
+  out.push(`  3. Write real tasks in ${rel('tasks.json')}, then:  anvil eval --config ${rel('anvil.proxy.json')} --tasks ${rel('tasks.json')} --check`);
+  out.push(`     and measure:  anvil eval --config ${rel('anvil.proxy.json')} --tasks ${rel('tasks.json')} --model <model> [--base-url …]`);
+  out.push('  4. Use it from your client (Claude Code shown; the dashboard Integration tab has the others):');
+  out.push(`       claude mcp add ${name} -- npx -y -p github:Wali05/anvil anvil proxy --config ${configPath}`);
+  out.push(`  5. After real use:  anvil report ${rel('calls.jsonl')}`);
+  process.stdout.write(`${out.join('\n')}\n`);
   return 0;
 }
