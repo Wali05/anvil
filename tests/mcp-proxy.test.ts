@@ -9,7 +9,7 @@ import { buildSampleUpstreamTools, createInitialDeskState } from '../src/mcp/sam
 import type { JsonSchema } from '../src/core/types.js';
 
 const tsxAvailable = existsSync(resolve('node_modules/tsx'));
-const adapterPath = resolve('docs/examples/proxy-sample-adapter.json');
+const adapterPath = resolve('examples/adapters/sample-desk.adapter.json');
 const proxyEntry = resolve('src/mcp/proxyServer.ts');
 const sampleEntry = resolve('src/mcp/sampleUpstream.ts');
 
@@ -118,16 +118,16 @@ describe('MCP proxy mode', () => {
     expect(result.id).toBeTruthy();
     const logs = stderr
       .split(/\r?\n/)
-      .filter((line) => line.includes('"event":"anvil_proxy_tool_call"'))
+      .filter((line) => line.includes('"event":"anvil_proxy_call"'))
       .map((line) => {
         const start = line.indexOf('{');
         return JSON.parse(line.slice(start)) as {
-          publicTool?: string;
+          tool?: string;
           originalCall?: { tool?: string; input?: { ticket?: { priority?: { level?: string } } } };
           ok?: boolean;
         };
       });
-    const openLog = logs.find((entry) => entry.publicTool === 'open_ticket');
+    const openLog = logs.find((entry) => entry.tool === 'open_ticket');
     expect(openLog?.ok).toBe(true);
     expect(openLog?.originalCall?.tool).toBe('desk_open_ticket');
     expect(openLog?.originalCall?.input?.ticket?.priority?.level).toBe('2');
@@ -155,25 +155,25 @@ describe('MCP proxy mode', () => {
     expect(result.ticket.id).toBe('T-1003');
     const logs = stderr
       .split(/\r?\n/)
-      .filter((line) => line.includes('"event":"anvil_proxy_tool_call"'))
+      .filter((line) => line.includes('"event":"anvil_proxy_call"'))
       .map((line) => {
         const start = line.indexOf('{');
         return JSON.parse(line.slice(start)) as {
-          publicTool?: string;
+          tool?: string;
           originalCall?: { tool?: string; input?: { ticket_id?: string } };
           lookup?: { tool?: string; matchedId?: string | null; matchCount?: number };
           underlyingCalls?: number;
           ok?: boolean;
         };
       });
-    const cancelLog = logs.find((entry) => entry.publicTool === 'cancel_ticket' && entry.ok);
+    const cancelLog = logs.find((entry) => entry.tool === 'cancel_ticket' && entry.ok);
     expect(cancelLog?.lookup?.tool).toBe('desk_list_tickets');
     expect(cancelLog?.lookup?.matchedId).toBe('T-1003');
     expect(cancelLog?.originalCall?.tool).toBe('desk_cancel_ticket');
     expect(cancelLog?.originalCall?.input?.ticket_id).toBe('T-1003');
     expect(cancelLog?.underlyingCalls).toBe(2);
 
-    const ambiguousLog = logs.find((entry) => entry.publicTool === 'cancel_ticket' && entry.ok === false);
+    const ambiguousLog = logs.find((entry) => entry.tool === 'cancel_ticket' && entry.ok === false);
     expect(ambiguousLog?.lookup?.matchCount).toBeGreaterThan(1);
     expect(ambiguousLog?.originalCall).toBeNull();
     expect(ambiguousLog?.underlyingCalls).toBe(1);

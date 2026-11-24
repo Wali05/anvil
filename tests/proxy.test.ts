@@ -41,7 +41,7 @@ function fixtureTools(domain: DomainDefinition): UpstreamTool[] {
 }
 
 function toolOptions(overrides: Partial<ResolvedProxyConfig['tools']> = {}): ResolvedProxyConfig['tools'] {
-  return { passthrough: 'all', include: [], exclude: [], keepTargets: false, overrides: {}, ...overrides };
+  return { passthrough: 'all', include: [], exclude: [], keepTargets: false, infoTool: false, overrides: {}, ...overrides };
 }
 
 /** The raw fixture tools served by a separate MCP process: a real upstream with nested, model-hostile schemas. */
@@ -320,7 +320,9 @@ describe('proxy end to end against a real upstream MCP process', () => {
     const entries = log.trim().split('\n').map((entry) => JSON.parse(entry));
     expect(entries).toHaveLength(2);
     expect(entries[0]).toMatchObject({ tool: 'search_issues', target: 'issues_search', ok: true, stage: 'ok' });
-    expect(entries[0].compiledInput.q).toContain('priority:P2');
+    expect(entries[0].originalCall.input.q).toContain('priority:P2');
+    expect(entries[0].resultChars).toBeGreaterThan(0);
+    expect(entries[1].originalCall).toBeNull();
     expect(entries[1]).toMatchObject({ ok: false, stage: 'input', underlyingCalls: 0 });
   }, 40_000);
 

@@ -258,6 +258,17 @@ export interface AdapterLookupSpec {
   display: string[];
 }
 
+/**
+ * Proxy only: trim what the upstream returns before the model sees it.
+ * `pick` keeps dot paths (`items[].title` maps over an array), `maxItems`
+ * caps every array, `maxChars` caps the text. The model is told what was cut.
+ */
+export interface OutputShape {
+  pick?: string[];
+  maxItems?: number;
+  maxChars?: number;
+}
+
 export interface AdaptedToolSpec {
   name: string;
   description: string;
@@ -267,6 +278,8 @@ export interface AdaptedToolSpec {
   arguments: AdapterArgMapping[];
   /** v2 only: one read-only lookup call before the target call. */
   lookup?: AdapterLookupSpec;
+  /** Proxy only: how to trim the target's result. Ignored by the fixture workbench. */
+  output?: OutputShape;
   notes?: string;
 }
 

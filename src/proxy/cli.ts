@@ -9,6 +9,7 @@ import { loadAdapterFile, loadProxyConfigFile, resolveProxyConfig, type Resolved
 import { formatInspectReport, inspectCatalog, type FindingSeverity } from './inspect.js';
 import { formatUsageReport, summarizeCallLogFile } from './report.js';
 import { scaffoldAdapter } from './scaffold.js';
+import { sampleAdapterPath, sampleUpstreamSpec } from './sample.js';
 import { runProxy, startProxyRuntime } from './server.js';
 import { connectUpstream, describeUpstream, type UpstreamSpec, type UpstreamTool } from './upstream.js';
 
@@ -22,7 +23,7 @@ export interface ParsedArgs {
   upstreamCommand: string[];
 }
 
-const BOOLEAN_FLAGS = new Set(['json', 'verbose', 'dry-run', 'keep-targets', 'log-args', 'help', 'stdout']);
+const BOOLEAN_FLAGS = new Set(['json', 'verbose', 'dry-run', 'keep-targets', 'log-args', 'help', 'stdout', 'sample', 'info-tool', 'force']);
 
 export function parseArgs(argv: string[]): ParsedArgs {
   const flags: Record<string, string> = {};
@@ -83,6 +84,14 @@ export async function proxyConfigFromArgs(args: ParsedArgs, env: NodeJS.ProcessE
   let config: ResolvedProxyConfig;
   if (flags.config) {
     config = await loadProxyConfigFile(resolve(flags.config), env);
+  } else if (flags.sample === 'true') {
+    // The packaged demo: an awkward ticket-desk server and the adapter that fixes it.
+    config = await resolveProxyConfig({ schema: 'anvil.proxy/v1', name: 'anvil-sample-desk', upstream: { command: 'placeholder' } }, process.cwd(), env);
+    config.upstream = sampleUpstreamSpec();
+    if (!flags.adapter) {
+      config.adapter = await loadAdapterFile(sampleAdapterPath());
+      config.adapterPath = sampleAdapterPath();
+    }
   } else {
     const upstream: Record<string, unknown> = {};
     if (flags.url) {
@@ -94,7 +103,7 @@ export async function proxyConfigFromArgs(args: ParsedArgs, env: NodeJS.ProcessE
       upstream.args = upstreamCommand.slice(1);
       upstream.env = keyValues(multi.env, '=', 'env');
     } else {
-      throw new AnvilError('upstream_required', 'Name an upstream server: `--url <https://…/mcp>`, `-- <command> [args…]`, or `--config <anvil.proxy.json>`.');
+      throw new AnvilError('upstream_required', 'Name an upstream server: `--url <https://…/mcp>`, `-- <command> [args…]`, `--config <anvil.proxy.json>`, or `--sample` for the built-in demo.');
     }
     config = await resolveProxyConfig({ schema: 'anvil.proxy/v1', upstream }, process.cwd(), env);
   }
@@ -112,6 +121,7 @@ export async function proxyConfigFromArgs(args: ParsedArgs, env: NodeJS.ProcessE
   if (include.length > 0) config.tools.include = include;
   if (exclude.length > 0) config.tools.exclude = [...config.tools.exclude, ...exclude];
   if (flags['keep-targets'] === 'true') config.tools.keepTargets = true;
+  if (flags['info-tool'] === 'true') config.tools.infoTool = true;
   if (flags['log-file']) config.log.file = resolve(flags['log-file']);
   if (flags['log-args'] === 'true') config.log.includeArguments = true;
   return config;

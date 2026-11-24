@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { dirname, isAbsolute, resolve } from 'node:path';
-import type { AdapterSpec } from '../core/types.js';
+import type { AdapterSpec, OutputShape } from '../core/types.js';
+import { validateOutputShape } from '../core/output.js';
 import { parseAdapterSpec } from '../core/adapter.js';
 import { AnvilError } from '../core/errors.js';
 import { isPlainObject } from '../core/util.js';
@@ -34,8 +35,16 @@ export interface ProxyToolOptions {
   exclude?: string[];
   /** Keep exposing an adapted tool's original target alongside it. Default false: the adapted tool replaces it. */
   keepTargets?: boolean;
-  /** Per upstream tool: a clearer public name and/or description. Arguments are untouched; use an adapter for those. */
-  overrides?: Record<string, { name?: string; description?: string }>;
+  /** Per upstream tool: a clearer public name, a description, and/or an output shape. Arguments are untouched; use an adapter for those. */
+  overrides?: Record<string, ToolOverride>;
+  /** Also expose `anvil_proxy_info` (adapter, exposed and hidden tools). Off by default: every tool costs prompt tokens. */
+  infoTool?: boolean;
+}
+
+export interface ToolOverride {
+  name?: string;
+  description?: string;
+  output?: OutputShape;
 }
 
 export interface ResolvedProxyConfig {
@@ -43,7 +52,7 @@ export interface ResolvedProxyConfig {
   upstream: UpstreamSpec;
   adapter: AdapterSpec | null;
   adapterPath: string | null;
-  tools: Required<Omit<ProxyToolOptions, 'overrides'>> & { overrides: Record<string, { name?: string; description?: string }> };
+  tools: Required<Omit<ProxyToolOptions, 'overrides'>> & { overrides: Record<string, ToolOverride> };
   log: { file: string | null; includeArguments: boolean };
 }
 
@@ -130,7 +139,7 @@ export async function resolveProxyConfig(raw: unknown, baseDir: string, env: Nod
   if (!isPlainObject(toolsRaw)) throw new AnvilError('proxy_config_invalid', 'tools must be an object.');
   const passthrough = toolsRaw.passthrough ?? 'all';
   if (passthrough !== 'all' && passthrough !== 'none') throw new AnvilError('proxy_config_invalid', 'tools.passthrough must be "all" or "none".');
-  const overrides: Record<string, { name?: string; description?: string }> = {};
+  const overrides: Record<string, ToolOverride> = {};
   if (toolsRaw.overrides !== undefined) {
     if (!isPlainObject(toolsRaw.overrides)) throw new AnvilError('proxy_config_invalid', 'tools.overrides must be an object keyed by upstream tool name.');
     for (const [tool, override] of Object.entries(toolsRaw.overrides)) {
@@ -141,7 +150,13 @@ export async function resolveProxyConfig(raw: unknown, baseDir: string, env: Nod
       if (override.description !== undefined && typeof override.description !== 'string') {
         throw new AnvilError('proxy_config_invalid', `tools.overrides.${tool}.description must be a string.`);
       }
-      overrides[tool] = { name: override.name as string | undefined, description: override.description as string | undefined };
+      const outputErrors = validateOutputShape(override.output, `tools.overrides.${tool}.output`);
+      if (outputErrors.length > 0) throw new AnvilError('proxy_config_invalid', outputErrors.join('; '));
+      overrides[tool] = {
+        name: override.name as string | undefined,
+        description: override.description as string | undefined,
+        ...(override.output !== undefined ? { output: override.output as OutputShape } : {}),
+      };
     }
   }
 
@@ -158,6 +173,7 @@ export async function resolveProxyConfig(raw: unknown, baseDir: string, env: Nod
       include: stringArray(toolsRaw.include, 'tools.include') ?? [],
       exclude: stringArray(toolsRaw.exclude, 'tools.exclude') ?? [],
       keepTargets: toolsRaw.keepTargets === true,
+      infoTool: toolsRaw.infoTool === true,
       overrides,
     },
     log: {

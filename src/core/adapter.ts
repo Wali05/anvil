@@ -13,6 +13,7 @@ import type {
 } from './types.js';
 import { hashJson, isPlainObject, isUnsafeKey, readPath, splitPath, stableStringify, writePath } from './util.js';
 import { resolveSchemaPath, validateAdapterInputSchema, validateAgainstSchema, propertyKind } from './schema.js';
+import { validateOutputShape } from './output.js';
 
 const ADAPTER_NAME = /^[a-z][a-z0-9_]{1,63}$/;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -117,6 +118,9 @@ export function parseAdapterSpec(raw: unknown): AdapterParseResult {
       issues.push({ path: `$.tools[${index}].arguments`, message: `supports at most ${MAX_MAPPINGS} mappings`, severity: 'error' });
     }
     if (tool.lookup !== undefined) issues.push(...parseLookupShape(tool.lookup, `$.tools[${index}].lookup`));
+    for (const message of validateOutputShape(tool.output, `$.tools[${index}].output`)) {
+      issues.push({ path: `$.tools[${index}].output`, message, severity: 'error' });
+    }
   });
   return { ok: issues.every((issue) => issue.severity !== 'error'), issues, spec };
 }

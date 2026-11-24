@@ -1,4 +1,4 @@
-import type { AdapterIssue, AdapterSpec, AdaptedToolSpec, JsonSchema } from '../core/types.js';
+import type { AdapterIssue, AdapterSpec, AdaptedToolSpec, JsonSchema, OutputShape } from '../core/types.js';
 import { validateAdapter } from '../core/adapter.js';
 import { AnvilError } from '../core/errors.js';
 import { normalizeUpstreamSchema } from './schema.js';
@@ -22,6 +22,7 @@ export type CatalogEntry =
       outputSchema?: Record<string, unknown>;
       annotations: UpstreamTool['annotations'];
       upstreamName: string;
+      output?: OutputShape;
     };
 
 export interface ProxyCatalog {
@@ -119,9 +120,11 @@ export function buildProxyCatalog(upstreamTools: UpstreamTool[], config: Pick<Re
       name,
       description: override?.description ?? tool.description ?? '',
       inputSchema: tool.inputSchema,
-      ...(tool.outputSchema ? { outputSchema: tool.outputSchema } : {}),
+      // A shaped result no longer matches the upstream's declared output schema, so the schema is dropped then.
+      ...(tool.outputSchema && !override?.output ? { outputSchema: tool.outputSchema } : {}),
       annotations: tool.annotations,
       upstreamName: tool.name,
+      ...(override?.output ? { output: override.output } : {}),
     });
   }
 
